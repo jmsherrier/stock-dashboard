@@ -1,4 +1,4 @@
-const ALPHA_VANTAGE_KEY = 'YOUR_API_KEY_HERE';
+const ALPHA_VANTAGE_KEY = 'your_alpha_vantage_api_key_here';
 const BASE_URL = 'https://www.alphavantage.co/query';
 
 // local counters key
