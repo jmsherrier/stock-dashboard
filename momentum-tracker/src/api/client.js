@@ -81,6 +81,13 @@ class ApiClient {
     return this.request(`/stocks/quote/${ticker}`);
   }
 
+  // Clear all user data
+  async clearUserData() {
+    return this.request('/users/clear-data', {
+      method: 'DELETE'
+    });
+  }
+
   // Health check
   async healthCheck() {
     return this.request('/health');

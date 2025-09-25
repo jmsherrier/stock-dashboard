@@ -6,6 +6,8 @@ import { SortableContext, verticalListSortingStrategy, arrayMove } from '@dnd-ki
 import { AuthProvider, useAuth } from './contexts/AuthContext';
 import ApiKeyPrompt from './components/ApiKeyPrompt';
 import PresetMenu from './components/PresetMenu';
+import SettingsModal from './components/SettingsModal';
+import AboutModal from './components/AboutModal';
 import SortableStockPaper from './components/SortableStockPaper';
 
 import { useStocks } from './hooks/useStocks';
@@ -55,6 +57,8 @@ function MainApp() {
   
   const [showPresetMenu, setShowPresetMenu] = useState(false);
   const [showSettingsMenu, setShowSettingsMenu] = useState(false);
+  const [showSettingsModal, setShowSettingsModal] = useState(false);
+  const [showAboutModal, setShowAboutModal] = useState(false);
 
   // Close settings menu when clicking outside
   useEffect(() => {
@@ -126,9 +130,47 @@ function MainApp() {
     }
   };
 
-
-
-
+  const clearAllData = async () => {
+    const confirmed = window.confirm(
+      'Are you sure you want to clear all data? This action cannot be undone.\n\n' +
+      'This will remove:\n' +
+      '• All saved stocks and their data\n' +
+      '• All custom settings and preferences\n' +
+      '• All user authentication data'
+    );
+    
+    if (confirmed) {
+      try {
+        // Clear local state
+        setStocks([]);
+        setSelectedStock(null);
+        
+        // Clear localStorage
+        localStorage.clear();
+        
+        // Clear backend data if authenticated
+        if (user) {
+          try {
+            await apiClient.clearUserData();
+          } catch (error) {
+            console.warn('Failed to clear backend data:', error);
+          }
+        }
+        
+        // Close settings menu
+        setShowSettingsMenu(false);
+        
+        // Show success message
+        alert('All data has been cleared successfully.');
+        
+        // Reload the page to reset the application state
+        window.location.reload();
+      } catch (error) {
+        console.error('Error clearing data:', error);
+        alert('There was an error clearing some data. Please try again.');
+      }
+    }
+  };
 
   const reorderByScore = () => {
     setStocks(prev => [...prev].sort((a, b) => calculateScore(b) - calculateScore(a)));
@@ -215,20 +257,18 @@ function MainApp() {
               {showSettingsMenu && (
                 <div className="settings-menu">
                   <button onClick={() => {
-                    // Settings clicked - placeholder for future functionality
+                    setShowSettingsModal(true);
                     setShowSettingsMenu(false);
                   }}>
                     Settings
                   </button>
                   <button onClick={() => {
-                    localStorage.clear();
-                    window.location.reload();
-                    setShowSettingsMenu(false);
+                    clearAllData();
                   }}>
                     Clear Data
                   </button>
                   <button onClick={() => {
-                    window.open('https://github.com/jmsherrier/whiteboard', '_blank');
+                    setShowAboutModal(true);
                     setShowSettingsMenu(false);
                   }}>
                     About
@@ -317,6 +357,16 @@ function MainApp() {
           setShowPresetMenu(false);
         }}
         onUpdateStocks={updateAllStocks}
+      />
+
+      <SettingsModal
+        isOpen={showSettingsModal}
+        onClose={() => setShowSettingsModal(false)}
+      />
+
+      <AboutModal
+        isOpen={showAboutModal}
+        onClose={() => setShowAboutModal(false)}
       />
     </div>
   );

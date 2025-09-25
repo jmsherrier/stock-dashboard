@@ -37,4 +37,24 @@ router.get('/settings', authenticateAPIKey, async (req, res) => {
   }
 });
 
+// Clear all user data
+router.delete('/clear-data', authenticateAPIKey, async (req, res) => {
+  try {
+    // Delete user stocks
+    await db.run('DELETE FROM user_stocks WHERE user_id = ?', [req.user.id]);
+    
+    // Delete user settings
+    await db.run('DELETE FROM user_settings WHERE user_id = ?', [req.user.id]);
+    
+    // Delete user strategies (if that table exists in the future)
+    await db.run('DELETE FROM user_strategies WHERE user_id = ?', [req.user.id]);
+    
+    console.log(`Cleared all data for user ${req.user.id}`);
+    res.json({ message: 'All user data cleared successfully' });
+  } catch (error) {
+    console.error('Error clearing user data:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
 module.exports = router;
