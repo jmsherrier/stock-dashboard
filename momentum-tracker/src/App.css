@@ -57,7 +57,7 @@ body {
 }
 
 .api-status {
-  font-size: 0.9rem;
+  font-size: 0.85rem;
   font-weight: 500;
 }
 
@@ -80,7 +80,7 @@ body {
   padding: 0.5rem 1rem;
   border-radius: 6px;
   cursor: pointer;
-  font-size: 0.9rem;
+  font-size: 0.85rem;
   transition: all 0.2s;
   white-space: nowrap;
 }
@@ -217,11 +217,12 @@ body {
 .stock-header {
   display: flex;
   align-items: center;
-  justify-content: space-evenly;
+  justify-content: stretch;
   padding: 8px 0;
   margin-bottom: 4px;
   gap: 12px;
   position: relative;
+  width: 100%;
 }
 
 .stock-header:focus,
@@ -236,7 +237,7 @@ body {
   padding: 12px 16px;
   border-radius: 6px;
   font-size: 0.85rem;
-  font-weight: 500;
+  font-weight: 400;
   min-width: 80px;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
   display: flex;
@@ -244,7 +245,7 @@ body {
   justify-content: center;
   height: auto;
   min-height: 44px;
-  flex-shrink: 0;
+  flex: 1;
   position: relative;
 }
 
@@ -438,7 +439,7 @@ body {
 .news-section h4 {
   margin: 0;
   color: white;
-  font-size: 1rem;
+  font-size: 0.85rem;
   font-weight: 500;
 }
 
@@ -821,7 +822,7 @@ body {
 .bonus-criteria h4 {
   margin: 0;
   color: white;
-  font-size: 1rem;
+  font-size: 0.85rem;
   font-weight: 500;
 }
 
@@ -881,7 +882,7 @@ body {
 .notes-section h4 {
   margin: 0 0 8px 0;
   color: white;
-  font-size: 1rem;
+  font-size: 0.85rem;
   font-weight: 500;
 }
 
@@ -905,12 +906,26 @@ body {
 }
 
 /* Ticker Styles */
+/* Ticker Box Styles */
+.ticker-box {
+  width: 200px;
+  min-width: 200px;
+  max-width: 200px;
+  flex: 0 0 200px;
+}
+
 .ticker-display {
   cursor: pointer;
   text-transform: uppercase;
   color: inherit;
   font-size: inherit;
   font-weight: inherit;
+  width: 170px;
+  max-width: 170px;
+  text-align: center;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .ticker-input {
@@ -921,9 +936,10 @@ body {
   font-weight: inherit;
   text-align: center;
   text-transform: uppercase;
-  width: 100%;
-  min-width: 60px;
+  width: 170px;
+  max-width: 170px;
   outline: none;
+  box-sizing: border-box;
 }
 
 /* Modal Improvements */
@@ -1010,7 +1026,7 @@ body {
 .add-stock-content p {
   margin: 0;
   color: #666;
-  font-size: 0.9rem;
+  font-size: 0.85rem;
   line-height: 1.5;
 }
 
@@ -1028,7 +1044,7 @@ body {
   padding: 10px 20px;
   border-radius: 6px;
   cursor: pointer;
-  font-size: 0.9rem;
+  font-size: 0.85rem;
   transition: all 0.2s;
 }
 
@@ -1044,7 +1060,7 @@ body {
   padding: 10px 20px;
   border-radius: 6px;
   cursor: pointer;
-  font-size: 0.9rem;
+  font-size: 0.85rem;
   font-weight: 500;
   transition: background-color 0.2s;
 }
@@ -1266,7 +1282,7 @@ body {
 .prompt-header p {
   margin: 0;
   color: #888;
-  font-size: 0.9rem;
+  font-size: 0.85rem;
 }
 
 .prompt-tabs {
@@ -1307,7 +1323,7 @@ body {
 .form-group label {
   color: #e5e5e5;
   font-weight: 500;
-  font-size: 0.9rem;
+  font-size: 0.85rem;
 }
 
 .form-group input {
@@ -1316,7 +1332,7 @@ body {
   border-radius: 6px;
   background: rgba(0, 0, 0, 0.3);
   color: #e5e5e5;
-  font-size: 0.9rem;
+  font-size: 0.85rem;
 }
 
 .form-group input:focus {
@@ -1576,7 +1592,7 @@ body {
   border: none;
   color: #ef4444;
   cursor: pointer;
-  font-size: 1rem;
+  font-size: 0.85rem;
   padding: 0.25rem;
   border-radius: 4px;
 }
@@ -1756,7 +1772,7 @@ body {
 .component-name {
   color: #e5e5e5;
   font-weight: 500;
-  font-size: 0.9rem;
+  font-size: 0.85rem;
 }
 
 .component-badges {
@@ -1980,7 +1996,7 @@ input:disabled + .toggle-slider {
   border: none;
   border-radius: 8px;
   color: white;
-  font-size: 1rem;
+  font-size: 0.85rem;
   font-weight: 600;
   cursor: pointer;
   transition: all 0.2s;
@@ -2300,4 +2316,151 @@ input:disabled + .toggle-slider {
   color: #10b981;
   font-size: 0.7rem;
   font-weight: 500;
+}
+
+/* Settings Modal Styles */
+.settings-section {
+  margin-bottom: 2rem;
+}
+
+.settings-section h4 {
+  margin: 0 0 1rem 0;
+  color: #e5e5e5;
+  font-size: 0.85rem;
+  font-weight: 500;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  padding-bottom: 0.5rem;
+}
+
+.settings-group {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.setting-item {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.setting-label {
+  color: #e5e5e5;
+  font-size: 0.85rem;
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.setting-select,
+.setting-input {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 6px;
+  color: #e5e5e5;
+  padding: 0.75rem;
+  font-size: 0.85rem;
+}
+
+.setting-select:focus,
+.setting-input:focus {
+  outline: none;
+  border-color: #8b5cf6;
+}
+
+.setting-checkbox {
+  width: 1rem;
+  height: 1rem;
+  accent-color: #8b5cf6;
+}
+
+.setting-help {
+  color: #888;
+  font-size: 0.75rem;
+  margin-top: 0.25rem;
+}
+
+/* About Modal Styles */
+.about-section {
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+}
+
+.app-info {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 1rem;
+  background: rgba(139, 92, 246, 0.1);
+  border: 1px solid rgba(139, 92, 246, 0.3);
+  border-radius: 8px;
+}
+
+.app-details h4 {
+  margin: 0 0 0.5rem 0;
+  color: #e5e5e5;
+  font-size: 1.1rem;
+}
+
+.app-details p {
+  margin: 0.25rem 0;
+  color: #888;
+  font-size: 0.85rem;
+}
+
+.description h4 {
+  margin: 0 0 0.75rem 0;
+  color: #e5e5e5;
+  font-size: 0.85rem;
+  font-weight: 500;
+}
+
+.description p {
+  margin: 0 0 1rem 0;
+  color: #ccc;
+  font-size: 0.85rem;
+  line-height: 1.5;
+}
+
+.description ul {
+  margin: 0 0 1rem 1rem;
+  color: #ccc;
+  font-size: 0.85rem;
+  line-height: 1.6;
+}
+
+.description li {
+  margin-bottom: 0.25rem;
+}
+
+.links-section h4 {
+  margin: 0 0 1rem 0;
+  color: #e5e5e5;
+  font-size: 0.85rem;
+  font-weight: 500;
+}
+
+.link-buttons {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.link-btn {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  color: #e5e5e5;
+  padding: 0.75rem 1rem;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 0.85rem;
+  text-align: left;
+  transition: all 0.2s;
+}
+
+.link-btn:hover {
+  background: rgba(139, 92, 246, 0.1);
+  border-color: rgba(139, 92, 246, 0.5);
 }
