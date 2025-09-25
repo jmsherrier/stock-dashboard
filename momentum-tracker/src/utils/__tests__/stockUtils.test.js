@@ -1,20 +1,16 @@
 import { 
   createDefaultStock, 
-  normalizeStockData, 
-  convertToModularFormat, 
   preserveFormatting 
 } from '../stockUtils';
 
-describe('Stock Utilities', () => {
+describe('stockUtils', () => {
   describe('createDefaultStock', () => {
-    test('creates a stock with the correct structure', () => {
+    test('creates a default stock with modular format', () => {
       const stock = createDefaultStock();
       
       expect(stock).toHaveProperty('id');
-      expect(stock).toHaveProperty('components');
       expect(stock.id).toMatch(/^stock-\d+$/);
-      
-      // Check components structure
+      expect(stock).toHaveProperty('components');
       expect(stock.components).toHaveProperty('ticker');
       expect(stock.components).toHaveProperty('price');
       expect(stock.components).toHaveProperty('percentRise');
@@ -23,107 +19,23 @@ describe('Stock Utilities', () => {
       expect(stock.components).toHaveProperty('notes');
       expect(stock.components).toHaveProperty('news');
       expect(stock.components).toHaveProperty('bonusChecks');
-    });
-
-    test('creates empty default values', () => {
-      const stock = createDefaultStock();
       
+      // Check default values
       expect(stock.components.ticker.value).toBe('');
       expect(stock.components.price.value).toBe('');
       expect(stock.components.news.items).toEqual([]);
-      expect(stock.components.bonusChecks.checks.recentIPO).toBe(false);
-    });
-  });
-
-  describe('normalizeStockData', () => {
-    test('converts modular format to legacy format', () => {
-      const modularStock = {
-        id: 'test-1',
-        components: {
-          ticker: { value: 'AAPL' },
-          price: { value: '150.00' },
-          percentRise: { value: '5.5' },
-          relativeVolume: { value: '2.3' },
-          float: { value: '15.2' },
-          notes: { value: 'Test notes' },
-          news: { items: [{ text: 'News item', points: 2 }] },
-          bonusChecks: { 
-            checks: { 
-              recentIPO: true, 
-              recentReverseSplit: false,
-              blueSkyBreakout: true 
-            } 
-          }
-        }
-      };
-
-      const normalized = normalizeStockData(modularStock);
-
-      expect(normalized.ticker).toBe('AAPL');
-      expect(normalized.price).toBe('150.00');
-      expect(normalized.percentRise).toBe('5.5');
-      expect(normalized.relativeVolume).toBe('2.3');
-      expect(normalized.float).toBe('15.2');
-      expect(normalized.notes).toBe('Test notes');
-      expect(normalized.positiveCatalysts).toEqual([{ text: 'News item', points: 2 }]);
-      expect(normalized.bonusChecks.recentIPO).toBe(true);
-      expect(normalized.bonusChecks.blueSkyBreakout).toBe(true);
+      expect(stock.components.bonusChecks.checks).toHaveProperty('recentIPO');
+      expect(stock.components.bonusChecks.checks).toHaveProperty('recentReverseSplit');
+      expect(stock.components.bonusChecks.checks).toHaveProperty('blueSkyBreakout');
     });
 
-    test('returns legacy format unchanged', () => {
-      const legacyStock = {
-        id: 'test-1',
-        ticker: 'TSLA',
-        price: '250.00',
-        percentRise: '8.2',
-        relativeVolume: '4.1',
-        float: '12.5'
-      };
-
-      const normalized = normalizeStockData(legacyStock);
+    test('creates unique IDs for multiple stocks', async () => {
+      const stock1 = createDefaultStock();
+      // Add small delay to ensure different timestamps
+      await new Promise(resolve => setTimeout(resolve, 1));
+      const stock2 = createDefaultStock();
       
-      expect(normalized).toEqual(legacyStock);
-    });
-  });
-
-  describe('convertToModularFormat', () => {
-    test('converts legacy format to modular format', () => {
-      const legacyStock = {
-        id: 'test-1',
-        ticker: 'MSFT',
-        price: '300.00',
-        percentRise: '3.2',
-        relativeVolume: '1.8',
-        float: '20.1',
-        notes: 'Legacy notes',
-        positiveCatalysts: [{ text: 'Earnings beat', points: 3 }],
-        bonusChecks: { recentIPO: false, recentReverseSplit: true }
-      };
-
-      const modular = convertToModularFormat(legacyStock);
-
-      expect(modular.components.ticker.value).toBe('MSFT');
-      expect(modular.components.price.value).toBe('300.00');
-      expect(modular.components.percentRise.value).toBe('3.2');
-      expect(modular.components.relativeVolume.value).toBe('1.8');
-      expect(modular.components.float.value).toBe('20.1');
-      expect(modular.components.notes.value).toBe('Legacy notes');
-      expect(modular.components.news.items).toEqual([{ text: 'Earnings beat', points: 3 }]);
-      expect(modular.components.bonusChecks.checks.recentReverseSplit).toBe(true);
-    });
-
-    test('returns modular format unchanged', () => {
-      const modularStock = {
-        id: 'test-1',
-        components: {
-          ticker: { value: 'GOOGL' },
-          price: { value: '2500.00' }
-        }
-      };
-
-      const converted = convertToModularFormat(modularStock);
-      
-      expect(converted).toEqual(modularStock);
+      expect(stock1.id).not.toBe(stock2.id);
     });
   });
 

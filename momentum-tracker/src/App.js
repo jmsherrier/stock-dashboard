@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import './App.css';
 import { DndContext, closestCenter } from '@dnd-kit/core';
-import { SortableContext, verticalListSortingStrategy } from '@dnd-kit/sortable';
+import { SortableContext, verticalListSortingStrategy, arrayMove } from '@dnd-kit/sortable';
 
 import { AuthProvider, useAuth } from './contexts/AuthContext';
 import ApiKeyPrompt from './components/ApiKeyPrompt';
@@ -19,19 +19,31 @@ import { storage } from './services';
 
 function MainApp() {
   const { user } = useAuth();
-  const { 
-    stocks, 
-    setStocks, 
-    selectedStock, 
-    setSelectedStock, 
-    undoStack, 
-    updateStock, 
-    removeStock, 
+  const {
+    stocks,
+    setStocks,
+    selectedStock,
+    setSelectedStock,
+    undoStack,
+    updateStock,
+    removeStock,
     undo,
-    saveStocksToBackend 
+    saveStocksToBackend
   } = useStocks();
-  
-  const { 
+
+  // Handle drag end for reordering stocks
+  const handleDragEnd = (event) => {
+    const { active, over } = event;
+
+    if (active.id !== over?.id) {
+      setStocks((items) => {
+        const oldIndex = items.findIndex((item) => item.id === active.id);
+        const newIndex = items.findIndex((item) => item.id === over.id);
+
+        return arrayMove(items, oldIndex, newIndex);
+      });
+    }
+  };  const { 
     counters, 
     isUpdating, 
     setIsUpdating, 
@@ -122,23 +134,7 @@ function MainApp() {
     setStocks(prev => [...prev].sort((a, b) => calculateScore(b) - calculateScore(a)));
   };
 
-  const handleStrategyApply = async (strategy) => {
-    try {
-      // Apply strategy configuration to all stocks
-      const updatedStocks = stocks.map(stock => ({
-        ...stock,
-        paperConfig: strategy.paperConfig
-      }));
-      
-      setStocks(updatedStocks);
-      
-      if (user) {
-        await saveStocksToBackend(updatedStocks);
-      }
-    } catch (error) {
-      console.error('Failed to apply strategy:', error);
-    }
-  };
+
 
   useEffect(() => {
     const saveData = async () => {
@@ -284,7 +280,7 @@ function MainApp() {
         </div>
       </header>
 
-      <DndContext collisionDetection={closestCenter}>
+      <DndContext collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
         <div className="stocks-container">
           <SortableContext items={stocks.map(s => s.id)} strategy={verticalListSortingStrategy}>
             {stocks.map((stock, index) => (
@@ -297,7 +293,7 @@ function MainApp() {
                 onSelect={() => setSelectedStock(stock.id)}
                 onUpdate={updateStock}
                 onRemove={removeStock}
-                isUpdating={perStockUpdating[stock.id]}
+                perStockUpdating={perStockUpdating}
                 onUpdateSingle={updateSingle}
                 useModular={true}
               />
@@ -315,7 +311,11 @@ function MainApp() {
       <PresetMenu
         isOpen={showPresetMenu}
         onClose={() => setShowPresetMenu(false)}
-        onPresetApply={handleStrategyApply}
+        onPresetApply={(preset) => {
+          console.log('Preset applied:', preset);
+          // Presets are now handled at the component level within each stock
+          setShowPresetMenu(false);
+        }}
         onUpdateStocks={updateAllStocks}
       />
     </div>

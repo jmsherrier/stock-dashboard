@@ -48,7 +48,7 @@ function TickerComponent({
 
   if (isHeaderMode) {
     // Header mode - just return the ticker input/display without wrapper
-    return isEditing || !stock.ticker ? (
+    return isEditing ? (
       <input
         value={tickerValue}
         onChange={(e) => setTickerValue(e.target.value)}
@@ -81,7 +81,7 @@ function TickerComponent({
         <label>Ticker</label>
       </div>
       <div className="component-content">
-        {isEditing || !stock.ticker ? (
+        {isEditing ? (
           <input
             value={tickerValue}
             onChange={(e) => setTickerValue(e.target.value)}

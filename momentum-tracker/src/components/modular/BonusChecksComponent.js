@@ -28,10 +28,14 @@ function BonusChecksComponent({ stock, onUpdate, config }) {
             <input
               type="checkbox"
               checked={bonusChecks.recentIPO || false}
-              onChange={(e) => onUpdate(stock.id, 'bonusChecks', { 
-                ...bonusChecks, 
-                recentIPO: e.target.checked 
-              })}
+              onChange={(e) => {
+                const updatedChecks = { ...bonusChecks, recentIPO: e.target.checked };
+                if (stock.components) {
+                  onUpdate(stock.id, 'bonusChecks', { checks: updatedChecks });
+                } else {
+                  onUpdate(stock.id, 'bonusChecks', updatedChecks);
+                }
+              }}
             />
             Recent IPO
           </label>
@@ -39,10 +43,14 @@ function BonusChecksComponent({ stock, onUpdate, config }) {
             <input
               type="checkbox"
               checked={bonusChecks.recentReverseSplit || false}
-              onChange={(e) => onUpdate(stock.id, 'bonusChecks', { 
-                ...bonusChecks, 
-                recentReverseSplit: e.target.checked 
-              })}
+              onChange={(e) => {
+                const updatedChecks = { ...bonusChecks, recentReverseSplit: e.target.checked };
+                if (stock.components) {
+                  onUpdate(stock.id, 'bonusChecks', { checks: updatedChecks });
+                } else {
+                  onUpdate(stock.id, 'bonusChecks', updatedChecks);
+                }
+              }}
             />
             Recent Reverse Split
           </label>
@@ -50,10 +58,14 @@ function BonusChecksComponent({ stock, onUpdate, config }) {
             <input
               type="checkbox"
               checked={bonusChecks.blueSkyBreakout || false}
-              onChange={(e) => onUpdate(stock.id, 'bonusChecks', { 
-                ...bonusChecks, 
-                blueSkyBreakout: e.target.checked 
-              })}
+              onChange={(e) => {
+                const updatedChecks = { ...bonusChecks, blueSkyBreakout: e.target.checked };
+                if (stock.components) {
+                  onUpdate(stock.id, 'bonusChecks', { checks: updatedChecks });
+                } else {
+                  onUpdate(stock.id, 'bonusChecks', updatedChecks);
+                }
+              }}
             />
             Blue Sky Breakout
           </label>

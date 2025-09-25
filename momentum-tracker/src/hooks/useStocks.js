@@ -48,11 +48,21 @@ export const useStocks = () => {
     
     setStocks(prev => prev.map(s => {
       if (s.id === id) {
-        const updatedComponents = { ...s.components };
-        if (updatedComponents[componentKey]) {
-          updatedComponents[componentKey] = { ...updatedComponents[componentKey], ...value };
+        let updatedStock;
+        
+        if (s.components) {
+          // Modular format - update components structure
+          const updatedComponents = { ...s.components };
+          if (updatedComponents[componentKey]) {
+            updatedComponents[componentKey] = { ...updatedComponents[componentKey], ...value };
+          } else {
+            updatedComponents[componentKey] = value;
+          }
+          updatedStock = { ...s, components: updatedComponents };
+        } else {
+          // Legacy format - update directly
+          updatedStock = { ...s, [componentKey]: value };
         }
-        const updatedStock = { ...s, components: updatedComponents };
         
         // Save to backend if authenticated
         if (user) {
@@ -89,6 +99,11 @@ export const useStocks = () => {
     }
   };
 
+  const updateStockOrder = (newOrder) => {
+    setUndoStack(prev => [...prev, stocks]);
+    setStocks(newOrder);
+  };
+
   return {
     stocks,
     setStocks,
@@ -97,6 +112,7 @@ export const useStocks = () => {
     undoStack,
     updateStock,
     removeStock,
+    updateStockOrder,
     undo,
     saveStocksToBackend
   };

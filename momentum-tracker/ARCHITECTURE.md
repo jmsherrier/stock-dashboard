@@ -191,7 +191,7 @@ criteria: {
 ```
 
 **Data Normalization:**
-The `normalizeStockData()` function in `ModularStockPaper.js` automatically converts between formats, ensuring compatibility with both old and new data structures.
+The modular component system in `ModularStockPaper.js` handles all data in the standardized modular format with components structure.
 ```
 
 ### Authentication Flow

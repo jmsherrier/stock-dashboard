@@ -65,18 +65,7 @@ class Database {
         FOREIGN KEY (user_id) REFERENCES users (id) ON DELETE CASCADE
       )`,
 
-      // Strategy presets
-      `CREATE TABLE IF NOT EXISTS strategies (
-        id TEXT PRIMARY KEY,
-        user_id TEXT NOT NULL,
-        name TEXT NOT NULL,
-        description TEXT,
-        config TEXT NOT NULL,
-        is_default BOOLEAN DEFAULT 0,
-        created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-        updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-        FOREIGN KEY (user_id) REFERENCES users (id) ON DELETE CASCADE
-      )`,
+
 
       // Paper configurations (modular components)
       `CREATE TABLE IF NOT EXISTS paper_configs (

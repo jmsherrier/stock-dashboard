@@ -1,6 +1,5 @@
 import React, { useState, memo } from 'react';
 import CriteriaInput from './CriteriaInput';
-import NewsSection from './NewsSection';
 import { getScorePoints, getWarning, SCORING_RANGES } from '../constants/scoring';
 
 function StockPaper({ stock, score, rank, onUpdate, onRemove, onUpdateSingle, perStockUpdating, dragListeners }) {
@@ -162,14 +161,29 @@ function StockPaper({ stock, score, rank, onUpdate, onRemove, onUpdateSingle, pe
         />
       </div>
 
-      <NewsSection
-        title="News & Catalysts"
-        items={[...(stock.positiveCatalysts || []), ...(stock.marketDrivers || [])]}
-        onUpdate={(items) => {
-          onUpdate(stock.id, 'positiveCatalysts', items);
-          onUpdate(stock.id, 'marketDrivers', []);
-        }}
-      />
+      <div className="news-section">
+        <h4>News & Catalysts</h4>
+        <div className="news-items">
+          {(stock.positiveCatalysts || []).map((item, index) => (
+            <div key={index} className="news-item">
+              <span className="news-text">{item.text}</span>
+              <span className="news-points">+{item.points}</span>
+            </div>
+          ))}
+        </div>
+        <button 
+          className="add-news-btn"
+          onClick={() => {
+            const text = prompt('Enter news item:');
+            if (text) {
+              const newItem = { text, points: 1 };
+              onUpdate(stock.id, 'positiveCatalysts', [...(stock.positiveCatalysts || []), newItem]);
+            }
+          }}
+        >
+          Add News
+        </button>
+      </div>
 
       <div className="bonus-criteria">
         <div className="bonus-header">
@@ -243,7 +257,7 @@ export default memo(StockPaper, (prevProps, nextProps) => {
     prevProps.stock.id === nextProps.stock.id &&
     prevProps.score === nextProps.score &&
     prevProps.rank === nextProps.rank &&
-    prevProps.perStockUpdating[prevProps.stock.id] === nextProps.perStockUpdating[nextProps.stock.id] &&
+    (prevProps.perStockUpdating || {})[prevProps.stock.id] === (nextProps.perStockUpdating || {})[nextProps.stock.id] &&
     JSON.stringify(prevProps.stock) === JSON.stringify(nextProps.stock)
   );
 });
