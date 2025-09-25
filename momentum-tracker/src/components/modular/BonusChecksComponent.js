@@ -1,7 +1,8 @@
 import React from 'react';
 
 function BonusChecksComponent({ stock, onUpdate, config }) {
-  const bonusChecks = stock.bonusChecks || {};
+  // Handle both data formats properly
+  const bonusChecks = stock.components ? (stock.components.bonusChecks?.checks || {}) : (stock.bonusChecks || {});
   
   const totalBonus = (bonusChecks.recentIPO ? 1 : 0) + 
                     (bonusChecks.recentReverseSplit ? 1 : 0) + 

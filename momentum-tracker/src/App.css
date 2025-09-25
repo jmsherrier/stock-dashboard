@@ -425,6 +425,175 @@ body {
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
+.news-criteria {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  border-radius: 6px;
+  padding: 12px;
+  margin-bottom: 12px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.news-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+}
+
+.news-criteria h4 {
+  margin: 0;
+  color: white;
+  font-size: 1rem;
+  font-weight: 500;
+}
+
+.news-score {
+  font-size: 0.85rem;
+  font-weight: bold;
+  color: white;
+}
+
+.news-points-positive {
+  color: #22c55e;
+  background: transparent;
+  text-shadow: none;
+  user-select: none;
+}
+
+.hazard-symbol {
+  color: #fbbf24;
+  font-size: 0.9rem;
+}
+
+.news-criteria-items {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.add-news-plus-btn {
+  background: rgba(128, 128, 128, 0.2);
+  border: 1px solid #888;
+  color: #ccc;
+  border-radius: 4px;
+  width: 100%;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  font-size: 18px;
+  font-weight: bold;
+  transition: all 0.2s ease;
+  margin-top: 8px;
+}
+
+.add-news-plus-btn:hover {
+  background: rgba(128, 128, 128, 0.3);
+  border-color: #aaa;
+  color: #fff;
+}
+
+.add-news-interface {
+  background: rgba(128, 128, 128, 0.1);
+  border: 1px solid rgba(128, 128, 128, 0.3);
+  border-radius: 4px;
+  padding: 8px;
+  margin-bottom: 8px;
+}
+
+.add-news-interface input[type="text"] {
+  width: 100%;
+  background: rgba(128, 128, 128, 0.1);
+  border: 1px solid rgba(128, 128, 128, 0.3);
+  border-radius: 4px;
+  padding: 6px 8px;
+  color: #ccc;
+  font-size: 0.85rem;
+  margin-bottom: 6px;
+}
+
+.add-news-controls {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.8rem;
+  color: #ccc;
+}
+
+.add-news-controls input[type="number"] {
+  width: 50px;
+  background: rgba(128, 128, 128, 0.1);
+  border: 1px solid rgba(128, 128, 128, 0.3);
+  border-radius: 4px;
+  padding: 4px 6px;
+  color: #ccc;
+  font-size: 0.8rem;
+}
+
+.add-news-controls button {
+  background: rgba(128, 128, 128, 0.2);
+  border: 1px solid #888;
+  color: #ccc;
+  border-radius: 4px;
+  padding: 4px 8px;
+  font-size: 0.8rem;
+  cursor: pointer;
+  transition: background 0.2s ease;
+}
+
+.add-news-controls button:hover {
+  background: rgba(128, 128, 128, 0.3);
+  border-color: #aaa;
+  color: #fff;
+}
+
+.add-news-controls button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.news-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 12px;
+  background: rgba(128, 128, 128, 0.1);
+  border: 1px solid rgba(128, 128, 128, 0.2);
+  border-radius: 4px;
+  font-size: 0.85rem;
+  margin-bottom: 4px;
+}
+
+.news-text {
+  color: #ccc;
+  flex: 1;
+  margin-right: 8px;
+}
+
+.news-points {
+  color: #22c55e;
+  font-weight: bold;
+  margin-right: 6px;
+}
+
+.remove-news-btn {
+  background: none;
+  border: none;
+  color: #888;
+  cursor: pointer;
+  font-size: 14px;
+  padding: 2px 4px;
+  border-radius: 2px;
+  transition: all 0.2s ease;
+}
+
+.remove-news-btn:hover {
+  background: rgba(239, 68, 68, 0.2);
+  color: #ef4444;
+}
+
 .news-section-empty {
   padding: 8px 12px 10px 12px;
 }
@@ -822,7 +991,7 @@ body {
 .bonus-criteria h4 {
   margin: 0;
   color: white;
-  font-size: 0.85rem;
+  font-size: 1rem;
   font-weight: 500;
 }
 

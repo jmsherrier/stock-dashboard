@@ -19,7 +19,7 @@ import apiClient from './api/client';
 import { storage } from './services';
 
 
-function MainApp() {
+function MainApp({ devMode = false }) {
   const { user } = useAuth();
   const {
     stocks,
@@ -95,8 +95,8 @@ function MainApp() {
       const updated = await StockService.updateMultipleStocks(stocks);
       setStocks(updated);
       
-      // Save to backend if authenticated
-      if (user) {
+      // Save to backend if authenticated (skip in dev mode)
+      if (user && !devMode) {
         await saveStocksToBackend(updated);
       }
     } finally {
@@ -118,8 +118,8 @@ function MainApp() {
       
       setStocks(prev => prev.map(s => s.id === id ? updatedStock : s));
       
-      // Save to backend if authenticated
-      if (user) {
+      // Save to backend if authenticated (skip in dev mode)
+      if (user && !devMode) {
         await apiClient.saveUserStock(updatedStock);
       }
     } catch (err) {
@@ -283,7 +283,7 @@ function MainApp() {
         
         <div className="header-center">
           <div className="api-status">
-            Requests: {counters.daily}/500 daily | {counters.minute}/5 per minute
+            {user ? `Requests: ${counters.daily}/500 daily | ${counters.minute}/5 per minute` : 'Development Mode'}
           </div>
         </div>
         
@@ -301,7 +301,7 @@ function MainApp() {
             </button>
             <button 
               onClick={updateAllStocks} 
-              disabled={isUpdating || counters.daily >= 500 || counters.minute >= 5}
+              disabled={isUpdating || (user && (counters.daily >= 500 || counters.minute >= 5))}
               className="update-all-btn"
               title="Update all stocks with latest data (U)"
             >
@@ -408,7 +408,7 @@ function AppContent() {
     return <ApiKeyPrompt />;
   }
   
-  return <MainApp />;
+  return <MainApp devMode={devMode} />;
 }
 
 export default App;
