@@ -1,0 +1,100 @@
+const express = require('express');
+const cors = require('cors');
+const helmet = require('helmet');
+const path = require('path');
+require('dotenv').config();
+
+const authRoutes = require('./routes/auth');
+const userRoutes = require('./routes/users');
+const stockRoutes = require('./routes/stocks');
+const strategyRoutes = require('./routes/strategies');
+const Database = require('./db/database');
+
+const app = express();
+const PORT = process.env.PORT || 3001;
+
+// Initialize database
+const db = new Database();
+
+// Make db available globally for routes
+global.db = db;
+
+// Initialize database asynchronously
+(async () => {
+  try {
+    await db.init();
+    console.log('Database initialization completed');
+  } catch (error) {
+    console.error('Database initialization failed:', error);
+    process.exit(1);
+  }
+})();
+
+// Security middleware
+app.use(helmet({
+  contentSecurityPolicy: false, // Disable for development
+}));
+
+// CORS configuration
+app.use(cors({
+  origin: process.env.NODE_ENV === 'production' 
+    ? ['https://yourdomain.com'] 
+    : ['http://localhost:3000'],
+  credentials: true
+}));
+
+// Body parsing middleware
+app.use(express.json({ limit: '10mb' }));
+app.use(express.urlencoded({ extended: true }));
+
+// Request logging
+app.use((req, res, next) => {
+  console.log(`${new Date().toISOString()} - ${req.method} ${req.path}`);
+  next();
+});
+
+// Routes
+app.use('/api/auth', authRoutes);
+app.use('/api/users', userRoutes);
+app.use('/api/stocks', stockRoutes);
+app.use('/api/strategies', strategyRoutes);
+
+// Health check
+app.get('/api/health', (req, res) => {
+  res.json({ 
+    status: 'ok', 
+    timestamp: new Date().toISOString(),
+    version: '1.0.0'
+  });
+});
+
+// Serve static files in production
+if (process.env.NODE_ENV === 'production') {
+  app.use(express.static(path.join(__dirname, '../build')));
+  
+  app.get('*', (req, res) => {
+    res.sendFile(path.join(__dirname, '../build/index.html'));
+  });
+}
+
+// Error handling middleware
+app.use((err, req, res, next) => {
+  console.error('Error:', err);
+  res.status(err.status || 500).json({
+    error: process.env.NODE_ENV === 'production' 
+      ? 'Internal server error' 
+      : err.message
+  });
+});
+
+// 404 handler
+app.use('*', (req, res) => {
+  res.status(404).json({ error: 'Route not found' });
+});
+
+app.listen(PORT, () => {
+  console.log(`Server running on port ${PORT}`);
+  console.log(`Environment: ${process.env.NODE_ENV || 'development'}`);
+});
+
+module.exports = app;
