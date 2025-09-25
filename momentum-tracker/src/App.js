@@ -14,10 +14,15 @@ function App() {
   const [isManualOrder, setIsManualOrder] = useState(false);
   const [showAddModal, setShowAddModal] = useState(false);
   const [isUpdating, setIsUpdating] = useState(false);
+  const [counters, setCounters] = useState(apiService.getCounters());
 
   useEffect(() => {
     const loaded = storage.load();
     if (loaded) setStocks(loaded.stocks || []);
+    const refreshCounters = () => setCounters(apiService.getCounters());
+    refreshCounters();
+    const ci = setInterval(refreshCounters, 5000);
+    return () => clearInterval(ci);
   }, []);
 
   const addStock = (ticker) => {
@@ -36,6 +41,26 @@ function App() {
     setUndoStack(prev => [...prev, stocks]);
     setStocks(prev => prev.filter(s => s.id !== id));
     if (selectedStock === id) setSelectedStock(null);
+  };
+
+  const updateAllStocks = async () => {
+    if (isUpdating) return;
+    setIsUpdating(true);
+    try {
+      const updated = await Promise.all(stocks.map(async (s) => {
+        try {
+          const data = await apiService.getQuote(s.ticker);
+          return { ...s, percentChange: data.percentChange.toString(), relativeVolume: data.relativeVolume.toString() };
+        } catch (err) {
+          return s;
+        }
+      }));
+      setUndoStack(prev => [...prev, stocks]);
+      setStocks(updated);
+    } finally {
+      setIsUpdating(false);
+      setCounters(apiService.getCounters());
+    }
   };
 
   const undo = () => {
@@ -60,16 +85,27 @@ function App() {
     storage.save(toSave);
   }, [stocks]);
 
+  // keyboard shortcuts
+  useEffect(() => {
+    const handler = (e) => {
+      if (e.key === 'a' || e.key === 'A') setShowAddModal(true);
+      if (e.key === 'u' || e.key === 'U') updateAllStocks();
+      if (e.key === 'Delete' && selectedStock) removeStock(selectedStock);
+    };
+    window.addEventListener('keydown', handler);
+    return () => window.removeEventListener('keydown', handler);
+  }, [selectedStock, stocks, counters]);
+
   return (
     <div className="app">
       <header className="app-header">
         <h1>Momentum Tracker</h1>
         <div className="api-status">
-          Requests: {apiStatus.daily}/500 daily | {apiStatus.minute}/5 per minute
+          Requests: {counters.daily}/500 daily | {counters.minute}/5 per minute
         </div>
         <div className="header-buttons">
           <button onClick={() => setShowAddModal(true)}>Add Ticker (A)</button>
-          <button onClick={() => {}} disabled={isUpdating || apiStatus.daily >= 500}>
+          <button onClick={updateAllStocks} disabled={isUpdating || counters.daily >= 500 || counters.minute >= 5}>
             {isUpdating ? 'Updating...' : 'Update All (U)'}
           </button>
           <button onClick={undo} disabled={undoStack.length === 0}>Undo</button>
