@@ -11,29 +11,8 @@ function ModularStockPaper({
   perStockUpdating, 
   dragListeners
 }) {
-  // Normalize stock data to handle both old format (stock.ticker) and new format (stock.components.ticker.value)
-  const normalizeStockData = (stock) => {
-    if (stock.components) {
-      // New format - convert to old format for display
-      return {
-        ...stock,
-        ticker: stock.components.ticker?.value || '',
-        price: stock.components.price?.value || '',
-        percentRise: stock.components.percentRise?.value || '',
-        relativeVolume: stock.components.relativeVolume?.value || '',
-        float: stock.components.float?.value || '',
-        notes: stock.components.notes?.value || '',
-        positiveCatalysts: stock.components.news?.items || [],
-        marketDrivers: [],
-        bonusChecks: stock.components.bonusChecks?.checks || {}
-      };
-    }
-    return stock; // Already in old format
-  };
-
-  const normalizedStock = normalizeStockData(stock);
   const [isEditingTicker, setIsEditingTicker] = useState(false);
-  const [tickerValue, setTickerValue] = useState(normalizedStock.ticker || '');
+  const [tickerValue, setTickerValue] = useState(stock.components?.ticker?.value || '');
 
   // Wrapper to handle both old and new update formats
   const handleUpdate = (stockId, field, value) => {
@@ -48,14 +27,14 @@ function ModularStockPaper({
 
   const handleTickerSave = () => {
     const newTicker = tickerValue.trim().toUpperCase();
-    if (newTicker && newTicker !== normalizedStock.ticker) {
+    if (newTicker && newTicker !== stock.components?.ticker?.value) {
       handleUpdate(stock.id, 'ticker', newTicker);
     }
     setIsEditingTicker(false);
   };
 
   const handleTickerCancel = () => {
-    setTickerValue(normalizedStock.ticker || '');
+    setTickerValue(stock.components?.ticker?.value || '');
     setIsEditingTicker(false);
   };
 
@@ -113,7 +92,7 @@ function ModularStockPaper({
         <div className="header-box ticker-box" onPointerDown={(e) => e.stopPropagation()}>
           {TickerComponent ? (
             <TickerComponent
-              stock={normalizedStock}
+              stock={stock}
               onUpdate={handleUpdate}
               isEditing={isEditingTicker}
               setIsEditing={setIsEditingTicker}
@@ -125,7 +104,7 @@ function ModularStockPaper({
             />
           ) : (
             // Fallback ticker display
-            isEditingTicker || !normalizedStock.ticker ? (
+            isEditingTicker || !stock.components?.ticker?.value ? (
               <input
                 value={tickerValue}
                 onChange={(e) => setTickerValue(e.target.value)}
@@ -146,7 +125,7 @@ function ModularStockPaper({
                 }}
                 title="Click to edit ticker"
               >
-                {normalizedStock.ticker || 'Ticker'}
+                {stock.components?.ticker?.value || 'Ticker'}
               </span>
             )
           )}
@@ -163,28 +142,28 @@ function ModularStockPaper({
       <div className="criteria-grid">
         {PriceComponent && (
           <PriceComponent
-            stock={normalizedStock}
+            stock={stock}
             onUpdate={handleUpdate}
           />
         )}
         
         {PercentRiseComponent && (
           <PercentRiseComponent
-            stock={normalizedStock}
+            stock={stock}
             onUpdate={handleUpdate}
           />
         )}
         
         {RelativeVolumeComponent && (
           <RelativeVolumeComponent
-            stock={normalizedStock}
+            stock={stock}
             onUpdate={handleUpdate}
           />
         )}
         
         {FloatComponent && (
           <FloatComponent
-            stock={normalizedStock}
+            stock={stock}
             onUpdate={handleUpdate}
           />
         )}
@@ -193,7 +172,7 @@ function ModularStockPaper({
       {/* News Section */}
       {NewsComponent && (
         <NewsComponent
-          stock={normalizedStock}
+          stock={stock}
           onUpdate={handleUpdate}
         />
       )}
@@ -201,7 +180,7 @@ function ModularStockPaper({
       {/* Bonus Criteria Section */}
       {BonusChecksComponent && (
         <BonusChecksComponent
-          stock={normalizedStock}
+          stock={stock}
           onUpdate={handleUpdate}
         />
       )}
@@ -209,7 +188,7 @@ function ModularStockPaper({
       {/* Notes Section */}
       {NotesComponent && (
         <NotesComponent
-          stock={normalizedStock}
+          stock={stock}
           onUpdate={handleUpdate}
         />
       )}
@@ -223,7 +202,7 @@ export default memo(ModularStockPaper, (prevProps, nextProps) => {
     prevProps.stock.id === nextProps.stock.id &&
     prevProps.score === nextProps.score &&
     prevProps.rank === nextProps.rank &&
-    prevProps.perStockUpdating[prevProps.stock.id] === nextProps.perStockUpdating[nextProps.stock.id] &&
-    JSON.stringify(prevProps.stock.components) === JSON.stringify(nextProps.stock.components)
+    (prevProps.perStockUpdating || {})[prevProps.stock.id] === (nextProps.perStockUpdating || {})[nextProps.stock.id] &&
+    JSON.stringify(prevProps.stock.components || {}) === JSON.stringify(nextProps.stock.components || {})
   );
 });

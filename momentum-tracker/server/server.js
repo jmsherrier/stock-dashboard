@@ -7,7 +7,6 @@ require('dotenv').config();
 const authRoutes = require('./routes/auth');
 const userRoutes = require('./routes/users');
 const stockRoutes = require('./routes/stocks');
-const strategyRoutes = require('./routes/strategies');
 const Database = require('./db/database');
 const { handleError, handleNotFound } = require('./middleware/errorHandler');
 const requestLogger = require('./middleware/requestLogger');
@@ -56,7 +55,6 @@ app.use(requestLogger);
 app.use('/api/auth', authRoutes);
 app.use('/api/users', userRoutes);
 app.use('/api/stocks', stockRoutes);
-app.use('/api/strategies', strategyRoutes);
 
 // Health check
 app.get('/api/health', (req, res) => {

@@ -81,35 +81,6 @@ class ApiClient {
     return this.request(`/stocks/quote/${ticker}`);
   }
 
-  // Strategy methods
-  async getStrategies() {
-    return this.request('/strategies');
-  }
-
-  async createStrategy(strategy) {
-    return this.request('/strategies', {
-      method: 'POST',
-      body: JSON.stringify(strategy),
-    });
-  }
-
-  async updateStrategy(id, strategy) {
-    return this.request(`/strategies/${id}`, {
-      method: 'PUT',
-      body: JSON.stringify(strategy),
-    });
-  }
-
-  async deleteStrategy(id) {
-    return this.request(`/strategies/${id}`, {
-      method: 'DELETE',
-    });
-  }
-
-  async getStrategyPresets() {
-    return this.request('/strategies/presets');
-  }
-
   // Health check
   async healthCheck() {
     return this.request('/health');

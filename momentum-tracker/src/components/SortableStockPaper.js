@@ -61,7 +61,7 @@ export default memo(SortableStockPaper, (prevProps, nextProps) => {
     prevProps.score === nextProps.score &&
     prevProps.rank === nextProps.rank &&
     prevProps.isSelected === nextProps.isSelected &&
-    prevProps.perStockUpdating[prevProps.stock.id] === nextProps.perStockUpdating[nextProps.stock.id] &&
-    JSON.stringify(prevProps.stock.components) === JSON.stringify(nextProps.stock.components)
+    (prevProps.perStockUpdating || {})[prevProps.stock.id] === (nextProps.perStockUpdating || {})[nextProps.stock.id] &&
+    JSON.stringify(prevProps.stock.components || {}) === JSON.stringify(nextProps.stock.components || {})
   );
 });
