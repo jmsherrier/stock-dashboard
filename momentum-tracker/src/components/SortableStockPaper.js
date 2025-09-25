@@ -2,8 +2,19 @@ import React from 'react';
 import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 import StockPaper from './StockPaper';
+import ModularStockPaper from './ModularStockPaper';
 
-function SortableStockPaper({ stock, score, rank, isSelected, onSelect, perStockUpdating, onUpdateSingle, ...props }) {
+function SortableStockPaper({ 
+  stock, 
+  score, 
+  rank, 
+  isSelected, 
+  onSelect, 
+  perStockUpdating, 
+  onUpdateSingle, 
+  useModular = false,
+  ...props 
+}) {
   const {
     attributes,
     listeners,
@@ -19,6 +30,8 @@ function SortableStockPaper({ stock, score, rank, isSelected, onSelect, perStock
     opacity: isDragging ? 0.8 : 1,
   };
 
+  const StockComponent = useModular ? ModularStockPaper : StockPaper;
+
   return (
     <div
       ref={setNodeRef}
@@ -27,7 +40,7 @@ function SortableStockPaper({ stock, score, rank, isSelected, onSelect, perStock
       className={`stock-wrapper ${isSelected ? 'selected' : ''} ${isDragging ? 'dragging' : ''}`}
       onClick={onSelect}
     >
-      <StockPaper 
+      <StockComponent
         stock={stock} 
         score={score} 
         rank={rank} 

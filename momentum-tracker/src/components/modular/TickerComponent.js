@@ -1,0 +1,113 @@
+import React, { useState } from 'react';
+
+function TickerComponent({ 
+  stock, 
+  onUpdate, 
+  config,
+  // Props for parent-controlled editing
+  isEditing: parentIsEditing,
+  setIsEditing: parentSetIsEditing,
+  tickerValue: parentTickerValue,
+  setTickerValue: parentSetTickerValue,
+  onTickerSave: parentOnTickerSave,
+  onTickerCancel: parentOnTickerCancel,
+  onTickerKeyPress: parentOnTickerKeyPress
+}) {
+  // Use parent state if provided, otherwise local state
+  const [localIsEditing, setLocalIsEditing] = useState(false);
+  const [localTickerValue, setLocalTickerValue] = useState(stock.ticker || '');
+
+  const isEditing = parentIsEditing !== undefined ? parentIsEditing : localIsEditing;
+  const setIsEditing = parentSetIsEditing || setLocalIsEditing;
+  const tickerValue = parentTickerValue !== undefined ? parentTickerValue : localTickerValue;
+  const setTickerValue = parentSetTickerValue || setLocalTickerValue;
+
+  const handleSave = parentOnTickerSave || (() => {
+    const newTicker = tickerValue.trim().toUpperCase();
+    if (newTicker !== stock.ticker) {
+      onUpdate(stock.id, 'ticker', newTicker);
+    }
+    setIsEditing(false);
+  });
+
+  const handleCancel = parentOnTickerCancel || (() => {
+    setTickerValue(stock.ticker || '');
+    setIsEditing(false);
+  });
+
+  const handleKeyPress = parentOnTickerKeyPress || ((e) => {
+    if (e.key === 'Enter') {
+      handleSave();
+    } else if (e.key === 'Escape') {
+      handleCancel();
+    }
+  });
+
+  // Check if we're being used in a header context (no config.showLabel or parent-controlled)
+  const isHeaderMode = parentIsEditing !== undefined || (config && config.headerMode);
+
+  if (isHeaderMode) {
+    // Header mode - just return the ticker input/display without wrapper
+    return isEditing || !stock.ticker ? (
+      <input
+        value={tickerValue}
+        onChange={(e) => setTickerValue(e.target.value)}
+        onKeyDown={handleKeyPress}
+        onBlur={handleSave}
+        onClick={(e) => e.stopPropagation()}
+        className="ticker-input"
+        autoFocus
+        maxLength="10"
+        placeholder="Ticker"
+      />
+    ) : (
+      <span 
+        className="ticker-display" 
+        onClick={(e) => {
+          e.stopPropagation();
+          setIsEditing(true);
+        }}
+        title="Click to edit ticker"
+      >
+        {stock.ticker || 'Ticker'}
+      </span>
+    );
+  }
+
+  // Full component mode with label
+  return (
+    <div className="modular-component ticker-component">
+      <div className="component-header">
+        <label>Ticker</label>
+      </div>
+      <div className="component-content">
+        {isEditing || !stock.ticker ? (
+          <input
+            value={tickerValue}
+            onChange={(e) => setTickerValue(e.target.value)}
+            onKeyDown={handleKeyPress}
+            onBlur={handleSave}
+            onClick={(e) => e.stopPropagation()}
+            className="ticker-input"
+            autoFocus
+            maxLength="10"
+            placeholder="Enter ticker"
+          />
+        ) : (
+          <span 
+            className="ticker-display" 
+            onClick={(e) => {
+              e.stopPropagation();
+              setIsEditing(true);
+            }}
+            title="Click to edit ticker"
+          >
+            {stock.ticker || 'Ticker'}
+          </span>
+        )}
+      </div>
+    </div>
+  );
+}
+
+export default TickerComponent;
