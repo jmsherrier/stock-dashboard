@@ -1,6 +1,6 @@
 import React from 'react';
 
-function StockPaper({ stock, score, onUpdate, onRemove }) {
+function StockPaper({ stock, score, onUpdate, onRemove, onUpdateSingle, perStockUpdating }) {
   return (
     <div className="stock-paper">
       <div className="paper-header">
@@ -30,7 +30,9 @@ function StockPaper({ stock, score, onUpdate, onRemove }) {
         </div>
       </div>
       <div style={{ display: 'flex', gap: 8 }}>
-        <button className="update-btn">Update</button>
+        <button className="update-btn" onClick={() => onUpdateSingle && onUpdateSingle(stock.id)} disabled={perStockUpdating && perStockUpdating[stock.id]}>
+          {perStockUpdating && perStockUpdating[stock.id] ? 'Updating...' : 'Update'}
+        </button>
         <button className="remove-btn" onClick={() => onRemove(stock.id)}>Remove</button>
       </div>
     </div>

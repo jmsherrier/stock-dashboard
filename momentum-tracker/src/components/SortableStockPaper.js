@@ -3,7 +3,7 @@ import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 import StockPaper from './StockPaper';
 
-function SortableStockPaper({ stock, score, isSelected, onSelect, ...props }) {
+function SortableStockPaper({ stock, score, isSelected, onSelect, perStockUpdating, onUpdateSingle, ...props }) {
   const {
     attributes,
     listeners,
@@ -28,7 +28,7 @@ function SortableStockPaper({ stock, score, isSelected, onSelect, ...props }) {
       className={`stock-wrapper ${isSelected ? 'selected' : ''} ${isDragging ? 'dragging' : ''}`}
       onClick={onSelect}
     >
-      <StockPaper stock={stock} score={score} {...props} />
+      <StockPaper stock={stock} score={score} onUpdateSingle={onUpdateSingle} perStockUpdating={perStockUpdating} {...props} />
     </div>
   );
 }
