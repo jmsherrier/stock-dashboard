@@ -37,8 +37,10 @@ export const apiService = {
     let counters = loadCounters();
     counters = resetDailyIfNeeded(counters);
 
-    // reset per-minute if older than 60s
-    if ((now() - (counters.minuteTs || 0)) > 60000) {
+    // reset per-minute at the end of each minute
+    const currentMinute = Math.floor(now() / 60000);
+    const lastMinute = Math.floor((counters.minuteTs || 0) / 60000);
+    if (currentMinute !== lastMinute) {
       counters.minute = 0;
       counters.minuteTs = now();
     }
@@ -71,7 +73,11 @@ export const apiService = {
       // relativeVolume not available via Global Quote; use demo heuristic: random around 1
       const relativeVolume = (1 + (Math.random() * 3)).toFixed(2);
 
-      return { percentChange: percentChange.toFixed(2), relativeVolume };
+      return { 
+        price: price.toFixed(2), 
+        percentChange: percentChange.toFixed(2), 
+        relativeVolume 
+      };
     } catch (err) {
       console.warn('API call failed, falling back to demo data:', err.message || err);
       // ensure counters reflect attempted call (already incremented) but return demo
@@ -82,7 +88,11 @@ export const apiService = {
   getStockDataDemo(ticker) {
     return new Promise((resolve) => {
       setTimeout(() => {
-        resolve({ percentChange: (Math.random() * 10 - 5).toFixed(2), relativeVolume: (Math.random() * 20 + 0.5).toFixed(2) });
+        resolve({ 
+          price: (Math.random() * 18 + 2).toFixed(2), // $2-20 range
+          percentChange: (Math.random() * 20 - 5).toFixed(2), // -5% to +15% range
+          relativeVolume: (Math.random() * 20 + 0.5).toFixed(2) // 0.5x to 20x range
+        });
       }, 150);
     });
   },
