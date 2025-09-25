@@ -1,6 +1,8 @@
 import { getScorePoints } from '../constants/scoring';
 
 export const calculateScore = (stock) => {
+  if (!stock) return 0;
+  
   let score = 0;
   
   // Handle both legacy and modular formats

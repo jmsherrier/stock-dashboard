@@ -1,41 +1,48 @@
 # Copilot Instructions for Volitiliraptor (Momentum Tracker)
 
 ## Project Overview
-- **Volitiliraptor** is a modular multi-strategy trading analysis platform built with React (frontend) and Express.js (backend).
-- The architecture supports drag-and-drop stock management, modular scoring components, and real-time data integration via Alpha Vantage API.
-- Data persistence is handled via SQLite (see `server/data/momentum_tracker.db`).
+- **Volitiliraptor** is a modular multi-strategy trading analysis platform built with React 19.1.1 (frontend) and Express.js (backend).
+- The architecture supports drag-and-drop stock management (@dnd-kit), modular scoring components, and real-time data integration via Alpha Vantage API.
+- Data persistence is handled via SQLite (see `server/data/momentum_tracker.db`) with dual-layer storage (database + localStorage).
 
 ## Key Architectural Patterns
-- **Frontend**: Modular React components in `src/components/` and `src/components/modular/`. Each metric (e.g., Price, Float, News) is a standalone, configurable component.
-- **Backend**: Express server in `server/server.js` with routes in `server/routes/` and middleware in `server/middleware/`. Database logic in `server/db/database.js`.
-- **Authentication**: API key-based (no passwords), managed via JWT. See `server/middleware/auth.js` and `server/routes/auth.js`.
-- **Strategy System**: Strategies and presets are managed via API endpoints and stored in the database. See `server/routes/strategies.js` and frontend `StrategyMenu.js`.
+- **Component Registry System**: All metric components are registered in `src/components/modular/ComponentRegistry.js` with metadata (scoring criteria, categories, defaults). This is the single source of truth for available components.
+- **Dual-Mode Components**: Components support both legacy CriteriaInput format and modern modular format. Check `config.criteriaMode` prop in components like `PriceComponent.js`.
+- **Data Flow**: React Context (`AuthContext`) → Custom Hooks (`useStocks`, `useApiCounters`) → Services (`stockService.js`) → API Client (`api/client.js`) → Backend Routes.
+- **Authentication**: Passwordless API key system with localStorage persistence. Keys are validated via `server/middleware/auth.js` and user data is isolated per API key.
+- **Scoring Engine**: Color-coded scoring (green/orange/red) defined in component registry, calculated in `utils/scoreCalculator.js` with bonus checks support.
 
 ## Developer Workflows
-- **Start Backend**: `npm run server` (runs on port 3001)
-- **Start Frontend**: `npm start` (React dev server)
-- **Production Build**: `npm run build` (frontend), `npm run server:prod` (backend)
-- **Tests**: `npm test` (frontend), `npm run test:server` (backend)
-- **Debug Mode**: Set `DEBUG=true` in `.env` or `server/.env` for verbose logging
-- **Development Bypass**: Use bypass mode to skip authentication for rapid prototyping
+- **Full Setup**: `npm run install:all` → `npm run dev` (starts both frontend and backend concurrently)
+- **Backend Only**: `npm run server` or `npm run server:dev` (nodemon, port 3001)
+- **Frontend Only**: `npm start` (React dev server, port 3000)
+- **Production**: `npm run build:full` → `npm run server` (serves static files from `/build`)
+- **Tests**: `npm test` (frontend with coverage: `npm run test:coverage`), `npm run test:server` (backend)
+- **Environment Setup**: Copy `.env.example` to `.env` and `server/.env.example` to `server/.env`, add `ALPHA_VANTAGE_API_KEY`
+- **Database**: Auto-initialized on first server start, schema in `server/setup-db.js`
 
 ## Project-Specific Conventions
-- **Component Design**: All new components should support dual-mode rendering for legacy and modern data formats. See examples in `src/components/modular/`.
-- **Scoring**: Color-coded scoring (green/orange/red) and bonus checks are implemented in modular components. See `BonusChecksComponent.js` and scoring logic in each metric component.
-- **Data Normalization**: Ensure all data passed between frontend and backend is normalized for compatibility.
-- **API Usage**: All real-time data fetches use Alpha Vantage API, with fallback to demo data if unavailable.
-- **User Data**: Each user has isolated data and settings, managed via database tables (`users`, `user_settings`, `user_stocks`, etc.).
+- **Component Registration**: New components MUST be added to `COMPONENT_REGISTRY` in `ComponentRegistry.js` with proper metadata (scoring, categories, size).
+- **Dual-Mode Rendering**: Components check `config.criteriaMode !== false` to switch between CriteriaInput (legacy) and modular formats.
+- **Data Structure**: Stock data uses `components` object with `{componentId: {value, ...}}` format. Legacy format uses direct properties.
+- **State Management**: Use custom hooks (`useStocks`, `useApiCounters`) for complex state. Simple UI state can use component-level `useState`.
+- **API Error Handling**: All API calls in services layer should handle errors gracefully with fallback data or user-friendly messages.
+- **Scoring Logic**: Implement scoring in component registry, not individual components. Use `calculateComponentScore()` and `getComponentScoreColor()` helpers.
 
 ## Integration Points
 - **Alpha Vantage API**: Configure API key in `server/.env`. All stock quote requests route through backend (`/api/stocks/quote/:ticker`).
 - **Database**: SQLite file at `server/data/momentum_tracker.db`. Schema documented in README.
 - **Frontend-Backend Communication**: All data flows through RESTful API endpoints (see `server/routes/`).
+- **Authentication Flow**: `ApiKeyPrompt` → `AuthContext.login()` → `apiClient.setApiKey()` → Backend validates via `authenticateAPIKey` middleware.
+- **Data Persistence**: Frontend uses `localStorage` for temporary data, backend handles permanent storage. Both layers sync via `saveStocksToBackend()`.
 
 ## Examples & References
 - **Modular Component Example**: `src/components/modular/PriceComponent.js` (scoring, dual-mode)
-- **Strategy Example**: `src/components/StrategyMenu.js`, `server/routes/strategies.js`
-- **Authentication Example**: `server/middleware/auth.js`, `server/routes/auth.js`
-- **Database Logic**: `server/db/database.js`
+- **Component Registry**: `src/components/modular/ComponentRegistry.js` (metadata, scoring definitions)
+- **Custom Hooks**: `src/hooks/useStocks.js` (state management), `src/hooks/useApiCounters.js` (API tracking)
+- **Service Layer**: `src/services/stockService.js` (data management), `src/api/client.js` (HTTP client)
+- **Authentication Flow**: `src/contexts/AuthContext.js`, `server/middleware/auth.js`
+- **Database Schema**: `server/db/database.js`, `server/setup-db.js`
 
 ## Troubleshooting
 - Backend must run on port 3001 for frontend to connect
@@ -46,3 +53,80 @@
 ---
 
 **Feedback:** If any section is unclear or missing, please specify what needs improvement or additional detail.
+
+# Chatbot Interaction Guidelines
+
+## Core Principles
+
+### Communication Style
+- Maintain professional, direct communication without decorative elements
+- Provide minimal viable responses that fully address the request
+- Avoid unnecessary elaboration or filler content
+- Use passive, objective language structures
+
+### Response Format
+- Exclude emojis, symbols, or visual decorations unless specifically requested
+- Use clear, straightforward language
+- Focus on actionable information and direct answers
+- Employ passive voice constructions (e.g., "Implementing changes" vs "I'll implement changes")
+- Avoid first-person references and conversational transitions
+
+### Scope of Action
+- Execute only explicitly requested tasks
+- Seek explicit permission before performing additional or related actions
+- Do not make assumptions about unstated requirements or preferences
+
+### Documentation Requirements
+- Update README.md after implementing changes to reflect current state
+- Document new features, interface modifications, and technical updates
+- Maintain version tracking and change logs in project documentation
+- Unless directed, do not create new .md files - only contribute to and update existing .md files
+- Focus on enhancing existing documentation rather than creating additional documentation files
+
+## Implementation
+These guidelines ensure efficient, focused interactions that respect user intentions and time constraints while maintaining helpful assistance within defined boundaries.
+
+## Command line / Terminal
+Generally, working folder is Whiteboard/momentum-tracker/
+
+### PowerShell Syntax
+- Use semicolon (`;`) syntax to join commands on a single line when needed
+- Example: `cd .\momentum-tracker\; npm install` `set PORT="3001"; npm start`
+- This ensures compatibility with Windows PowerShell command execution
+
+## Code Modernization & Legacy Cleanup
+
+### Architecture Standards
+- Maintain fully modular component architecture using `components` data structure
+- All stock data must use modular format: `stock.components.ticker.value` pattern
+- Remove legacy format conversion functions when no longer needed
+- Eliminate unused components, functions, and API endpoints systematically
+
+### Component Management
+- Remove unused components immediately when identified
+- Update all imports and references when removing components
+- Maintain ComponentRegistry as single source of truth for modular components
+- Ensure all component dependencies are properly traced and validated
+
+### Database & API Cleanup
+- Remove unused database tables and API routes when functionality is deprecated
+- Update server routing to exclude removed endpoints
+- Clean up unused API client methods that no longer have corresponding backend routes
+- Remove legacy database schema elements that support deprecated features
+
+### Testing & Quality Assurance
+- Update test files to remove references to deleted functions and components
+- Run tests after major cleanup operations to verify system integrity
+- Remove legacy test cases that test deprecated functionality
+- Ensure all remaining tests validate current, active code paths
+
+### CSS & Styling
+- Remove unused CSS classes and styles for deleted components
+- Clean up legacy styles that are no longer referenced in the codebase
+- Maintain consistent styling architecture aligned with current component structure
+
+### Documentation Maintenance
+- Update ARCHITECTURE.md to reflect current system state
+- Remove references to deprecated features in documentation
+- Update README.md when major architectural changes are implemented
+- Ensure documentation accurately represents the modernized codebase
