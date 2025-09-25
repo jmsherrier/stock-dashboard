@@ -7,8 +7,8 @@ function AboutModal({ isOpen, onClose }) {
   const buildDate = new Date().toLocaleDateString();
 
   return (
-    <div className="preset-menu-overlay">
-      <div className="preset-menu">
+    <div className="preset-menu-overlay" onClick={onClose}>
+      <div className="preset-menu" onClick={(e) => e.stopPropagation()}>
         <div className="preset-header">
           <h3>About Volitiliraptor</h3>
           <button 
@@ -98,16 +98,6 @@ function AboutModal({ isOpen, onClose }) {
               </div>
             </div>
           </div>
-        </div>
-
-        <div className="preset-footer">
-          <button 
-            onClick={onClose}
-            className="apply-btn"
-            style={{ margin: '0 auto' }}
-          >
-            Close
-          </button>
         </div>
       </div>
     </div>

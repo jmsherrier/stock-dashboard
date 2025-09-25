@@ -53,8 +53,8 @@ function PresetMenu({ isOpen, onClose, onPresetApply, onUpdateStocks }) {
   };
 
   return (
-    <div className="preset-menu-overlay">
-      <div className="preset-menu">
+    <div className="preset-menu-overlay" onClick={onClose}>
+      <div className="preset-menu" onClick={(e) => e.stopPropagation()}>
         <div className="preset-header">
           <h3>Configure Strategy Preset</h3>
           <button className="close-btn" onClick={onClose}>×</button>

@@ -362,6 +362,7 @@ function MainApp() {
       <SettingsModal
         isOpen={showSettingsModal}
         onClose={() => setShowSettingsModal(false)}
+        user={user}
       />
 
       <AboutModal
