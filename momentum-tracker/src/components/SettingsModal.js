@@ -1,11 +1,13 @@
 import React, { useState } from 'react';
+import { useAuth } from '../contexts/AuthContext';
 
-function SettingsModal({ isOpen, onClose }) {
+function SettingsModal({ isOpen, onClose, user: propUser }) {
+  const { user: contextUser, logout } = useAuth();
+  const user = propUser || contextUser;
   const [settings, setSettings] = useState({
     theme: localStorage.getItem('app-theme') || 'dark',
     autoSave: localStorage.getItem('auto-save') === 'true',
     showScores: localStorage.getItem('show-scores') !== 'false',
-    defaultPreset: localStorage.getItem('default-preset') || 'momentum',
     apiTimeout: parseInt(localStorage.getItem('api-timeout')) || 10000,
     refreshInterval: parseInt(localStorage.getItem('refresh-interval')) || 300000
   });
@@ -33,7 +35,6 @@ function SettingsModal({ isOpen, onClose }) {
         theme: 'dark',
         autoSave: true,
         showScores: true,
-        defaultPreset: 'momentum',
         apiTimeout: 10000,
         refreshInterval: 300000
       };
@@ -47,9 +48,24 @@ function SettingsModal({ isOpen, onClose }) {
     }
   };
 
+  const handleSignOut = () => {
+    if (window.confirm('Are you sure you want to sign out?')) {
+      logout();
+      onClose();
+    }
+  };
+
+  const handleManageAccount = () => {
+    // For now, just show account info in an alert
+    // In the future, this could open a dedicated account management modal
+    if (user) {
+      alert(`Account Information:\n\nEmail: ${user.email}\nAccount created: ${user.created_at ? new Date(user.created_at).toLocaleDateString() : 'Unknown'}\n\nTo change account settings or delete your account, please contact support.`);
+    }
+  };
+
   return (
-    <div className="preset-menu-overlay">
-      <div className="preset-menu">
+    <div className="preset-menu-overlay" onClick={onClose}>
+      <div className="preset-menu" onClick={(e) => e.stopPropagation()}>
         <div className="preset-header">
           <h3>Settings</h3>
           <button 
@@ -114,21 +130,6 @@ function SettingsModal({ isOpen, onClose }) {
               </div>
 
               <div className="setting-item">
-                <label className="setting-label">Default Strategy Preset</label>
-                <select 
-                  value={settings.defaultPreset}
-                  onChange={(e) => handleSettingChange('defaultPreset', e.target.value)}
-                  className="setting-select"
-                >
-                  <option value="momentum">Momentum</option>
-                  <option value="value">Value</option>
-                  <option value="growth">Growth</option>
-                  <option value="income">Income</option>
-                  <option value="custom">Custom</option>
-                </select>
-              </div>
-
-              <div className="setting-item">
                 <label className="setting-label">API Timeout (ms)</label>
                 <input 
                   type="number"
@@ -154,6 +155,52 @@ function SettingsModal({ isOpen, onClose }) {
                 />
                 <small className="setting-help">Time between automatic data updates</small>
               </div>
+            </div>
+          </div>
+
+          <div className="settings-section">
+            <h4>Account Management</h4>
+            <div className="settings-group">
+              {user ? (
+                <>
+                  <div className="setting-item">
+                    <div className="account-info">
+                      <span className="account-email">Signed in as: {user.email}</span>
+                    </div>
+                  </div>
+
+                  <div className="setting-item">
+                    <div className="account-actions">
+                      <button 
+                        onClick={handleManageAccount}
+                        className="account-btn manage-btn"
+                      >
+                        👤 Manage Account
+                      </button>
+                      <button 
+                        onClick={handleSignOut}
+                        className="account-btn signout-btn"
+                      >
+                        🚪 Sign Out
+                      </button>
+                    </div>
+                  </div>
+                </>
+              ) : (
+                <div className="setting-item">
+                  <div className="account-info">
+                    <span className="account-email">Running in Development Mode</span>
+                  </div>
+                  <div className="account-actions">
+                    <button 
+                      onClick={() => window.location.reload()}
+                      className="account-btn manage-btn"
+                    >
+                      🔄 Restart Application
+                    </button>
+                  </div>
+                </div>
+              )}
             </div>
           </div>
         </div>
