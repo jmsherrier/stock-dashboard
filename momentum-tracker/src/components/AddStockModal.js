@@ -1,31 +1,30 @@
-import React, { useState } from 'react';
+import React from 'react';
 
-function AddStockModal({ onAdd, onClose, existingTickers = [] }) {
-  const [ticker, setTicker] = useState('');
-  const [error, setError] = useState(null);
-
-  const submit = () => {
-    const t = ticker.trim().toUpperCase();
-    if (!t) return setError('Enter a ticker');
-    if (existingTickers.includes(t)) return setError('Ticker already exists');
-    onAdd(t);
+function AddStockModal({ onAdd, onClose }) {
+  const addEmptyStock = () => {
+    onAdd();
     onClose();
   };
 
   return (
-    <div className="modal-overlay">
-      <div className="modal-content">
+    <div className="modal-overlay" onClick={onClose}>
+      <div className="modal-content" onClick={(e) => e.stopPropagation()}>
         <div className="modal-header">
-          <h3>Add Ticker</h3>
+          <h3>Add Stock Analysis</h3>
           <button className="close-btn" onClick={onClose}>×</button>
         </div>
         <div className="modal-body">
-          <input value={ticker} onChange={(e) => setTicker(e.target.value)} placeholder="e.g. AAPL" />
-          {error && <div className="error-message">{error}</div>}
+          <div className="add-stock-content">
+            <div className="add-stock-icon">📊</div>
+            <h4>Create New Stock Analysis</h4>
+            <p>Add a blank stock analysis sheet. You can edit the ticker symbol and enter all momentum criteria directly on the sheet.</p>
+          </div>
         </div>
         <div className="modal-footer">
-          <button onClick={onClose}>Cancel</button>
-          <button onClick={submit}>Add</button>
+          <button className="cancel-btn" onClick={onClose}>Cancel</button>
+          <button className="add-btn" onClick={addEmptyStock}>
+            Add Stock Sheet
+          </button>
         </div>
       </div>
     </div>
