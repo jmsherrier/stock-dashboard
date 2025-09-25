@@ -3,11 +3,9 @@ import ScaleBar from './ScaleBar';
 
 function CriteriaInput({ label, value, onChange, type = 'text', step, warning, scale, currentPoints, suffix = '' }) {
   const getPointsColor = (points) => {
-    if (points >= 2) return '#22c55e'; // green
-    if (points >= 1) return '#84cc16'; // light green
-    if (points >= 0) return '#666'; // neutral
-    if (points >= -1) return '#f97316'; // orange
-    return '#ef4444'; // red
+    if (points > 0) return '#22c55e'; // green for positive values (+1, +2, +3)
+    if (points < 0) return '#ef4444'; // red for negative values (-1, -2, -3)
+    return '#666'; // neutral for 0 (though 0 doesn't exist in current scales)
   };
 
   return (
@@ -24,11 +22,9 @@ function CriteriaInput({ label, value, onChange, type = 'text', step, warning, s
           step={step}
           value={value}
           onChange={(e) => onChange(e.target.value)}
-          className={warning ? 'warning' : ''}
         />
         {suffix && <span className="input-suffix">{suffix}</span>}
       </div>
-      {warning && <div className="warning-indicator">⚠ {warning}</div>}
       {scale && <ScaleBar currentPoints={currentPoints} scale={scale} />}
     </div>
   );

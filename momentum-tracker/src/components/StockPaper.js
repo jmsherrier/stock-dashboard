@@ -29,7 +29,13 @@ function StockPaper({ stock, score, rank, onUpdate, onRemove, onUpdateSingle, pe
   
   // Helper function to calculate individual criteria scores
   const getScorePoints = (value, type) => {
-    const val = parseFloat(value) || 0;
+    // Return 0 for null, undefined, or empty values
+    if (value === null || value === undefined || value === '' || value === 0) {
+      return 0;
+    }
+    
+    const val = parseFloat(value);
+    if (isNaN(val)) return 0;
     
     switch (type) {
       case 'price':
@@ -103,47 +109,57 @@ function StockPaper({ stock, score, rank, onUpdate, onRemove, onUpdateSingle, pe
   };
 
   const priceScale = [
-    { range: '$15-20', points: -3 },
-    { range: '$10-15', points: -2 },
-    { range: '$8-10', points: -1 },
-    { range: '$5-8', points: 1 },
-    { range: '$3-5', points: 2 },
-    { range: '$2-3', points: 3 }
+    { range: '15-20', points: -3 },
+    { range: '10-15', points: -2 },
+    { range: '8-10', points: -1 },
+    { range: '5-8', points: 1 },
+    { range: '3-5', points: 2 },
+    { range: '2-3', points: 3 }
   ];
 
   const percentRiseScale = [
-    { range: '<3%', points: -3 },
-    { range: '3-5%', points: -2 },
-    { range: '5-7%', points: -1 },
-    { range: '7-10%', points: 1 },
-    { range: '10-15%', points: 2 },
-    { range: '15%+', points: 3 }
+    { range: '<3', points: -3 },
+    { range: '3-5', points: -2 },
+    { range: '5-7', points: -1 },
+    { range: '7-10', points: 1 },
+    { range: '10-15', points: 2 },
+    { range: '15+', points: 3 }
   ];
 
   const relativeVolumeScale = [
-    { range: '<2x', points: -3 },
-    { range: '2-3x', points: -2 },
-    { range: '3-5x', points: -1 },
-    { range: '5-8x', points: 1 },
-    { range: '8-12x', points: 2 },
-    { range: '12x+', points: 3 }
+    { range: '<2', points: -3 },
+    { range: '2-3', points: -2 },
+    { range: '3-5', points: -1 },
+    { range: '5-8', points: 1 },
+    { range: '8-12', points: 2 },
+    { range: '12+', points: 3 }
   ];
 
   const floatScale = [
-    { range: '>50M', points: -3 },
-    { range: '30-50M', points: -2 },
-    { range: '20-30M', points: -1 },
-    { range: '15-20M', points: 1 },
-    { range: '10-15M', points: 2 },
-    { range: '<10M', points: 3 }
+    { range: '>50', points: -3 },
+    { range: '30-50', points: -2 },
+    { range: '20-30', points: -1 },
+    { range: '15-20', points: 1 },
+    { range: '10-15', points: 2 },
+    { range: '<10', points: 3 }
   ];
 
   return (
-    <div className="stock-paper" {...(dragListeners || {})}>
+    <div className="stock-paper">
+      {dragListeners && <div className="drag-bg-handle" {...dragListeners} title="Drag to reorder" />}
+      <button 
+        className="remove-x" 
+        onClick={(e) => {
+          e.stopPropagation();
+          onRemove(stock.id);
+        }}
+      >
+        ×
+      </button>
       <div className="stock-header">
-        <div className="header-left">
+        <div className="header-box update-btn" onPointerDown={(e) => e.stopPropagation()}>
           <button 
-            className="update-btn" 
+            className="update-btn-inner" 
             onClick={(e) => {
               e.stopPropagation();
               onUpdateSingle && onUpdateSingle(stock.id);
@@ -152,34 +168,23 @@ function StockPaper({ stock, score, rank, onUpdate, onRemove, onUpdateSingle, pe
           >
             {perStockUpdating && perStockUpdating[stock.id] ? 'Updating...' : 'Update'}
           </button>
-          <button 
-            className="remove-btn" 
-            onClick={(e) => {
-              e.stopPropagation();
-              onRemove(stock.id);
-            }}
-          >
-            Remove
-          </button>
         </div>
         
-        <div className="header-center">
+        <div className="header-box ticker-box" onPointerDown={(e) => e.stopPropagation()}>
           {isEditingTicker || !stock.ticker ? (
-            <div className="ticker-edit">
-              <input
-                value={tickerValue}
-                onChange={(e) => setTickerValue(e.target.value)}
-                onKeyDown={handleTickerKeyPress}
-                onBlur={handleTickerSave}
-                onClick={(e) => e.stopPropagation()}
-                className="ticker-input"
-                autoFocus
-                maxLength="10"
-                placeholder="Enter ticker"
-              />
-            </div>
+            <input
+              value={tickerValue}
+              onChange={(e) => setTickerValue(e.target.value)}
+              onKeyDown={handleTickerKeyPress}
+              onBlur={handleTickerSave}
+              onClick={(e) => e.stopPropagation()}
+              className="ticker-input"
+              autoFocus
+              maxLength="10"
+              placeholder="Ticker"
+            />
           ) : (
-            <h2 
+            <span 
               className="ticker-display" 
               onClick={(e) => {
                 e.stopPropagation();
@@ -187,15 +192,15 @@ function StockPaper({ stock, score, rank, onUpdate, onRemove, onUpdateSingle, pe
               }}
               title="Click to edit ticker"
             >
-              {stock.ticker}
-            </h2>
+              {stock.ticker || 'Ticker'}
+            </span>
           )}
         </div>
         
-        <div className="header-right">
-          <div className="main-score">
-            {score > 0 ? '+' : ''}{score}
-          </div>
+        <div className="header-box points-box" onPointerDown={(e) => e.stopPropagation()}>
+          <span className="main-score">
+            {score}
+          </span>
         </div>
       </div>
 
@@ -213,7 +218,7 @@ function StockPaper({ stock, score, rank, onUpdate, onRemove, onUpdateSingle, pe
         />
 
         <CriteriaInput
-          label="% Rise"
+          label="Percent Risen"
           value={stock.percentRise || ''}
           onChange={(value) => onUpdate(stock.id, 'percentRise', value)}
           type="number"
@@ -262,47 +267,53 @@ function StockPaper({ stock, score, rank, onUpdate, onRemove, onUpdateSingle, pe
         <div className="bonus-header">
           <h4>Bonus Criteria</h4>
           <div className="bonus-score">
-            {((stock.bonusChecks?.recentIPO ? 1 : 0) + 
-              (stock.bonusChecks?.recentReverseSplit ? 1 : 0) + 
-              (stock.bonusChecks?.blueSkyBreakout ? 1 : 0)) > 0 ? '+' : ''}
-            {(stock.bonusChecks?.recentIPO ? 1 : 0) + 
-             (stock.bonusChecks?.recentReverseSplit ? 1 : 0) + 
-             (stock.bonusChecks?.blueSkyBreakout ? 1 : 0)}
+            {(() => {
+              const totalBonus = (stock.bonusChecks?.recentIPO ? 1 : 0) + 
+                                (stock.bonusChecks?.recentReverseSplit ? 1 : 0) + 
+                                (stock.bonusChecks?.blueSkyBreakout ? 1 : 0);
+              return totalBonus > 0 ? (
+                <span className="bonus-points-positive">
+                  +{totalBonus} pts
+                </span>
+              ) : null;
+            })()}
           </div>
         </div>
-        <label>
-          <input
-            type="checkbox"
-            checked={stock.bonusChecks?.recentIPO || false}
-            onChange={(e) => onUpdate(stock.id, 'bonusChecks', { 
-              ...(stock.bonusChecks || {}), 
-              recentIPO: e.target.checked 
-            })}
-          />
-          Recent IPO
-        </label>
-        <label>
-          <input
-            type="checkbox"
-            checked={stock.bonusChecks?.recentReverseSplit || false}
-            onChange={(e) => onUpdate(stock.id, 'bonusChecks', { 
-              ...(stock.bonusChecks || {}), 
-              recentReverseSplit: e.target.checked 
-            })}
-          />
-          Recent Reverse Split
-        </label>
-        <label>
-          <input
-            type="checkbox"
-            checked={stock.bonusChecks?.blueSkyBreakout || false}
-            onChange={(e) => onUpdate(stock.id, 'bonusChecks', { 
-              ...(stock.bonusChecks || {}), 
-              blueSkyBreakout: e.target.checked 
-            })}
-          />
-          Blue Sky Breakout
-        </label>
+        <div className="bonus-criteria-items">
+          <label>
+            <input
+              type="checkbox"
+              checked={stock.bonusChecks?.recentIPO || false}
+              onChange={(e) => onUpdate(stock.id, 'bonusChecks', { 
+                ...(stock.bonusChecks || {}), 
+                recentIPO: e.target.checked 
+              })}
+            />
+            Recent IPO
+          </label>
+          <label>
+            <input
+              type="checkbox"
+              checked={stock.bonusChecks?.recentReverseSplit || false}
+              onChange={(e) => onUpdate(stock.id, 'bonusChecks', { 
+                ...(stock.bonusChecks || {}), 
+                recentReverseSplit: e.target.checked 
+              })}
+            />
+            Recent Reverse Split
+          </label>
+          <label>
+            <input
+              type="checkbox"
+              checked={stock.bonusChecks?.blueSkyBreakout || false}
+              onChange={(e) => onUpdate(stock.id, 'bonusChecks', { 
+                ...(stock.bonusChecks || {}), 
+                blueSkyBreakout: e.target.checked 
+              })}
+            />
+            Blue Sky Breakout
+          </label>
+        </div>
       </div>
 
       <div className="notes-section">
