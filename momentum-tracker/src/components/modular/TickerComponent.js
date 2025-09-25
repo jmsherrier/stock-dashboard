@@ -13,9 +13,12 @@ function TickerComponent({
   onTickerCancel: parentOnTickerCancel,
   onTickerKeyPress: parentOnTickerKeyPress
 }) {
+  // Get current ticker value from modular format
+  const currentTicker = stock.components?.ticker?.value || '';
+  
   // Use parent state if provided, otherwise local state
   const [localIsEditing, setLocalIsEditing] = useState(false);
-  const [localTickerValue, setLocalTickerValue] = useState(stock.ticker || '');
+  const [localTickerValue, setLocalTickerValue] = useState(currentTicker);
 
   const isEditing = parentIsEditing !== undefined ? parentIsEditing : localIsEditing;
   const setIsEditing = parentSetIsEditing || setLocalIsEditing;
@@ -24,14 +27,14 @@ function TickerComponent({
 
   const handleSave = parentOnTickerSave || (() => {
     const newTicker = tickerValue.trim().toUpperCase();
-    if (newTicker !== stock.ticker) {
+    if (newTicker !== currentTicker) {
       onUpdate(stock.id, 'ticker', newTicker);
     }
     setIsEditing(false);
   });
 
   const handleCancel = parentOnTickerCancel || (() => {
-    setTickerValue(stock.ticker || '');
+    setTickerValue(currentTicker);
     setIsEditing(false);
   });
 
@@ -55,6 +58,7 @@ function TickerComponent({
         onKeyDown={handleKeyPress}
         onBlur={handleSave}
         onClick={(e) => e.stopPropagation()}
+        onFocus={(e) => e.target.select()}
         className="ticker-input"
         autoFocus
         maxLength="10"
@@ -65,11 +69,12 @@ function TickerComponent({
         className="ticker-display" 
         onClick={(e) => {
           e.stopPropagation();
+          setTickerValue(currentTicker);
           setIsEditing(true);
         }}
         title="Click to edit ticker"
       >
-        {stock.ticker || 'Ticker'}
+        {currentTicker || 'Ticker'}
       </span>
     );
   }
@@ -88,6 +93,7 @@ function TickerComponent({
             onKeyDown={handleKeyPress}
             onBlur={handleSave}
             onClick={(e) => e.stopPropagation()}
+            onFocus={(e) => e.target.select()}
             className="ticker-input"
             autoFocus
             maxLength="10"
@@ -98,11 +104,12 @@ function TickerComponent({
             className="ticker-display" 
             onClick={(e) => {
               e.stopPropagation();
+              setTickerValue(currentTicker);
               setIsEditing(true);
             }}
             title="Click to edit ticker"
           >
-            {stock.ticker || 'Ticker'}
+            {currentTicker || 'Ticker'}
           </span>
         )}
       </div>
