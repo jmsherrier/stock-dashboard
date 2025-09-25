@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useCallback } from 'react';
+import React, { useEffect, useState } from 'react';
 import './App.css';
 import { DndContext, closestCenter } from '@dnd-kit/core';
 import { SortableContext, verticalListSortingStrategy } from '@dnd-kit/sortable';
@@ -11,15 +11,23 @@ function App() {
   const [selectedStock, setSelectedStock] = useState(null);
   const [apiStatus, setApiStatus] = useState({ daily: 0, minute: 0, lastReset: Date.now() });
   const [undoStack, setUndoStack] = useState([]);
-  const [isManualOrder, setIsManualOrder] = useState(false);
+  // Ordering now remains stable unless explicitly reordered via the new reorder button
 
   const [isUpdating, setIsUpdating] = useState(false);
   const [counters, setCounters] = useState(apiService.getCounters());
   const [perStockUpdating, setPerStockUpdating] = useState({});
 
   useEffect(() => {
-    const loaded = storage.load();
-    if (loaded) setStocks(loaded.stocks || []);
+    const loadData = async () => {
+      try {
+        const loaded = await storage.load();
+        if (loaded) setStocks(loaded.stocks || []);
+      } catch (e) {
+        console.error('Failed to load saved data:', e);
+      }
+    };
+    
+    loadData();
     const refreshCounters = () => setCounters(apiService.getCounters());
     refreshCounters();
     const ci = setInterval(refreshCounters, 5000);
@@ -45,12 +53,7 @@ function App() {
       notes: ''
     };
     setUndoStack(prev => [...prev, stocks]);
-    setStocks(prev => {
-      const next = [newStock, ...prev];
-      // auto-sort by score unless manual ordering is enabled
-      if (isManualOrder) return next;
-      return [...next].sort((a, b) => calculateScore(b) - calculateScore(a));
-    });
+    setStocks(prev => [newStock, ...prev]);
     // Auto-focus ticker input after creation
     setTimeout(() => {
       const tickerElements = document.querySelectorAll('.ticker-display');
@@ -77,14 +80,30 @@ function App() {
     try {
       const updated = await Promise.all(stocks.map(async (s) => {
         try {
+          // Skip stocks without valid tickers
+          if (!s.ticker || s.ticker.trim() === '') {
+            console.log('Skipping stock without ticker:', s);
+            return s;
+          }
           const data = await apiService.getQuote(s.ticker);
+          
+          // Preserve user formatting - only update if value has meaningfully changed
+          const preserveFormatting = (newVal, oldVal) => {
+            if (!oldVal || oldVal.trim() === '') return newVal;
+            const newNum = parseFloat(newVal);
+            const oldNum = parseFloat(oldVal);
+            // Only update if the numerical difference is significant (>0.001)
+            return Math.abs(newNum - oldNum) > 0.001 ? newVal : oldVal;
+          };
+          
           return { 
             ...s, 
-            percentRise: data.percentChange.toString(), 
-            relativeVolume: data.relativeVolume.toString(),
-            price: data.price ? data.price.toString() : s.price
+            percentRise: preserveFormatting(data.percentChange.toString(), s.percentRise), 
+            relativeVolume: preserveFormatting(data.relativeVolume.toString(), s.relativeVolume),
+            price: data.price ? preserveFormatting(data.price.toString(), s.price) : s.price
           };
         } catch (err) {
+          console.warn('Failed to update stock:', s.ticker, err);
           return s;
         }
       }));
@@ -99,15 +118,31 @@ function App() {
   const updateSingle = async (id) => {
     const stock = stocks.find(s => s.id === id);
     if (!stock) return;
+    
+    // Skip stocks without valid tickers
+    if (!stock.ticker || stock.ticker.trim() === '') {
+      console.log('Cannot update stock without ticker:', stock);
+      return;
+    }
+    
+    // Preserve user formatting - only update if value has meaningfully changed
+    const preserveFormatting = (newVal, oldVal) => {
+      if (!oldVal || oldVal.trim() === '') return newVal;
+      const newNum = parseFloat(newVal);
+      const oldNum = parseFloat(oldVal);
+      // Only update if the numerical difference is significant (>0.001)
+      return Math.abs(newNum - oldNum) > 0.001 ? newVal : oldVal;
+    };
+    
     setPerStockUpdating(p => ({ ...p, [id]: true }));
     try {
       const data = await apiService.getQuote(stock.ticker);
       setUndoStack(prev => [...prev, stocks]);
       setStocks(prev => prev.map(s => s.id === id ? { 
         ...s, 
-        percentRise: data.percentChange.toString(), 
-        relativeVolume: data.relativeVolume.toString(),
-        price: data.price ? data.price.toString() : s.price
+        percentRise: preserveFormatting(data.percentChange.toString(), s.percentRise), 
+        relativeVolume: preserveFormatting(data.relativeVolume.toString(), s.relativeVolume),
+        price: data.price ? preserveFormatting(data.price.toString(), s.price) : s.price
       } : s));
     } catch (err) {
       console.error('Failed to update single:', err);
@@ -128,42 +163,63 @@ function App() {
   const calculateScore = (stock) => {
     let score = 0;
     
-    // Price scoring ($2-20 range): $15-20 (---), $10-15 (--), $8-10 (-), $5-8 (+), $3-5 (++), $2-3 (+++)
-    const price = parseFloat(stock.price) || 0;
-    if (price >= 15) score -= 3;
-    else if (price >= 10) score -= 2;
-    else if (price >= 8) score -= 1;
-    else if (price >= 5) score += 1;
-    else if (price >= 3) score += 2;
-    else if (price >= 2) score += 3;
-    // Outside range gets no points
+    // Helper function to get score for individual criteria
+    const getScorePoints = (value, type) => {
+      // Return 0 for null, undefined, or empty values
+      if (value === null || value === undefined || value === '' || value === 0) {
+        return 0;
+      }
+      
+      const val = parseFloat(value);
+      if (isNaN(val)) return 0;
+      
+      switch (type) {
+        case 'price':
+          if (val >= 15) return -3;
+          if (val >= 10) return -2;
+          if (val >= 8) return -1;
+          if (val >= 5) return 1;
+          if (val >= 3) return 2;
+          if (val >= 2) return 3;
+          return 0;
+        
+        case 'percentRise':
+          if (val < 3) return -3;
+          if (val < 5) return -2;
+          if (val < 7) return -1;
+          if (val < 10) return 1;
+          if (val < 15) return 2;
+          if (val >= 15) return 3;
+          return 0;
+        
+        case 'relativeVolume':
+          if (val < 2) return -3;
+          if (val < 3) return -2;
+          if (val < 5) return -1;
+          if (val < 8) return 1;
+          if (val < 12) return 2;
+          if (val >= 12) return 3;
+          return 0;
+        
+        case 'float':
+          if (val > 50) return -3;
+          if (val > 30) return -2;
+          if (val > 20) return -1;
+          if (val > 15) return 1;
+          if (val > 10) return 2;
+          if (val > 0 && val <= 10) return 3;
+          return 0;
+        
+        default:
+          return 0;
+      }
+    };
     
-    // % Rise scoring (7%+ minimum): <3% (---), 3-5% (--), 5-7% (-), 7-10% (+), 10-15% (++), 15%+ (+++)
-    const percentRise = parseFloat(stock.percentRise) || 0;
-    if (percentRise < 3) score -= 3;
-    else if (percentRise < 5) score -= 2;
-    else if (percentRise < 7) score -= 1;
-    else if (percentRise < 10) score += 1;
-    else if (percentRise < 15) score += 2;
-    else if (percentRise >= 15) score += 3;
-    
-    // Relative Volume scoring (5x+ minimum): <2x (---), 2-3x (--), 3-5x (-), 5-8x (+), 8-12x (++), 12x+ (+++)
-    const relativeVolume = parseFloat(stock.relativeVolume) || 1;
-    if (relativeVolume < 2) score -= 3;
-    else if (relativeVolume < 3) score -= 2;
-    else if (relativeVolume < 5) score -= 1;
-    else if (relativeVolume < 8) score += 1;
-    else if (relativeVolume < 12) score += 2;
-    else if (relativeVolume >= 12) score += 3;
-    
-    // Float scoring (<20M shares): >50M (---), 30-50M (--), 20-30M (-), 15-20M (+), 10-15M (++), <10M (+++)
-    const float = parseFloat(stock.float) || 0;
-    if (float > 50) score -= 3;
-    else if (float > 30) score -= 2;
-    else if (float > 20) score -= 1;
-    else if (float > 15) score += 1;
-    else if (float > 10) score += 2;
-    else if (float > 0 && float <= 10) score += 3;
+    // Apply scoring for each criteria
+    score += getScorePoints(stock.price, 'price');
+    score += getScorePoints(stock.percentRise, 'percentRise');
+    score += getScorePoints(stock.relativeVolume, 'relativeVolume');
+    score += getScorePoints(stock.float, 'float');
     
     // News catalysts scoring
     const positiveCatalystsScore = (stock.positiveCatalysts || []).reduce((sum, item) => sum + (item.points || 0), 0);
@@ -179,16 +235,41 @@ function App() {
     return score;
   };
 
-  const sortedStocks = isManualOrder ? stocks : [...stocks].sort((a, b) => calculateScore(b) - calculateScore(a));
+  // Explicit reorder function (formerly implicit on every render)
+  const reorderByScore = () => {
+    setUndoStack(prev => [...prev, stocks]);
+    setStocks(prev => [...prev].sort((a, b) => calculateScore(b) - calculateScore(a)));
+  };
 
   useEffect(() => {
-    const toSave = { stocks, meta: { updated: Date.now() } };
-    storage.save(toSave);
+    const saveData = async () => {
+      try {
+        const toSave = { stocks, meta: { updated: Date.now() } };
+        await storage.save(toSave);
+      } catch (e) {
+        console.error('Failed to save data:', e);
+      }
+    };
+    
+    if (stocks.length > 0 || localStorage.getItem('momentum_data')) {
+      saveData();
+    }
   }, [stocks]);
 
   // keyboard shortcuts
   useEffect(() => {
     const handler = (e) => {
+      // Don't trigger shortcuts if user is editing text
+      const activeElement = document.activeElement;
+      const isEditingText = activeElement && (
+        activeElement.tagName === 'INPUT' || 
+        activeElement.tagName === 'TEXTAREA' || 
+        activeElement.tagName === 'SELECT' ||
+        activeElement.contentEditable === 'true'
+      );
+      
+      if (isEditingText) return;
+      
       if (e.key === 'a' || e.key === 'A') addStock();
       if (e.key === 'u' || e.key === 'U') updateAllStocks();
       if (e.key === 'Delete' && selectedStock) removeStock(selectedStock);
@@ -196,6 +277,23 @@ function App() {
     window.addEventListener('keydown', handler);
     return () => window.removeEventListener('keydown', handler);
   }, [selectedStock, stocks, counters]);
+
+  // Click outside to deselect stock
+  useEffect(() => {
+    const handleClickOutside = (e) => {
+      // Only deselect if there's a selected stock
+      if (!selectedStock) return;
+      
+      // Check if click is outside any stock-wrapper
+      const stockWrapper = e.target.closest('.stock-wrapper');
+      if (!stockWrapper) {
+        setSelectedStock(null);
+      }
+    };
+
+    document.addEventListener('click', handleClickOutside);
+    return () => document.removeEventListener('click', handleClickOutside);
+  }, [selectedStock]);
 
   return (
     <div className="app">
@@ -205,6 +303,7 @@ function App() {
           Requests: {counters.daily}/500 daily | {counters.minute}/5 per minute
         </div>
         <div className="header-buttons">
+          <button onClick={reorderByScore} title="Sort all stocks by current score (descending)">Reorder by Score</button>
           <button onClick={addStock}>Add Ticker (A)</button>
           <button onClick={updateAllStocks} disabled={isUpdating || counters.daily >= 500 || counters.minute >= 5}>
             {isUpdating ? 'Updating...' : 'Update All (U)'}
@@ -217,8 +316,8 @@ function App() {
         collisionDetection={closestCenter}
       >
         <div className="stocks-container">
-          <SortableContext items={sortedStocks.map(s => s.id)} strategy={verticalListSortingStrategy}>
-            {sortedStocks.map((stock, index) => (
+          <SortableContext items={stocks.map(s => s.id)} strategy={verticalListSortingStrategy}>
+            {stocks.map((stock, index) => (
               <SortableStockPaper
                 key={stock.id}
                 stock={stock}

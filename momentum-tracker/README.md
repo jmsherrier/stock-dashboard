@@ -1,28 +1,25 @@
-# Momentum Trader
+# Momentum Tracker
 
-## Version
-v1.5.0 - Integrated scale bars with plain inputs
+## Current Version
+v2.2.0 - Enhanced Persistence & News Management
 
-## Features
-- Stock momentum analysis with 6-point scoring
-- Editable ticker symbols (click to edit)
-- Direct empty stock creation (no modal)
-- Visual horizontal scale bars for criteria
-- Compact criteria boxes with scores in top-right
-- Unified news & catalysts section
-- Bonus criteria checkboxes
-- Real-time API integration (Alpha Vantage)
-- Drag & drop reordering
+## Core Features
+- Stock momentum analysis with 6-point scoring system
+- Real-time API integration with formatting preservation
+- News section with edit-in-place and tooltips
+- Enhanced data persistence (IndexedDB + localStorage fallbacks)
+- Drag & drop reordering with score-based sorting
+- Dark theme with consistent styling
 
-## Recent Changes
-- Moved score box above ticker at top of stock sheet
-- Added white add button for news sections
-- Added point counters to news and bonus criteria headers
-- Replaced empty news text with warning symbol
-- Multiple bonus criteria selectable with live count updates
+## Key Components
+- **Stock Cards**: Ticker, price, metrics with unit suffixes
+- **Scoring System**: Color-coded points with live calculation
+- **News Management**: Horizontal layout, edit mode, clickable URLs
+- **Persistence**: Multi-layer storage (works without cookies)
+- **Updates**: Preserve user formatting when refreshing data
 
-## Potential Improvements
-- Export/import functionality
-- Historical data tracking
-- Alert system for score thresholds
-- Mobile optimization
+## Technical Stack
+- React SPA with responsive design
+- IndexedDB primary storage, localStorage fallback
+- Alpha Vantage API integration
+- CSS Grid with dark theme styling
