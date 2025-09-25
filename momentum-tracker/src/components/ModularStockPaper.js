@@ -1,40 +1,40 @@
 import React, { useState, memo } from 'react';
 import { COMPONENT_REGISTRY } from './modular/ComponentRegistry';
 
-function ModularStockPaper({ 
-  stock, 
-  score, 
-  rank, 
-  onUpdate, 
-  onRemove, 
-  onUpdateSingle, 
-  perStockUpdating, 
+function ModularStockPaper({
+  stock,
+  score,
+  rank,
+  onUpdate,
+  onRemove,
+  onUpdateSingle,
+  perStockUpdating,
   dragListeners
 }) {
   const [isEditingTicker, setIsEditingTicker] = useState(false);
-  const [tickerValue, setTickerValue] = useState(stock.components?.ticker?.value || '');
+  const [tickerValue, setTickerValue] = useState(stock.ticker || '');
 
-  // Wrapper to handle both old and new update formats
-  const handleUpdate = (stockId, field, value) => {
-    if (stock.components) {
-      // New format - update the component structure
-      onUpdate(stockId, field, { value: value });
-    } else {
-      // Old format - direct update
-      onUpdate(stockId, field, value);
-    }
+  // Get current ticker from either old or new format
+  const getCurrentTicker = () => {
+    return stock.components?.ticker?.value || stock.ticker || '';
   };
 
   const handleTickerSave = () => {
     const newTicker = tickerValue.trim().toUpperCase();
-    if (newTicker && newTicker !== stock.components?.ticker?.value) {
-      handleUpdate(stock.id, 'ticker', newTicker);
+    if (newTicker && newTicker !== getCurrentTicker()) {
+      if (stock.components) {
+        // New format
+        onUpdate(stock.id, 'ticker', { value: newTicker });
+      } else {
+        // Old format
+        onUpdate(stock.id, 'ticker', newTicker);
+      }
     }
     setIsEditingTicker(false);
   };
 
   const handleTickerCancel = () => {
-    setTickerValue(stock.components?.ticker?.value || '');
+    setTickerValue(getCurrentTicker());
     setIsEditingTicker(false);
   };
 
@@ -46,163 +46,130 @@ function ModularStockPaper({
     }
   };
 
-  // Get components from registry
-  const getComponent = (componentId) => {
-    const componentConfig = COMPONENT_REGISTRY[componentId];
-    return componentConfig ? componentConfig.component : null;
-  };
-
-  const TickerComponent = getComponent('ticker');
-  const PriceComponent = getComponent('price');
-  const PercentRiseComponent = getComponent('percentRise');
-  const RelativeVolumeComponent = getComponent('relativeVolume');
-  const FloatComponent = getComponent('float');
-  const NewsComponent = getComponent('news');
-  const BonusChecksComponent = getComponent('bonusChecks');
-  const NotesComponent = getComponent('notes');
-
   return (
     <div className="stock-paper">
       {dragListeners && <div className="drag-bg-handle" {...dragListeners} title="Drag to reorder" />}
-      <button 
-        className="remove-x" 
-        onClick={(e) => {
-          e.stopPropagation();
-          onRemove(stock.id);
-        }}
-      >
-        ×
-      </button>
+      
+      {onRemove && (
+        <button
+          className="remove-x"
+          onClick={(e) => {
+            e.stopPropagation();
+            onRemove(stock.id);
+          }}
+        >
+          ×
+        </button>
+      )}
 
-      {/* Header Section - Update Button, Ticker, Score */}
       <div className="stock-header">
-        <div className="header-box update-btn" onPointerDown={(e) => e.stopPropagation()}>
-          <button 
-            className="update-btn-inner" 
-            onClick={(e) => {
-              e.stopPropagation();
-              onUpdateSingle && onUpdateSingle(stock.id);
-            }} 
-            disabled={perStockUpdating && perStockUpdating[stock.id]}
-          >
-            {perStockUpdating && perStockUpdating[stock.id] ? 'Updating...' : 'Update'}
-          </button>
-        </div>
-        
+        {onUpdateSingle && (
+          <div className="header-box update-btn" onPointerDown={(e) => e.stopPropagation()}>
+            <button
+              className="update-btn-inner"
+              onClick={(e) => {
+                e.stopPropagation();
+                onUpdateSingle(stock.id);
+              }}
+              disabled={perStockUpdating && perStockUpdating[stock.id]}
+            >
+              {perStockUpdating && perStockUpdating[stock.id] ? 'Updating...' : 'Update'}
+            </button>
+          </div>
+        )}
+
         <div className="header-box ticker-box" onPointerDown={(e) => e.stopPropagation()}>
-          {TickerComponent ? (
-            <TickerComponent
-              stock={stock}
-              onUpdate={handleUpdate}
-              isEditing={isEditingTicker}
-              setIsEditing={setIsEditingTicker}
-              tickerValue={tickerValue}
-              setTickerValue={setTickerValue}
-              onTickerSave={handleTickerSave}
-              onTickerCancel={handleTickerCancel}
-              onTickerKeyPress={handleTickerKeyPress}
+          {isEditingTicker || !getCurrentTicker() ? (
+            <input
+              value={tickerValue}
+              onChange={(e) => setTickerValue(e.target.value)}
+              onKeyDown={handleTickerKeyPress}
+              onBlur={handleTickerSave}
+              onClick={(e) => e.stopPropagation()}
+              onFocus={(e) => e.target.select()}
+              className="ticker-input"
+              autoFocus
+              maxLength="10"
+              placeholder="Ticker"
             />
           ) : (
-            // Fallback ticker display
-            isEditingTicker || !stock.components?.ticker?.value ? (
-              <input
-                value={tickerValue}
-                onChange={(e) => setTickerValue(e.target.value)}
-                onKeyDown={handleTickerKeyPress}
-                onBlur={handleTickerSave}
-                onClick={(e) => e.stopPropagation()}
-                className="ticker-input"
-                autoFocus
-                maxLength="10"
-                placeholder="Ticker"
-              />
-            ) : (
-              <span 
-                className="ticker-display" 
-                onClick={(e) => {
-                  e.stopPropagation();
-                  setIsEditingTicker(true);
-                }}
-                title="Click to edit ticker"
-              >
-                {stock.components?.ticker?.value || 'Ticker'}
-              </span>
-            )
+            <span
+              className="ticker-display"
+              onClick={(e) => {
+                e.stopPropagation();
+                setIsEditingTicker(true);
+              }}
+              title="Click to edit ticker"
+            >
+              {getCurrentTicker() || 'Ticker'}
+            </span>
           )}
         </div>
-        
-        <div className="header-box points-box" onPointerDown={(e) => e.stopPropagation()}>
-          <span className="main-score">
-            {score}
-          </span>
-        </div>
+
+        {score !== undefined && (
+          <div className="header-box points-box" onPointerDown={(e) => e.stopPropagation()}>
+            <span className="main-score">
+              {score}
+            </span>
+          </div>
+        )}
       </div>
 
-      {/* Criteria Grid - Main 4 criteria inputs */}
       <div className="criteria-grid">
-        {PriceComponent && (
-          <PriceComponent
+        {COMPONENT_REGISTRY.price && (
+          <COMPONENT_REGISTRY.price.component
             stock={stock}
-            onUpdate={handleUpdate}
+            onUpdate={onUpdate}
           />
         )}
-        
-        {PercentRiseComponent && (
-          <PercentRiseComponent
+
+        {COMPONENT_REGISTRY.percentRise && (
+          <COMPONENT_REGISTRY.percentRise.component
             stock={stock}
-            onUpdate={handleUpdate}
+            onUpdate={onUpdate}
           />
         )}
-        
-        {RelativeVolumeComponent && (
-          <RelativeVolumeComponent
+
+        {COMPONENT_REGISTRY.relativeVolume && (
+          <COMPONENT_REGISTRY.relativeVolume.component
             stock={stock}
-            onUpdate={handleUpdate}
+            onUpdate={onUpdate}
           />
         )}
-        
-        {FloatComponent && (
-          <FloatComponent
+
+        {COMPONENT_REGISTRY.float && (
+          <COMPONENT_REGISTRY.float.component
             stock={stock}
-            onUpdate={handleUpdate}
+            onUpdate={onUpdate}
           />
         )}
       </div>
 
       {/* News Section */}
-      {NewsComponent && (
-        <NewsComponent
+      {COMPONENT_REGISTRY.news && (
+        <COMPONENT_REGISTRY.news.component
           stock={stock}
-          onUpdate={handleUpdate}
+          onUpdate={onUpdate}
         />
       )}
 
       {/* Bonus Criteria Section */}
-      {BonusChecksComponent && (
-        <BonusChecksComponent
+      {COMPONENT_REGISTRY.bonusChecks && (
+        <COMPONENT_REGISTRY.bonusChecks.component
           stock={stock}
-          onUpdate={handleUpdate}
+          onUpdate={onUpdate}
         />
       )}
 
       {/* Notes Section */}
-      {NotesComponent && (
-        <NotesComponent
+      {COMPONENT_REGISTRY.notes && (
+        <COMPONENT_REGISTRY.notes.component
           stock={stock}
-          onUpdate={handleUpdate}
+          onUpdate={onUpdate}
         />
       )}
     </div>
   );
 }
 
-// Memoize ModularStockPaper for better performance with complex component trees
-export default memo(ModularStockPaper, (prevProps, nextProps) => {
-  return (
-    prevProps.stock.id === nextProps.stock.id &&
-    prevProps.score === nextProps.score &&
-    prevProps.rank === nextProps.rank &&
-    (prevProps.perStockUpdating || {})[prevProps.stock.id] === (nextProps.perStockUpdating || {})[nextProps.stock.id] &&
-    JSON.stringify(prevProps.stock.components || {}) === JSON.stringify(nextProps.stock.components || {})
-  );
-});
+export default memo(ModularStockPaper);
