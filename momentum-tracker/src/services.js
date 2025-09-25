@@ -1,5 +1,5 @@
 // Backend API integration
-import apiClient from './api/client';
+
 
 const ALPHA_VANTAGE_KEY = 'your_alpha_vantage_api_key_here';
 const BASE_URL = 'https://www.alphavantage.co/query';
@@ -165,11 +165,7 @@ export const apiService = {
     });
   },
 
-  getCounters() {
-    let c = loadCounters();
-    c = resetDailyIfNeeded(c);
-    return c;
-  }
+
 };
 
 // Enhanced storage with multiple persistence methods

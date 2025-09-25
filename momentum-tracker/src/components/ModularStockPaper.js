@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, memo } from 'react';
 import { COMPONENT_REGISTRY } from './modular/ComponentRegistry';
 
 function ModularStockPaper({ 
@@ -217,4 +217,13 @@ function ModularStockPaper({
   );
 }
 
-export default ModularStockPaper;
+// Memoize ModularStockPaper for better performance with complex component trees
+export default memo(ModularStockPaper, (prevProps, nextProps) => {
+  return (
+    prevProps.stock.id === nextProps.stock.id &&
+    prevProps.score === nextProps.score &&
+    prevProps.rank === nextProps.rank &&
+    prevProps.perStockUpdating[prevProps.stock.id] === nextProps.perStockUpdating[nextProps.stock.id] &&
+    JSON.stringify(prevProps.stock.components) === JSON.stringify(nextProps.stock.components)
+  );
+});

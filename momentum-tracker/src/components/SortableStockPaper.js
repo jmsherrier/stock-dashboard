@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { memo } from 'react';
 import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 import StockPaper from './StockPaper';
@@ -53,4 +53,15 @@ function SortableStockPaper({
   );
 }
 
-export default SortableStockPaper;
+// Memoize to prevent unnecessary re-renders when stock data hasn't changed
+export default memo(SortableStockPaper, (prevProps, nextProps) => {
+  // Custom comparison function for better performance
+  return (
+    prevProps.stock.id === nextProps.stock.id &&
+    prevProps.score === nextProps.score &&
+    prevProps.rank === nextProps.rank &&
+    prevProps.isSelected === nextProps.isSelected &&
+    prevProps.perStockUpdating[prevProps.stock.id] === nextProps.perStockUpdating[nextProps.stock.id] &&
+    JSON.stringify(prevProps.stock.components) === JSON.stringify(nextProps.stock.components)
+  );
+});
