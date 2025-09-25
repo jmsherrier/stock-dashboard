@@ -251,6 +251,7 @@ function StockPaper({ stock, score, rank, onUpdate, onRemove, onUpdateSingle, pe
           currentPoints={getScorePoints(stock.float, 'float')}
           warning={getWarning(stock.float, 'float')}
           scale={floatScale}
+          manualOnly={true}
         />
       </div>
 
