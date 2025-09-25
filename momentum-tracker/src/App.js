@@ -15,6 +15,7 @@ function App() {
   const [showAddModal, setShowAddModal] = useState(false);
   const [isUpdating, setIsUpdating] = useState(false);
   const [counters, setCounters] = useState(apiService.getCounters());
+  const [perStockUpdating, setPerStockUpdating] = useState({});
 
   useEffect(() => {
     const loaded = storage.load();
@@ -29,7 +30,12 @@ function App() {
     const id = `${ticker}-${Date.now()}`;
     const newStock = { id, ticker, percentChange: '0', relativeVolume: '1', notes: '', news: [] };
     setUndoStack(prev => [...prev, stocks]);
-    setStocks(prev => [newStock, ...prev]);
+    setStocks(prev => {
+      const next = [newStock, ...prev];
+      // auto-sort by score unless manual ordering is enabled
+      if (isManualOrder) return next;
+      return [...next].sort((a, b) => calculateScore(b) - calculateScore(a));
+    });
   };
 
   const updateStock = (id, field, value) => {
@@ -59,6 +65,22 @@ function App() {
       setStocks(updated);
     } finally {
       setIsUpdating(false);
+      setCounters(apiService.getCounters());
+    }
+  };
+
+  const updateSingle = async (id) => {
+    const stock = stocks.find(s => s.id === id);
+    if (!stock) return;
+    setPerStockUpdating(p => ({ ...p, [id]: true }));
+    try {
+      const data = await apiService.getQuote(stock.ticker);
+      setUndoStack(prev => [...prev, stocks]);
+      setStocks(prev => prev.map(s => s.id === id ? { ...s, percentChange: data.percentChange.toString(), relativeVolume: data.relativeVolume.toString() } : s));
+    } catch (err) {
+      console.error('Failed to update single:', err);
+    } finally {
+      setPerStockUpdating(p => ({ ...p, [id]: false }));
       setCounters(apiService.getCounters());
     }
   };
@@ -126,7 +148,8 @@ function App() {
                 onSelect={() => setSelectedStock(stock.id)}
                 onUpdate={updateStock}
                 onRemove={removeStock}
-                onUpdateSingle={async () => { /* no-op */ }}
+                perStockUpdating={perStockUpdating}
+                onUpdateSingle={updateSingle}
               />
             ))}
           </SortableContext>
