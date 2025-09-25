@@ -24,6 +24,16 @@
 - Update README.md after implementing changes to reflect current state
 - Document new features, interface modifications, and technical updates
 - Maintain version tracking and change logs in project documentation
+- Do not create new README files - only contribute to and update existing README.md files
+- Focus on enhancing existing documentation rather than creating additional documentation files
 
 ## Implementation
 These guidelines ensure efficient, focused interactions that respect user intentions and time constraints while maintaining helpful assistance within defined boundaries.
+
+## Command line / Terminal
+Generally, working folder is Whiteboard/momentum-tracker/
+
+### PowerShell Syntax
+- Use semicolon (`;`) syntax to join commands on a single line when needed
+- Example: `cd .\momentum-tracker\; npm install`
+- This ensures compatibility with Windows PowerShell command execution

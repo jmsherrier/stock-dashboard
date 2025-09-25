@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { memo } from 'react';
 
 function NewsList({ title, items, onUpdate }) {
   return (
@@ -22,4 +22,4 @@ function NewsList({ title, items, onUpdate }) {
   );
 }
 
-export default NewsList;
+export default memo(NewsList);

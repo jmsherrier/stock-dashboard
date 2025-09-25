@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { memo } from 'react';
 import ScaleBar from './ScaleBar';
 
 function CriteriaInput({ label, value, onChange, type = 'text', step, warning, scale, currentPoints, suffix = '', manualOnly = false }) {
@@ -33,4 +33,5 @@ function CriteriaInput({ label, value, onChange, type = 'text', step, warning, s
   );
 }
 
-export default CriteriaInput;
+// Memoize to prevent re-renders when props haven't changed
+export default memo(CriteriaInput);

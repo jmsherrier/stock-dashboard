@@ -1,6 +1,7 @@
-import React, { useState } from 'react';
+import React, { useState, memo } from 'react';
 import CriteriaInput from './CriteriaInput';
 import NewsSection from './NewsSection';
+import { getScorePoints, getWarning, SCORING_RANGES } from '../constants/scoring';
 
 function StockPaper({ stock, score, rank, onUpdate, onRemove, onUpdateSingle, perStockUpdating, dragListeners }) {
   const [isEditingTicker, setIsEditingTicker] = useState(false);
@@ -27,122 +28,28 @@ function StockPaper({ stock, score, rank, onUpdate, onRemove, onUpdateSingle, pe
     }
   };
   
-  // Helper function to calculate individual criteria scores
-  const getScorePoints = (value, type) => {
-    // Return 0 for null, undefined, or empty values
-    if (value === null || value === undefined || value === '' || value === 0) {
-      return 0;
-    }
-    
-    const val = parseFloat(value);
-    if (isNaN(val)) return 0;
-    
-    switch (type) {
-      case 'price':
-        if (val >= 15) return -3;
-        if (val >= 10) return -2;
-        if (val >= 8) return -1;
-        if (val >= 5) return 1;
-        if (val >= 3) return 2;
-        if (val >= 2) return 3;
-        return 0;
-      
-      case 'percentRise':
-        if (val < 3) return -3;
-        if (val < 5) return -2;
-        if (val < 7) return -1;
-        if (val < 10) return 1;
-        if (val < 15) return 2;
-        if (val >= 15) return 3;
-        return 0;
-      
-      case 'relativeVolume':
-        if (val < 2) return -3;
-        if (val < 3) return -2;
-        if (val < 5) return -1;
-        if (val < 8) return 1;
-        if (val < 12) return 2;
-        if (val >= 12) return 3;
-        return 0;
-      
-      case 'float':
-        if (val > 50) return -3;
-        if (val > 30) return -2;
-        if (val > 20) return -1;
-        if (val > 15) return 1;
-        if (val > 10) return 2;
-        if (val > 0 && val <= 10) return 3;
-        return 0;
-      
-      default:
-        return 0;
-    }
-  };
 
-  const getWarning = (value, type) => {
-    const val = parseFloat(value) || 0;
-    if (!value || val === 0) return null; // No warning for empty/zero values
-    
-    switch (type) {
-      case 'price':
-        if (val < 2 || val > 20) return 'Outside $2-20 range';
-        break;
-      case 'percentRise':
-        if (val < 7) return 'Below 7% minimum';
-        break;
-      case 'relativeVolume':
-        if (val < 5) return 'Below 5x minimum';
-        break;
-      case 'float':
-        if (val > 20) return 'Above 20M limit';
-        break;
-    }
-    return null;
-  };
 
-  const getScoreColor = (score) => {
-    if (score >= 10) return '#22c55e'; // bright green
-    if (score >= 5) return '#84cc16'; // green  
-    if (score >= 0) return '#666'; // neutral
-    if (score >= -5) return '#f97316'; // orange
-    return '#ef4444'; // red
-  };
-
-  const priceScale = [
-    { range: '15-20', points: -3 },
-    { range: '10-15', points: -2 },
-    { range: '8-10', points: -1 },
-    { range: '5-8', points: 1 },
-    { range: '3-5', points: 2 },
-    { range: '2-3', points: 3 }
-  ];
-
-  const percentRiseScale = [
-    { range: '<3', points: -3 },
-    { range: '3-5', points: -2 },
-    { range: '5-7', points: -1 },
-    { range: '7-10', points: 1 },
-    { range: '10-15', points: 2 },
-    { range: '15+', points: 3 }
-  ];
-
-  const relativeVolumeScale = [
-    { range: '<2', points: -3 },
-    { range: '2-3', points: -2 },
-    { range: '3-5', points: -1 },
-    { range: '5-8', points: 1 },
-    { range: '8-12', points: 2 },
-    { range: '12+', points: 3 }
-  ];
-
-  const floatScale = [
-    { range: '>50', points: -3 },
-    { range: '30-50', points: -2 },
-    { range: '20-30', points: -1 },
-    { range: '15-20', points: 1 },
-    { range: '10-15', points: 2 },
-    { range: '<10', points: 3 }
-  ];
+  // Convert scoring ranges to display format for scales
+  const priceScale = SCORING_RANGES.price.map(r => ({
+    range: r.max === Infinity ? `${r.min}+` : `${r.min}-${r.max}`,
+    points: r.points
+  }));
+  
+  const percentRiseScale = SCORING_RANGES.percentRise.map(r => ({
+    range: r.min === -Infinity ? `<${r.max}` : r.max === Infinity ? `${r.min}+` : `${r.min}-${r.max}`,
+    points: r.points
+  }));
+  
+  const relativeVolumeScale = SCORING_RANGES.relativeVolume.map(r => ({
+    range: r.max === Infinity ? `${r.min}+` : `${r.min}-${r.max}`,
+    points: r.points
+  }));
+  
+  const floatScale = SCORING_RANGES.float.map(r => ({
+    range: r.max === Infinity ? `${r.min}+` : `${r.min}-${r.max}`,
+    points: r.points
+  }));
 
   return (
     <div className="stock-paper">
@@ -329,4 +236,14 @@ function StockPaper({ stock, score, rank, onUpdate, onRemove, onUpdateSingle, pe
   );
 }
 
-export default StockPaper;
+// Memoize StockPaper to prevent unnecessary re-renders
+export default memo(StockPaper, (prevProps, nextProps) => {
+  // Only re-render if the stock data, score, or updating state has changed
+  return (
+    prevProps.stock.id === nextProps.stock.id &&
+    prevProps.score === nextProps.score &&
+    prevProps.rank === nextProps.rank &&
+    prevProps.perStockUpdating[prevProps.stock.id] === nextProps.perStockUpdating[nextProps.stock.id] &&
+    JSON.stringify(prevProps.stock) === JSON.stringify(nextProps.stock)
+  );
+});

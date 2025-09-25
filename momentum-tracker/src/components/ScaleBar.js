@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { memo } from 'react';
 
 function ScaleBar({ currentPoints, scale }) {
   // Create a gradient from dark red (-3) to light green (+3)
@@ -24,4 +24,4 @@ function ScaleBar({ currentPoints, scale }) {
   );
 }
 
-export default ScaleBar;
+export default memo(ScaleBar);

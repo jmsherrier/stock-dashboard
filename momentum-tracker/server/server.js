@@ -9,6 +9,8 @@ const userRoutes = require('./routes/users');
 const stockRoutes = require('./routes/stocks');
 const strategyRoutes = require('./routes/strategies');
 const Database = require('./db/database');
+const { handleError, handleNotFound } = require('./middleware/errorHandler');
+const requestLogger = require('./middleware/requestLogger');
 
 const app = express();
 const PORT = process.env.PORT || 3001;
@@ -48,10 +50,7 @@ app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true }));
 
 // Request logging
-app.use((req, res, next) => {
-  console.log(`${new Date().toISOString()} - ${req.method} ${req.path}`);
-  next();
-});
+app.use(requestLogger);
 
 // Routes
 app.use('/api/auth', authRoutes);
@@ -78,19 +77,10 @@ if (process.env.NODE_ENV === 'production') {
 }
 
 // Error handling middleware
-app.use((err, req, res, next) => {
-  console.error('Error:', err);
-  res.status(err.status || 500).json({
-    error: process.env.NODE_ENV === 'production' 
-      ? 'Internal server error' 
-      : err.message
-  });
-});
+app.use(handleError);
 
 // 404 handler
-app.use('*', (req, res) => {
-  res.status(404).json({ error: 'Route not found' });
-});
+app.use('*', handleNotFound);
 
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
