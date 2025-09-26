@@ -24,11 +24,6 @@ function SettingsModal({ isOpen, onClose, user: propUser }) {
     localStorage.setItem(key.replace(/([A-Z])/g, '-$1').toLowerCase(), value.toString());
   };
 
-  const handleSaveSettings = () => {
-    // Settings are already saved to localStorage on change
-    onClose();
-  };
-
   const handleResetSettings = () => {
     if (window.confirm('Are you sure you want to reset all settings to defaults?')) {
       const defaultSettings = {
@@ -211,12 +206,6 @@ function SettingsModal({ isOpen, onClose, user: propUser }) {
             className="cancel-btn"
           >
             Reset to Defaults
-          </button>
-          <button 
-            onClick={handleSaveSettings}
-            className="apply-btn"
-          >
-            Save Settings
           </button>
         </div>
       </div>

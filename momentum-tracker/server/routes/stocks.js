@@ -1,15 +1,13 @@
 const express = require('express');
 const { v4: uuidv4 } = require('uuid');
-const Database = require('../db/database');
 const { authenticateAPIKey } = require('../middleware/auth');
 
 const router = express.Router();
-const db = new Database();
 
 // Get user's stock data
 router.get('/', authenticateAPIKey, async (req, res) => {
   try {
-    const stockData = await db.get(
+    const stockData = await global.db.get(
       'SELECT stocks_data, updated_at FROM user_stocks WHERE user_id = ?',
       [req.user.id]
     );
@@ -39,7 +37,7 @@ router.post('/save', authenticateAPIKey, async (req, res) => {
     
     const stocksData = JSON.stringify({ stocks, meta });
     
-    await db.run(
+    await global.db.run(
       `INSERT OR REPLACE INTO user_stocks (id, user_id, stocks_data, updated_at) 
        VALUES (COALESCE((SELECT id FROM user_stocks WHERE user_id = ?), ?), ?, ?, CURRENT_TIMESTAMP)`,
       [req.user.id, uuidv4(), req.user.id, stocksData]
