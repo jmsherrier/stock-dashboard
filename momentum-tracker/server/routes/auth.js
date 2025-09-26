@@ -1,10 +1,8 @@
 const express = require('express');
 const { v4: uuidv4 } = require('uuid');
-const Database = require('../db/database');
 const { authenticateAPIKey } = require('../middleware/auth');
 
 const router = express.Router();
-const db = new Database();
 
 // Create new user with API key
 router.post('/create', async (req, res) => {
@@ -16,7 +14,7 @@ router.post('/create', async (req, res) => {
     }
 
     // Check if user already exists
-    const existingUser = await db.get('SELECT * FROM users WHERE email = ?', [email]);
+    const existingUser = await global.db.get('SELECT * FROM users WHERE email = ?', [email]);
     if (existingUser) {
       return res.status(409).json({ error: 'User already exists' });
     }
@@ -24,7 +22,7 @@ router.post('/create', async (req, res) => {
     const userId = uuidv4();
     const apiKey = uuidv4();
 
-    await db.run(
+    await global.db.run(
       'INSERT INTO users (id, email, api_key) VALUES (?, ?, ?)',
       [userId, email, apiKey]
     );
@@ -37,7 +35,7 @@ router.post('/create', async (req, res) => {
       defaultStrategy: null
     };
 
-    await db.run(
+    await global.db.run(
       'INSERT INTO user_settings (user_id, settings) VALUES (?, ?)',
       [userId, JSON.stringify(defaultSettings)]
     );
@@ -59,7 +57,7 @@ router.post('/create', async (req, res) => {
 // Get user info by API key
 router.get('/me', authenticateAPIKey, async (req, res) => {
   try {
-    const user = await db.get(
+    const user = await global.db.get(
       'SELECT id, email, created_at, is_active FROM users WHERE id = ?',
       [req.user.id]
     );
@@ -68,7 +66,7 @@ router.get('/me', authenticateAPIKey, async (req, res) => {
       return res.status(404).json({ error: 'User not found' });
     }
 
-    const settings = await db.get(
+    const settings = await global.db.get(
       'SELECT settings FROM user_settings WHERE user_id = ?',
       [req.user.id]
     );
@@ -90,7 +88,7 @@ router.put('/settings', authenticateAPIKey, async (req, res) => {
   try {
     const { settings } = req.body;
     
-    await db.run(
+    await global.db.run(
       `INSERT OR REPLACE INTO user_settings (user_id, settings, updated_at) 
        VALUES (?, ?, CURRENT_TIMESTAMP)`,
       [req.user.id, JSON.stringify(settings)]

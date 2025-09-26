@@ -1,5 +1,8 @@
 # Volitiliraptor - Multi-Strategy Trading Analysis Platform
 
+# Test API key
+your_alpha_vantage_api_key_here
+
 ## Overview
 Volitiliraptor is a modular, multi-strategy trading analysis platform that allows users to analyze stocks using different trading strategies with customizable paper layouts and scoring systems.
 

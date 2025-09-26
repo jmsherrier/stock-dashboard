@@ -1,7 +1,3 @@
-const Database = require('../db/database');
-
-const db = new Database();
-
 // Middleware to authenticate API key
 const authenticateAPIKey = async (req, res, next) => {
   try {
@@ -11,7 +7,7 @@ const authenticateAPIKey = async (req, res, next) => {
       return res.status(401).json({ error: 'API key is required' });
     }
 
-    const user = await db.get('SELECT * FROM users WHERE api_key = ? AND is_active = 1', [apiKey]);
+    const user = await global.db.get('SELECT * FROM users WHERE api_key = ? AND is_active = 1', [apiKey]);
     
     if (!user) {
       return res.status(401).json({ error: 'Invalid API key' });
