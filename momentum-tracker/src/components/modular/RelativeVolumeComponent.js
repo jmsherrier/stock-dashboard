@@ -3,8 +3,12 @@ import { calculateComponentScore, getComponentScoreColor } from './ComponentRegi
 import CriteriaInput from '../CriteriaInput';
 
 function RelativeVolumeComponent({ stock, onUpdate, config }) {
-  const score = calculateComponentScore('relativeVolume', stock.relativeVolume);
-  const scoreColor = getComponentScoreColor('relativeVolume', stock.relativeVolume);
+  // Get value from modular or legacy format
+  const getValue = () => stock.components?.relativeVolume?.value || stock.relativeVolume || '';
+  const value = getValue();
+  
+  const score = calculateComponentScore('relativeVolume', value);
+  const scoreColor = getComponentScoreColor('relativeVolume', value);
 
   const getWarning = (value) => {
     const val = parseFloat(value) || 0;
@@ -46,13 +50,13 @@ function RelativeVolumeComponent({ stock, onUpdate, config }) {
     return (
       <CriteriaInput
         label="Relative Volume"
-        value={stock.relativeVolume || ''}
-        onChange={(value) => onUpdate(stock.id, 'relativeVolume', value)}
+        value={value}
+        onChange={(val) => onUpdate(stock.id, 'relativeVolume', { value: val })}
         type="number"
         step="0.1"
         suffix="x"
-        currentPoints={getScorePoints(stock.relativeVolume)}
-        warning={getWarning(stock.relativeVolume)}
+        currentPoints={getScorePoints(value)}
+        warning={getWarning(value)}
         scale={relativeVolumeScale}
       />
     );
@@ -72,15 +76,15 @@ function RelativeVolumeComponent({ stock, onUpdate, config }) {
           <input
             type="number"
             step="0.1"
-            value={stock.relativeVolume || ''}
-            onChange={(e) => onUpdate(stock.id, 'relativeVolume', e.target.value)}
+            value={value}
+            onChange={(e) => onUpdate(stock.id, 'relativeVolume', { value: e.target.value })}
             placeholder="0.0"
           />
           <span className="input-suffix">x</span>
         </div>
-        {getWarning(stock.relativeVolume) && (
+        {getWarning(value) && (
           <div className="component-warning">
-            {getWarning(stock.relativeVolume)}
+            {getWarning(value)}
           </div>
         )}
       </div>

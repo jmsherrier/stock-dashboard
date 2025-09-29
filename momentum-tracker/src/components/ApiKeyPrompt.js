@@ -4,26 +4,30 @@ import { useAuth } from '../contexts/AuthContext';
 function ApiKeyPrompt() {
   const { login, createAccount } = useAuth();
   const [mode, setMode] = useState('login'); // 'login' or 'create'
-  const [apiKey, setApiKey] = useState('');
   const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
 
   const handleLogin = async (e) => {
     e.preventDefault();
-    if (!apiKey.trim()) {
-      setError('Please enter your API key');
+    if (!email.trim() || !email.includes('@')) {
+      setError('Please enter a valid email address');
+      return;
+    }
+    if (!password.trim()) {
+      setError('Please enter your password');
       return;
     }
 
     setLoading(true);
     setError('');
     
-    const result = await login(apiKey.trim());
+    const result = await login(email.trim(), password.trim());
     
     if (!result.success) {
-      setError(result.error || 'Invalid API key');
+      setError(result.error || 'Invalid email or password');
     }
     
     setLoading(false);
@@ -35,20 +39,25 @@ function ApiKeyPrompt() {
       setError('Please enter a valid email address');
       return;
     }
+    if (!password.trim() || password.length < 4) {
+      setError('Password must be at least 4 characters');
+      return;
+    }
 
     setLoading(true);
     setError('');
     setSuccess('');
 
-    const result = await createAccount(email.trim());
+    const result = await createAccount(email.trim(), password.trim());
     
     if (result.success) {
       setSuccess(
-        `Account created successfully! Your API key is: ${result.apiKey}. ` +
-        'Please save this key securely - you will need it to access your account.'
+        `Account created successfully! Logging you in...`
       );
-      setApiKey(result.apiKey);
-      setMode('login');
+      // Auto-login after account creation
+      setTimeout(async () => {
+        await login(email.trim(), password.trim());
+      }, 1500);
     } else {
       setError(result.error || 'Failed to create account');
     }
@@ -90,13 +99,25 @@ function ApiKeyPrompt() {
         {mode === 'login' ? (
           <form onSubmit={handleLogin} className="prompt-form">
             <div className="form-group">
-              <label>API Key</label>
+              <label>Email Address</label>
+              <input
+                type="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                placeholder="Enter your email"
+                disabled={loading}
+                autoComplete="email"
+              />
+            </div>
+            <div className="form-group">
+              <label>Password</label>
               <input
                 type="password"
-                value={apiKey}
-                onChange={(e) => setApiKey(e.target.value)}
-                placeholder="Enter your API key"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                placeholder="Enter your password"
                 disabled={loading}
+                autoComplete="current-password"
               />
             </div>
             
@@ -116,8 +137,19 @@ function ApiKeyPrompt() {
                 onChange={(e) => setEmail(e.target.value)}
                 placeholder="Enter your email"
                 disabled={loading}
+                autoComplete="email"
               />
-              <small>We'll create your account and generate a secure API key</small>
+            </div>
+            <div className="form-group">
+              <label>Password</label>
+              <input
+                type="password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                placeholder="Create a password (min 4 characters)"
+                disabled={loading}
+                autoComplete="new-password"
+              />
             </div>
             
             {error && <div className="error-message">{error}</div>}
@@ -131,8 +163,7 @@ function ApiKeyPrompt() {
 
         <div className="prompt-footer">
           <p>
-            <strong>Note:</strong> Your API key is your unique identifier. 
-            Keep it secure and don't share it with others.
+            <strong>Note:</strong> Your data is stored securely and is accessible only with your login credentials.
           </p>
         </div>
       </div>

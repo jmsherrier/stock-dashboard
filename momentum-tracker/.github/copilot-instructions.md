@@ -50,6 +50,14 @@
 - Drag-and-drop: verify `@dnd-kit` is installed
 - Data persistence: check SQLite file permissions
 
+### Server Stability & Process Management
+- **Dedicated Terminal Required**: Backend server must run in dedicated terminal tab/window. VS Code terminal sends SIGINT signals to background processes when executing subsequent commands in same terminal.
+- **Port Conflicts**: If `EADDRINUSE` error occurs on port 3001, check for orphaned node processes: `Get-Process node` then `Stop-Process -Name node -Force`
+- **Server Won't Stay Active**: Verify `server.js` calls `app.listen()` inside async database initialization block (after `await db.init()`)
+- **Database Initialization**: Server must complete "Database initialization completed" before accepting requests. Check for invalid table/index references in `database.js`
+- **Starting Server**: Use dedicated terminal tab with `cd .\momentum-tracker\server; npm run dev` or separate window with `npm run dev:windows`
+- **Testing Server**: Use separate terminal tab for API requests (curl/Invoke-RestMethod). Health check: `http://localhost:3001/api/health`
+
 ---
 
 **Feedback:** If any section is unclear or missing, please specify what needs improvement or additional detail.

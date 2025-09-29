@@ -57,21 +57,28 @@ router.get('/quote/:ticker', authenticateAPIKey, async (req, res) => {
     const ALPHA_VANTAGE_KEY = process.env.ALPHA_VANTAGE_KEY;
     const BASE_URL = 'https://www.alphavantage.co/query';
     
-    const url = `${BASE_URL}?function=GLOBAL_QUOTE&symbol=${encodeURIComponent(ticker)}&apikey=${ALPHA_VANTAGE_KEY}`;
+    // Fetch both quote and overview data in parallel
+    const quoteUrl = `${BASE_URL}?function=GLOBAL_QUOTE&symbol=${encodeURIComponent(ticker)}&apikey=${ALPHA_VANTAGE_KEY}`;
+    const overviewUrl = `${BASE_URL}?function=OVERVIEW&symbol=${encodeURIComponent(ticker)}&apikey=${ALPHA_VANTAGE_KEY}`;
     
-    const response = await fetch(url);
-    const data = await response.json();
+    const [quoteResponse, overviewResponse] = await Promise.all([
+      fetch(quoteUrl),
+      fetch(overviewUrl)
+    ]);
+    
+    const quoteData = await quoteResponse.json();
+    const overviewData = await overviewResponse.json();
     
     // Process the response similar to current client-side logic
-    if (data['Error Message']) {
-      throw new Error(`API Error: ${data['Error Message']}`);
+    if (quoteData['Error Message']) {
+      throw new Error(`API Error: ${quoteData['Error Message']}`);
     }
     
-    if (data['Note'] && data['Note'].includes('call frequency')) {
+    if (quoteData['Note'] && quoteData['Note'].includes('call frequency')) {
       throw new Error('API rate limit exceeded');
     }
 
-    const g = data['Global Quote'] || {};
+    const g = quoteData['Global Quote'] || {};
     
     let price = 0;
     let changePercent = 0;
@@ -97,6 +104,12 @@ router.get('/quote/:ticker', authenticateAPIKey, async (req, res) => {
       }
     }
 
+    // Get shares outstanding from overview data
+    let sharesOutstanding = null;
+    if (overviewData && overviewData['SharesOutstanding']) {
+      sharesOutstanding = overviewData['SharesOutstanding'];
+    }
+
     // If no valid data, return demo data
     if (price === 0 && changePercent === 0) {
       price = Math.random() * 18 + 2;
@@ -105,11 +118,18 @@ router.get('/quote/:ticker', authenticateAPIKey, async (req, res) => {
 
     const relativeVolume = (0.5 + (Math.random() * 4)).toFixed(2);
 
-    res.json({ 
+    const response = { 
       price: price > 0 ? price.toFixed(2) : (Math.random() * 18 + 2).toFixed(2), 
       percentChange: changePercent.toFixed(2), 
       relativeVolume 
-    });
+    };
+
+    // Add shares outstanding if available
+    if (sharesOutstanding) {
+      response.sharesOutstanding = sharesOutstanding;
+    }
+
+    res.json(response);
     
   } catch (error) {
     console.error('Error fetching quote:', error);
@@ -117,7 +137,8 @@ router.get('/quote/:ticker', authenticateAPIKey, async (req, res) => {
     res.json({ 
       price: (Math.random() * 18 + 2).toFixed(2),
       percentChange: (Math.random() * 20 - 5).toFixed(2),
-      relativeVolume: (Math.random() * 20 + 0.5).toFixed(2)
+      relativeVolume: (Math.random() * 20 + 0.5).toFixed(2),
+      sharesOutstanding: (Math.random() * 80000000 + 20000000).toFixed(0) // Demo: 20M-100M shares
     });
   }
 });

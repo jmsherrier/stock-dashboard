@@ -19,7 +19,7 @@ import apiClient from './api/client';
 import { storage } from './services';
 
 
-function MainApp({ devMode = false }) {
+function MainApp() {
   const { user } = useAuth();
   const {
     stocks,
@@ -88,17 +88,27 @@ function MainApp({ devMode = false }) {
 
 
   const updateAllStocks = async () => {
-    if (!canMakeRequest()) return;
+    console.log('updateAllStocks called, stocks:', stocks);
+    if (!canMakeRequest()) {
+      console.log('Cannot make request - rate limit');
+      return;
+    }
     
     setIsUpdating(true);
     try {
+      console.log('Calling StockService.updateMultipleStocks...');
       const updated = await StockService.updateMultipleStocks(stocks);
+      console.log('Got updated stocks:', updated);
       setStocks(updated);
+      console.log('State updated with:', updated);
       
-      // Save to backend if authenticated (skip in dev mode)
-      if (user && !devMode) {
+      // Save to backend if authenticated
+      if (user) {
+        console.log('Saving to backend...');
         await saveStocksToBackend(updated);
       }
+    } catch (error) {
+      console.error('Error in updateAllStocks:', error);
     } finally {
       setIsUpdating(false);
       refreshCounters();
@@ -106,21 +116,29 @@ function MainApp({ devMode = false }) {
   };
 
   const updateSingle = async (id) => {
+    console.log('updateSingle called for id:', id);
     const stock = stocks.find(s => s.id === id);
     if (!stock) {
       console.log('Stock not found:', id);
       return;
     }
+    console.log('Found stock:', stock);
 
     setStockUpdating(id, true);
     try {
+      console.log('Calling StockService.updateStockQuote...');
       const updatedStock = await StockService.updateStockQuote(stock);
+      console.log('Got updated stock:', updatedStock);
       
-      setStocks(prev => prev.map(s => s.id === id ? updatedStock : s));
+      const newStocks = stocks.map(s => s.id === id ? updatedStock : s);
+      console.log('New stocks array:', newStocks);
+      setStocks(newStocks);
+      console.log('State updated');
       
-      // Save to backend if authenticated (skip in dev mode)
-      if (user && !devMode) {
-        await apiClient.saveUserStock(updatedStock);
+      // Save to backend if authenticated
+      if (user) {
+        console.log('Saving to backend...');
+        await saveStocksToBackend(newStocks);
       }
     } catch (err) {
       console.error('Failed to update single stock:', err);
@@ -383,32 +401,12 @@ function App() {
 
 function AppContent() {
   const { user } = useAuth();
-  const [devMode, setDevMode] = useState(false);
   
-  // Development mode toggle (remove in production)
-  if (process.env.NODE_ENV === 'development' && !user && !devMode) {
-    return (
-      <div className="dev-mode-prompt">
-        <div className="dev-container">
-          <h2>Development Mode</h2>
-          <p>Choose how to proceed:</p>
-          <div className="dev-buttons">
-            <button onClick={() => setDevMode(true)} className="dev-bypass-btn">
-              🚀 Skip Login (Dev Mode)
-            </button>
-            <div className="dev-divider">or</div>
-            <ApiKeyPrompt />
-          </div>
-        </div>
-      </div>
-    );
-  }
-  
-  if (!user && !devMode) {
+  if (!user) {
     return <ApiKeyPrompt />;
   }
   
-  return <MainApp devMode={devMode} />;
+  return <MainApp />;
 }
 
 export default App;

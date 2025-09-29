@@ -1487,6 +1487,7 @@ body {
   display: flex;
   flex-direction: column;
   gap: 0.5rem;
+  margin-bottom: 1rem;
 }
 
 .form-group label {
@@ -2170,69 +2171,7 @@ input:disabled + .toggle-slider {
   background: #2563eb;
 }
 
-/* Development Mode Styles */
-.dev-mode-prompt {
-  min-height: 100vh;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%);
-  padding: 2rem;
-}
-
-.dev-container {
-  background: rgba(255, 255, 255, 0.05);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  border-radius: 12px;
-  padding: 2rem;
-  width: 100%;
-  max-width: 500px;
-  backdrop-filter: blur(10px);
-  text-align: center;
-}
-
-.dev-container h2 {
-  margin: 0 0 1rem 0;
-  color: #e5e5e5;
-  font-size: 1.5rem;
-}
-
-.dev-container p {
-  margin: 0 0 1.5rem 0;
-  color: #888;
-}
-
-.dev-buttons {
-  display: flex;
-  flex-direction: column;
-  gap: 1rem;
-  align-items: center;
-}
-
-.dev-bypass-btn {
-  padding: 1rem 2rem;
-  background: linear-gradient(135deg, #10b981 0%, #059669 100%);
-  border: none;
-  border-radius: 8px;
-  color: white;
-  font-size: 0.85rem;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all 0.2s;
-  box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
-}
-
-.dev-bypass-btn:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 6px 20px rgba(16, 185, 129, 0.4);
-}
-
-.dev-divider {
-  color: #666;
-  font-style: italic;
-  padding: 0.5rem 0;
-}
-
+/* Settings Dropdown Styles */
 .app-title-section {
   display: flex;
   align-items: center;
@@ -2696,6 +2635,13 @@ input:disabled + .toggle-slider {
   color: #e5e5e5;
   font-size: 0.85rem;
   font-weight: 500;
+}
+
+.dev-badge {
+  color: #10b981;
+  font-size: 0.75rem;
+  font-weight: 600;
+  margin-left: 0.5rem;
 }
 
 .account-actions {

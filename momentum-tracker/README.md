@@ -27,10 +27,11 @@ Volitiliraptor is a comprehensive trading analysis platform that transforms trad
 - **Real-Time Updates**: Live score recalculation
 
 ### 🔐 Robust Backend
-- **User Authentication**: API key-based system (no passwords)
+- **User Authentication**: Email and password authentication system
 - **Data Persistence**: SQLite database with comprehensive user storage
 - **Real-Time Data**: Alpha Vantage API integration with fallback demo data
 - **Multi-User Support**: Individual user spaces and settings
+- **Developer Access**: Optional dev mode accessible via settings with access code
 
 ### 🎨 Modern UI/UX
 - **Clean Interface**: Streamlined design focused on data analysis
@@ -41,7 +42,7 @@ Volitiliraptor is a comprehensive trading analysis platform that transforms trad
 ## Technical Stack
 - **Frontend**: React 19.1.1 with @dnd-kit for drag-and-drop
 - **Backend**: Express.js with SQLite database
-- **Authentication**: API key-based system with JWT
+- **Authentication**: Email/password authentication with bcrypt hashing
 - **APIs**: Alpha Vantage for real-time stock data
 - **Storage**: Multi-layer persistence (database + localStorage)
 - **Styling**: CSS Grid and Flexbox with custom dark theme
@@ -68,6 +69,12 @@ cp server/.env.example server/.env
 
 # Configure your Alpha Vantage API key in server/.env
 echo "ALPHA_VANTAGE_API_KEY=your_key_here" >> server/.env
+
+# Run database migrations and seed initial user
+cd server
+npm run migrate
+npm run seed
+cd ..
 ```
 
 ### Development
@@ -91,12 +98,18 @@ npm run server:prod
 ## Usage Guide
 
 ### Getting Started
-1. **Authentication**: Enter your email to create an account (no password required)
+1. **Authentication**: Create account with email and password, or login with existing credentials
 2. **Add Stocks**: Press 'A' or click "Add Ticker" to add a new stock
 3. **Enter Data**: Click on any field to edit stock information
 4. **Update Prices**: Click "Update" button to fetch real-time data
 5. **Reorder**: Drag stock papers to rearrange them
-6. **Configure**: Use settings menu to clear data or adjust preferences
+6. **Configure**: Use settings menu to adjust preferences and access dev mode
+
+### Developer Mode
+- Access developer features through Settings → Account Management
+- Enter access code to enable advanced functionality
+- Dev access badge appears when enabled
+- Provides additional debugging and testing capabilities
 
 ### Strategy Configuration
 1. Click the "Set Preset" button to open strategy menu
@@ -120,7 +133,7 @@ npm run server:prod
 ### Database Schema
 ```sql
 -- Users table
-users (id, email, api_key, created_at, updated_at)
+users (id, email, password_hash, api_key, created_at, updated_at, is_active, dev_access)
 
 -- User settings
 user_settings (id, user_id, settings_data, updated_at)
@@ -141,7 +154,9 @@ user_api_usage (id, user_id, endpoint, request_count, last_request, updated_at)
 ### API Endpoints
 ```
 Authentication:
+POST /api/auth/login - Login with email and password
 POST /api/auth/create - Create user account
+POST /api/auth/enable-dev-mode - Enable developer access
 GET /api/auth/me - Get current user info
 
 Stocks:  

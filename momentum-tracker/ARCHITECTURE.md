@@ -132,7 +132,8 @@ criteria: {
 ### Backend API Routes
 
 #### Authentication
-- `POST /api/auth/create` - Create new user account
+- `POST /api/auth/login` - Login with email/password
+- `POST /api/auth/create` - Create new user account with email/password
 - `GET /api/auth/me` - Get current user info
 - `PUT /api/auth/settings` - Update user settings
 
@@ -198,10 +199,11 @@ The modular component system in `ModularStockPaper.js` handles all data in the s
 ```
 
 ### Authentication Flow
-1. User enters API key on login screen
-2. Frontend calls `/auth/create` or validates existing key
-3. Backend returns user info and stores API key
-4. All subsequent requests include `X-API-Key` header
+1. User enters email and password on login screen
+2. Frontend calls `/api/auth/login` to authenticate
+3. Backend validates credentials using bcrypt, returns user info
+4. All subsequent requests include `X-API-Key` header (API key stored in user account)
+5. Dev mode accessible through Settings with code 1907
 
 ### Auto-Calculation Example (Float)
 1. User enters "Shares Outstanding" and "Restricted Shares"
@@ -274,7 +276,9 @@ Edit `ComponentRegistry.js` criteria ranges for any scoring component to adjust 
 6. **Responsive Layout**: Works on various screen sizes
 
 ## Security Features
-- API key-based authentication (no passwords)
+- Email/password authentication with bcrypt hashing
+- API key system for third-party API access (stored securely per user)
+- Dev mode protected by code 1907 (accessible only through Settings)
 - Rate limiting on API endpoints
 - SQL injection protection via parameterized queries
 - CORS protection

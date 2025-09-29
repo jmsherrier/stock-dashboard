@@ -1,6 +1,10 @@
 import React from 'react';
 
 function NotesComponent({ stock, onUpdate, config }) {
+  // Get value from modular or legacy format
+  const getValue = () => stock.components?.notes?.value || stock.notes || '';
+  const value = getValue();
+  
   // Check if we should use original format (default behavior)
   const useOriginalFormat = !config || config.originalFormat !== false;
 
@@ -9,8 +13,8 @@ function NotesComponent({ stock, onUpdate, config }) {
       <div className="notes-section">
         <h4>Notes</h4>
         <textarea
-          value={stock.notes || ''}
-          onChange={(e) => onUpdate(stock.id, 'notes', e.target.value)}
+          value={value}
+          onChange={(e) => onUpdate(stock.id, 'notes', { value: e.target.value })}
           placeholder="Trading notes, observations, setup details..."
         />
       </div>
@@ -25,8 +29,8 @@ function NotesComponent({ stock, onUpdate, config }) {
       </div>
       <div className="component-content">
         <textarea
-          value={stock.notes || ''}
-          onChange={(e) => onUpdate(stock.id, 'notes', e.target.value)}
+          value={value}
+          onChange={(e) => onUpdate(stock.id, 'notes', { value: e.target.value })}
           placeholder="Add your personal notes and observations..."
           className="notes-textarea"
           rows={4}

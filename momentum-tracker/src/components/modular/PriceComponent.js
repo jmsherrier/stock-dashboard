@@ -3,8 +3,12 @@ import { calculateComponentScore, getComponentScoreColor } from './ComponentRegi
 import CriteriaInput from '../CriteriaInput';
 
 function PriceComponent({ stock, onUpdate, config }) {
-  const score = calculateComponentScore('price', stock.price);
-  const scoreColor = getComponentScoreColor('price', stock.price);
+  // Get value from modular or legacy format
+  const getValue = () => stock.components?.price?.value || stock.price || '';
+  const value = getValue();
+  
+  const score = calculateComponentScore('price', value);
+  const scoreColor = getComponentScoreColor('price', value);
 
   const getWarning = (value) => {
     const val = parseFloat(value) || 0;
@@ -47,13 +51,13 @@ function PriceComponent({ stock, onUpdate, config }) {
     return (
       <CriteriaInput
         label="Price"
-        value={stock.price || ''}
-        onChange={(value) => onUpdate(stock.id, 'price', value)}
+        value={value}
+        onChange={(val) => onUpdate(stock.id, 'price', { value: val })}
         type="number"
         step="0.01"
         suffix="$"
-        currentPoints={getScorePoints(stock.price)}
-        warning={getWarning(stock.price)}
+        currentPoints={getScorePoints(value)}
+        warning={getWarning(value)}
         scale={priceScale}
       />
     );
@@ -73,15 +77,15 @@ function PriceComponent({ stock, onUpdate, config }) {
           <input
             type="number"
             step="0.01"
-            value={stock.price || ''}
-            onChange={(e) => onUpdate(stock.id, 'price', e.target.value)}
+            value={value}
+            onChange={(e) => onUpdate(stock.id, 'price', { value: e.target.value })}
             placeholder="0.00"
           />
           <span className="input-suffix">$</span>
         </div>
-        {getWarning(stock.price) && (
+        {getWarning(value) && (
           <div className="component-warning">
-            {getWarning(stock.price)}
+            {getWarning(value)}
           </div>
         )}
       </div>
