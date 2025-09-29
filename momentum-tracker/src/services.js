@@ -1,7 +1,10 @@
+// Backend API integration
+
+
 const ALPHA_VANTAGE_KEY = 'PVJHQQP8W1YPYAYP';
 const BASE_URL = 'https://www.alphavantage.co/query';
 
-// local counters key
+// local counters key (fallback for dev mode)
 const COUNTERS_KEY = 'momentum_api_counters_v1';
 
 function now() { return Date.now(); }
@@ -32,6 +35,27 @@ function resetDailyIfNeeded(counters) {
 }
 
 export const apiService = {
+  // Get counters - updated to work with both authenticated and dev mode
+  getCounters() {
+    return this.getLocalCounters();
+  },
+
+  getLocalCounters() {
+    let counters = loadCounters();
+    counters = resetDailyIfNeeded(counters);
+
+    // reset per-minute at the end of each minute
+    const currentMinute = Math.floor(now() / 60000);
+    const lastMinute = Math.floor((counters.minuteTs || 0) / 60000);
+    
+    if (currentMinute > lastMinute) {
+      counters.minute = 0;
+      counters.minuteTs = now();
+    }
+    
+    return counters;
+  },
+
   async getQuote(ticker, { useDemoIfLimit = true } = {}) {
     // Validate ticker symbol
     if (!ticker || typeof ticker !== 'string' || ticker.trim() === '') {
@@ -42,8 +66,7 @@ export const apiService = {
     ticker = ticker.trim().toUpperCase();
 
     // Basic client-side rate limiting enforcement
-    let counters = loadCounters();
-    counters = resetDailyIfNeeded(counters);
+    let counters = this.getLocalCounters();
 
     // reset per-minute at the end of each minute
     const currentMinute = Math.floor(now() / 60000);
@@ -142,11 +165,7 @@ export const apiService = {
     });
   },
 
-  getCounters() {
-    let c = loadCounters();
-    c = resetDailyIfNeeded(c);
-    return c;
-  }
+
 };
 
 // Enhanced storage with multiple persistence methods

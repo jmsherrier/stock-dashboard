@@ -1,9 +1,20 @@
-import React from 'react';
+import React, { memo } from 'react';
 import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 import StockPaper from './StockPaper';
+import ModularStockPaper from './ModularStockPaper';
 
-function SortableStockPaper({ stock, score, rank, isSelected, onSelect, perStockUpdating, onUpdateSingle, ...props }) {
+function SortableStockPaper({ 
+  stock, 
+  score, 
+  rank, 
+  isSelected, 
+  onSelect, 
+  perStockUpdating, 
+  onUpdateSingle, 
+  useModular = false,
+  ...props 
+}) {
   const {
     attributes,
     listeners,
@@ -19,6 +30,8 @@ function SortableStockPaper({ stock, score, rank, isSelected, onSelect, perStock
     opacity: isDragging ? 0.8 : 1,
   };
 
+  const StockComponent = useModular ? ModularStockPaper : StockPaper;
+
   return (
     <div
       ref={setNodeRef}
@@ -27,7 +40,7 @@ function SortableStockPaper({ stock, score, rank, isSelected, onSelect, perStock
       className={`stock-wrapper ${isSelected ? 'selected' : ''} ${isDragging ? 'dragging' : ''}`}
       onClick={onSelect}
     >
-      <StockPaper 
+      <StockComponent
         stock={stock} 
         score={score} 
         rank={rank} 
@@ -40,4 +53,15 @@ function SortableStockPaper({ stock, score, rank, isSelected, onSelect, perStock
   );
 }
 
-export default SortableStockPaper;
+// Memoize to prevent unnecessary re-renders when stock data hasn't changed
+export default memo(SortableStockPaper, (prevProps, nextProps) => {
+  // Custom comparison function for better performance
+  return (
+    prevProps.stock.id === nextProps.stock.id &&
+    prevProps.score === nextProps.score &&
+    prevProps.rank === nextProps.rank &&
+    prevProps.isSelected === nextProps.isSelected &&
+    (prevProps.perStockUpdating || {})[prevProps.stock.id] === (nextProps.perStockUpdating || {})[nextProps.stock.id] &&
+    JSON.stringify(prevProps.stock.components || {}) === JSON.stringify(nextProps.stock.components || {})
+  );
+});
