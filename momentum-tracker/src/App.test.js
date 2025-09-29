@@ -3,6 +3,6 @@ import App from './App';
 
 test('renders app header', () => {
   render(<App />);
-  const header = screen.getByText(/Momentum Tracker/i);
+  const header = screen.getByText(/Volitiliraptor/i);
   expect(header).toBeInTheDocument();
 });

@@ -21,7 +21,17 @@
     "start": "react-scripts start",
     "build": "react-scripts build",
     "test": "react-scripts test",
-    "eject": "react-scripts eject"
+    "test:coverage": "react-scripts test --coverage --collectCoverageFrom=src/**/*.{js,jsx} --collectCoverageFrom=!src/index.js",
+    "eject": "react-scripts eject",
+    "server": "cd server && npm start",
+    "server:dev": "cd server && npm run dev",
+    "dev": "concurrently \"npm run server:dev\" \"npm start\"",
+    "install:all": "npm install && cd server && npm install",
+    "install:server": "cd server && npm install",
+    "build:full": "npm run build && cd server && npm install --production",
+    "clean": "rm -rf build && cd server && rm -rf node_modules && cd .. && rm -rf node_modules",
+    "lint": "eslint src --ext .js,.jsx --fix",
+    "format": "prettier --write src/**/*.{js,jsx,css,md}"
   },
   "eslintConfig": {
     "extends": [

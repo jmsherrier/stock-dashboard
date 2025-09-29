@@ -1,251 +1,212 @@
 import React, { useEffect, useState } from 'react';
 import './App.css';
 import { DndContext, closestCenter } from '@dnd-kit/core';
-import { SortableContext, verticalListSortingStrategy } from '@dnd-kit/sortable';
+import { SortableContext, verticalListSortingStrategy, arrayMove } from '@dnd-kit/sortable';
+
+import { AuthProvider, useAuth } from './contexts/AuthContext';
+import ApiKeyPrompt from './components/ApiKeyPrompt';
+import PresetMenu from './components/PresetMenu';
+import SettingsModal from './components/SettingsModal';
+import AboutModal from './components/AboutModal';
 import SortableStockPaper from './components/SortableStockPaper';
 
-import { apiService, storage } from './services';
+import { useStocks } from './hooks/useStocks';
+import { useApiCounters } from './hooks/useApiCounters';
+import { createDefaultStock } from './utils/stockUtils';
+import { calculateScore } from './utils/scoreCalculator';
+import { StockService } from './services/stockService';
+import apiClient from './api/client';
+import { storage } from './services';
 
-function App() {
-  const [stocks, setStocks] = useState([]);
-  const [selectedStock, setSelectedStock] = useState(null);
-  const [apiStatus, setApiStatus] = useState({ daily: 0, minute: 0, lastReset: Date.now() });
-  const [undoStack, setUndoStack] = useState([]);
-  // Ordering now remains stable unless explicitly reordered via the new reorder button
 
-  const [isUpdating, setIsUpdating] = useState(false);
-  const [counters, setCounters] = useState(apiService.getCounters());
-  const [perStockUpdating, setPerStockUpdating] = useState({});
+function MainApp() {
+  const { user } = useAuth();
+  const {
+    stocks,
+    setStocks,
+    selectedStock,
+    setSelectedStock,
+    undoStack,
+    updateStock,
+    removeStock,
+    undo,
+    saveStocksToBackend
+  } = useStocks();
 
+  // Handle drag end for reordering stocks
+  const handleDragEnd = (event) => {
+    const { active, over } = event;
+
+    if (active.id !== over?.id) {
+      setStocks((items) => {
+        const oldIndex = items.findIndex((item) => item.id === active.id);
+        const newIndex = items.findIndex((item) => item.id === over.id);
+
+        return arrayMove(items, oldIndex, newIndex);
+      });
+    }
+  };  const { 
+    counters, 
+    isUpdating, 
+    setIsUpdating, 
+    perStockUpdating, 
+    setStockUpdating,
+    canMakeRequest,
+    refreshCounters 
+  } = useApiCounters();
+  
+  const [showPresetMenu, setShowPresetMenu] = useState(false);
+  const [showSettingsMenu, setShowSettingsMenu] = useState(false);
+  const [showSettingsModal, setShowSettingsModal] = useState(false);
+  const [showAboutModal, setShowAboutModal] = useState(false);
+
+  // Close settings menu when clicking outside
   useEffect(() => {
-    const loadData = async () => {
-      try {
-        const loaded = await storage.load();
-        if (loaded) setStocks(loaded.stocks || []);
-      } catch (e) {
-        console.error('Failed to load saved data:', e);
+    const handleClickOutside = (event) => {
+      if (showSettingsMenu && !event.target.closest('.settings-dropdown')) {
+        setShowSettingsMenu(false);
       }
     };
-    
-    loadData();
-    const refreshCounters = () => setCounters(apiService.getCounters());
-    refreshCounters();
-    const ci = setInterval(refreshCounters, 5000);
-    return () => clearInterval(ci);
-  }, []);
+
+    document.addEventListener('click', handleClickOutside);
+    return () => document.removeEventListener('click', handleClickOutside);
+  }, [showSettingsMenu]);
 
   const addStock = () => {
-    const id = `stock-${Date.now()}`;
-    const newStock = {
-      id,
-      ticker: '',
-      price: '',
-      percentRise: '',
-      relativeVolume: '',
-      float: '',
-      positiveCatalysts: [],
-      marketDrivers: [],
-      bonusChecks: {
-        recentIPO: false,
-        recentReverseSplit: false,
-        blueSkyBreakout: false
-      },
-      notes: ''
-    };
-    setUndoStack(prev => [...prev, stocks]);
+    const newStock = createDefaultStock();
     setStocks(prev => [newStock, ...prev]);
+    
     // Auto-focus ticker input after creation
     setTimeout(() => {
-      const tickerElements = document.querySelectorAll('.ticker-display');
-      if (tickerElements.length > 0) {
-        tickerElements[0].click();
+      const tickerInputs = document.querySelectorAll('.component-wrapper input');
+      if (tickerInputs.length > 0) {
+        tickerInputs[0].focus();
       }
     }, 100);
   };
 
-  const updateStock = (id, field, value) => {
-    setUndoStack(prev => [...prev, stocks]);
-    setStocks(prev => prev.map(s => s.id === id ? { ...s, [field]: value } : s));
-  };
 
-  const removeStock = (id) => {
-    setUndoStack(prev => [...prev, stocks]);
-    setStocks(prev => prev.filter(s => s.id !== id));
-    if (selectedStock === id) setSelectedStock(null);
-  };
 
   const updateAllStocks = async () => {
-    if (isUpdating) return;
+    console.log('updateAllStocks called, stocks:', stocks);
+    if (!canMakeRequest()) {
+      console.log('Cannot make request - rate limit');
+      return;
+    }
+    
     setIsUpdating(true);
     try {
-      const updated = await Promise.all(stocks.map(async (s) => {
-        try {
-          // Skip stocks without valid tickers
-          if (!s.ticker || s.ticker.trim() === '') {
-            console.log('Skipping stock without ticker:', s);
-            return s;
-          }
-          const data = await apiService.getQuote(s.ticker);
-          
-          // Preserve user formatting - only update if value has meaningfully changed
-          const preserveFormatting = (newVal, oldVal) => {
-            if (!oldVal || oldVal.trim() === '') return newVal;
-            const newNum = parseFloat(newVal);
-            const oldNum = parseFloat(oldVal);
-            // Only update if the numerical difference is significant (>0.001)
-            return Math.abs(newNum - oldNum) > 0.001 ? newVal : oldVal;
-          };
-          
-          return { 
-            ...s, 
-            percentRise: preserveFormatting(data.percentChange.toString(), s.percentRise), 
-            relativeVolume: preserveFormatting(data.relativeVolume.toString(), s.relativeVolume),
-            price: data.price ? preserveFormatting(data.price.toString(), s.price) : s.price
-          };
-        } catch (err) {
-          console.warn('Failed to update stock:', s.ticker, err);
-          return s;
-        }
-      }));
-      setUndoStack(prev => [...prev, stocks]);
+      console.log('Calling StockService.updateMultipleStocks...');
+      const updated = await StockService.updateMultipleStocks(stocks);
+      console.log('Got updated stocks:', updated);
       setStocks(updated);
+      console.log('State updated with:', updated);
+      
+      // Save to backend if authenticated
+      if (user) {
+        console.log('Saving to backend...');
+        await saveStocksToBackend(updated);
+      }
+    } catch (error) {
+      console.error('Error in updateAllStocks:', error);
     } finally {
       setIsUpdating(false);
-      setCounters(apiService.getCounters());
+      refreshCounters();
     }
   };
 
   const updateSingle = async (id) => {
+    console.log('updateSingle called for id:', id);
     const stock = stocks.find(s => s.id === id);
-    if (!stock) return;
-    
-    // Skip stocks without valid tickers
-    if (!stock.ticker || stock.ticker.trim() === '') {
-      console.log('Cannot update stock without ticker:', stock);
+    if (!stock) {
+      console.log('Stock not found:', id);
       return;
     }
-    
-    // Preserve user formatting - only update if value has meaningfully changed
-    const preserveFormatting = (newVal, oldVal) => {
-      if (!oldVal || oldVal.trim() === '') return newVal;
-      const newNum = parseFloat(newVal);
-      const oldNum = parseFloat(oldVal);
-      // Only update if the numerical difference is significant (>0.001)
-      return Math.abs(newNum - oldNum) > 0.001 ? newVal : oldVal;
-    };
-    
-    setPerStockUpdating(p => ({ ...p, [id]: true }));
+    console.log('Found stock:', stock);
+
+    setStockUpdating(id, true);
     try {
-      const data = await apiService.getQuote(stock.ticker);
-      setUndoStack(prev => [...prev, stocks]);
-      setStocks(prev => prev.map(s => s.id === id ? { 
-        ...s, 
-        percentRise: preserveFormatting(data.percentChange.toString(), s.percentRise), 
-        relativeVolume: preserveFormatting(data.relativeVolume.toString(), s.relativeVolume),
-        price: data.price ? preserveFormatting(data.price.toString(), s.price) : s.price
-      } : s));
+      console.log('Calling StockService.updateStockQuote...');
+      const updatedStock = await StockService.updateStockQuote(stock);
+      console.log('Got updated stock:', updatedStock);
+      
+      const newStocks = stocks.map(s => s.id === id ? updatedStock : s);
+      console.log('New stocks array:', newStocks);
+      setStocks(newStocks);
+      console.log('State updated');
+      
+      // Save to backend if authenticated
+      if (user) {
+        console.log('Saving to backend...');
+        await saveStocksToBackend(newStocks);
+      }
     } catch (err) {
-      console.error('Failed to update single:', err);
+      console.error('Failed to update single stock:', err);
     } finally {
-      setPerStockUpdating(p => ({ ...p, [id]: false }));
-      setCounters(apiService.getCounters());
+      setStockUpdating(id, false);
+      refreshCounters();
     }
   };
 
-  const undo = () => {
-    setStocks(prev => {
-      const last = undoStack[undoStack.length - 1];
-      setUndoStack(us => us.slice(0, -1));
-      return last || prev;
-    });
+  const clearAllData = async () => {
+    const confirmed = window.confirm(
+      'Are you sure you want to clear all data? This action cannot be undone.\n\n' +
+      'This will remove:\n' +
+      '• All saved stocks and their data\n' +
+      '• All custom settings and preferences\n' +
+      '• All user authentication data'
+    );
+    
+    if (confirmed) {
+      try {
+        // Clear local state
+        setStocks([]);
+        setSelectedStock(null);
+        
+        // Clear localStorage
+        localStorage.clear();
+        
+        // Clear backend data if authenticated
+        if (user) {
+          try {
+            await apiClient.clearUserData();
+          } catch (error) {
+            console.warn('Failed to clear backend data:', error);
+          }
+        }
+        
+        // Close settings menu
+        setShowSettingsMenu(false);
+        
+        // Show success message
+        alert('All data has been cleared successfully.');
+        
+        // Reload the page to reset the application state
+        window.location.reload();
+      } catch (error) {
+        console.error('Error clearing data:', error);
+        alert('There was an error clearing some data. Please try again.');
+      }
+    }
   };
 
-  const calculateScore = (stock) => {
-    let score = 0;
-    
-    // Helper function to get score for individual criteria
-    const getScorePoints = (value, type) => {
-      // Return 0 for null, undefined, or empty values
-      if (value === null || value === undefined || value === '' || value === 0) {
-        return 0;
-      }
-      
-      const val = parseFloat(value);
-      if (isNaN(val)) return 0;
-      
-      switch (type) {
-        case 'price':
-          if (val >= 15) return -3;
-          if (val >= 10) return -2;
-          if (val >= 8) return -1;
-          if (val >= 5) return 1;
-          if (val >= 3) return 2;
-          if (val >= 2) return 3;
-          return 0;
-        
-        case 'percentRise':
-          if (val < 3) return -3;
-          if (val < 5) return -2;
-          if (val < 7) return -1;
-          if (val < 10) return 1;
-          if (val < 15) return 2;
-          if (val >= 15) return 3;
-          return 0;
-        
-        case 'relativeVolume':
-          if (val < 2) return -3;
-          if (val < 3) return -2;
-          if (val < 5) return -1;
-          if (val < 8) return 1;
-          if (val < 12) return 2;
-          if (val >= 12) return 3;
-          return 0;
-        
-        case 'float':
-          if (val > 50) return -3;
-          if (val > 30) return -2;
-          if (val > 20) return -1;
-          if (val > 15) return 1;
-          if (val > 10) return 2;
-          if (val > 0 && val <= 10) return 3;
-          return 0;
-        
-        default:
-          return 0;
-      }
-    };
-    
-    // Apply scoring for each criteria
-    score += getScorePoints(stock.price, 'price');
-    score += getScorePoints(stock.percentRise, 'percentRise');
-    score += getScorePoints(stock.relativeVolume, 'relativeVolume');
-    score += getScorePoints(stock.float, 'float');
-    
-    // News catalysts scoring
-    const positiveCatalystsScore = (stock.positiveCatalysts || []).reduce((sum, item) => sum + (item.points || 0), 0);
-    const marketDriversScore = (stock.marketDrivers || []).reduce((sum, item) => sum + (item.points || 0), 0);
-    score += positiveCatalystsScore + marketDriversScore;
-    
-    // Bonus checkboxes (+1 each)
-    const bonusChecks = stock.bonusChecks || {};
-    if (bonusChecks.recentIPO) score += 1;
-    if (bonusChecks.recentReverseSplit) score += 1;
-    if (bonusChecks.blueSkyBreakout) score += 1;
-    
-    return score;
-  };
-
-  // Explicit reorder function (formerly implicit on every render)
   const reorderByScore = () => {
-    setUndoStack(prev => [...prev, stocks]);
     setStocks(prev => [...prev].sort((a, b) => calculateScore(b) - calculateScore(a)));
   };
+
+
 
   useEffect(() => {
     const saveData = async () => {
       try {
-        const toSave = { stocks, meta: { updated: Date.now() } };
-        await storage.save(toSave);
+        if (user) {
+          // Data is saved individually via API calls, no need for bulk save
+          return;
+        } else {
+          // Save to localStorage for unauthenticated users
+          const toSave = { stocks, meta: { updated: Date.now() } };
+          await storage.save(toSave);
+        }
       } catch (e) {
         console.error('Failed to save data:', e);
       }
@@ -254,7 +215,7 @@ function App() {
     if (stocks.length > 0 || localStorage.getItem('momentum_data')) {
       saveData();
     }
-  }, [stocks]);
+  }, [stocks, user]);
 
   // keyboard shortcuts
   useEffect(() => {
@@ -298,23 +259,86 @@ function App() {
   return (
     <div className="app">
       <header className="app-header">
-        <h1>Momentum Tracker</h1>
-        <div className="api-status">
-          Requests: {counters.daily}/500 daily | {counters.minute}/5 per minute
+        <div className="header-left">
+          <div className="app-title-section">
+            <div className="settings-dropdown">
+              <button 
+                className="settings-gear" 
+                title="Settings"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setShowSettingsMenu(!showSettingsMenu);
+                }}
+              >
+                ⋮
+              </button>
+              {showSettingsMenu && (
+                <div className="settings-menu">
+                  <button onClick={() => {
+                    setShowSettingsModal(true);
+                    setShowSettingsMenu(false);
+                  }}>
+                    Settings
+                  </button>
+                  <button onClick={() => {
+                    clearAllData();
+                  }}>
+                    Clear Data
+                  </button>
+                  <button onClick={() => {
+                    setShowAboutModal(true);
+                    setShowSettingsMenu(false);
+                  }}>
+                    About
+                  </button>
+                </div>
+              )}
+            </div>
+            <h1>Volitiliraptor</h1>
+          </div>
+          {user && <span className="user-info">Welcome, {user.email}</span>}
         </div>
+        
+        <div className="header-center">
+          <div className="api-status">
+            {user ? `Requests: ${counters.daily}/500 daily | ${counters.minute}/5 per minute` : 'Development Mode'}
+          </div>
+        </div>
+        
         <div className="header-buttons">
-          <button onClick={reorderByScore} title="Sort all stocks by current score (descending)">Reorder by Score</button>
-          <button onClick={addStock}>Add Ticker (A)</button>
-          <button onClick={updateAllStocks} disabled={isUpdating || counters.daily >= 500 || counters.minute >= 5}>
-            {isUpdating ? 'Updating...' : 'Update All (U)'}
-          </button>
-          <button onClick={undo} disabled={undoStack.length === 0}>Undo</button>
+          <div className="button-group primary-actions">
+            <button 
+              onClick={() => setShowPresetMenu(!showPresetMenu)} 
+              className="preset-btn"
+              title="Configure preset settings"
+            >
+              Presets
+            </button>
+            <button onClick={addStock} className="add-btn" title="Add new stock ticker (A)">
+              Add Stock
+            </button>
+            <button 
+              onClick={updateAllStocks} 
+              disabled={isUpdating || (user && (counters.daily >= 500 || counters.minute >= 5))}
+              className="update-all-btn"
+              title="Update all stocks with latest data (U)"
+            >
+              {isUpdating ? 'Updating...' : 'Update All'}
+            </button>
+            <button onClick={reorderByScore} className="reorder-btn" title="Sort all stocks by current score (descending)">
+              Sort
+            </button>
+          </div>
+          
+          <div className="button-group secondary-actions">
+            <button onClick={undo} disabled={undoStack.length === 0} className="undo-btn" title="Undo last action">
+              Undo
+            </button>
+          </div>
         </div>
       </header>
 
-      <DndContext
-        collisionDetection={closestCenter}
-      >
+      <DndContext collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
         <div className="stocks-container">
           <SortableContext items={stocks.map(s => s.id)} strategy={verticalListSortingStrategy}>
             {stocks.map((stock, index) => (
@@ -329,6 +353,7 @@ function App() {
                 onRemove={removeStock}
                 perStockUpdating={perStockUpdating}
                 onUpdateSingle={updateSingle}
+                useModular={true}
               />
             ))}
           </SortableContext>
@@ -341,9 +366,47 @@ function App() {
         </div>
       </DndContext>
 
+      <PresetMenu
+        isOpen={showPresetMenu}
+        onClose={() => setShowPresetMenu(false)}
+        onPresetApply={(preset) => {
+          console.log('Preset applied:', preset);
+          // Presets are now handled at the component level within each stock
+          setShowPresetMenu(false);
+        }}
+        onUpdateStocks={updateAllStocks}
+      />
 
+      <SettingsModal
+        isOpen={showSettingsModal}
+        onClose={() => setShowSettingsModal(false)}
+        user={user}
+      />
+
+      <AboutModal
+        isOpen={showAboutModal}
+        onClose={() => setShowAboutModal(false)}
+      />
     </div>
   );
+}
+
+function App() {
+  return (
+    <AuthProvider>
+      <AppContent />
+    </AuthProvider>
+  );
+}
+
+function AppContent() {
+  const { user } = useAuth();
+  
+  if (!user) {
+    return <ApiKeyPrompt />;
+  }
+  
+  return <MainApp />;
 }
 
 export default App;
