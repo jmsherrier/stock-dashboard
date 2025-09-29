@@ -1,7 +1,9 @@
 import React from 'react';
 
 function RestrictedSharesComponent({ stock, onUpdate, config }) {
-  const value = stock.restrictedShares || stock.components?.restrictedShares?.value || '';
+  // Get value from modular or legacy format
+  const getValue = () => stock.components?.restrictedShares?.value || stock.restrictedShares || '';
+  const value = getValue();
 
   return (
     <div className="modular-component restricted-shares-component">
@@ -14,7 +16,7 @@ function RestrictedSharesComponent({ stock, onUpdate, config }) {
             type="number"
             step="1000000"
             value={value}
-            onChange={(e) => onUpdate(stock.id, 'restrictedShares', e.target.value)}
+            onChange={(e) => onUpdate(stock.id, 'restrictedShares', { value: e.target.value })}
             placeholder="0"
           />
           <span className="input-suffix">shares</span>

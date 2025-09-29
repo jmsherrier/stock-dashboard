@@ -3,8 +3,12 @@ import { calculateComponentScore, getComponentScoreColor } from './ComponentRegi
 import CriteriaInput from '../CriteriaInput';
 
 function PercentRiseComponent({ stock, onUpdate, config }) {
-  const score = calculateComponentScore('percentRise', stock.percentRise);
-  const scoreColor = getComponentScoreColor('percentRise', stock.percentRise);
+  // Get value from modular or legacy format
+  const getValue = () => stock.components?.percentRise?.value || stock.percentRise || '';
+  const value = getValue();
+  
+  const score = calculateComponentScore('percentRise', value);
+  const scoreColor = getComponentScoreColor('percentRise', value);
 
   const getWarning = (value) => {
     const val = parseFloat(value) || 0;
@@ -46,13 +50,13 @@ function PercentRiseComponent({ stock, onUpdate, config }) {
     return (
       <CriteriaInput
         label="Percent Risen"
-        value={stock.percentRise || ''}
-        onChange={(value) => onUpdate(stock.id, 'percentRise', value)}
+        value={value}
+        onChange={(val) => onUpdate(stock.id, 'percentRise', { value: val })}
         type="number"
         step="0.01"
         suffix="%"
-        currentPoints={getScorePoints(stock.percentRise)}
-        warning={getWarning(stock.percentRise)}
+        currentPoints={getScorePoints(value)}
+        warning={getWarning(value)}
         scale={percentRiseScale}
       />
     );
@@ -72,15 +76,15 @@ function PercentRiseComponent({ stock, onUpdate, config }) {
           <input
             type="number"
             step="0.1"
-            value={stock.percentRise || ''}
-            onChange={(e) => onUpdate(stock.id, 'percentRise', e.target.value)}
+            value={value}
+            onChange={(e) => onUpdate(stock.id, 'percentRise', { value: e.target.value })}
             placeholder="0.0"
           />
           <span className="input-suffix">%</span>
         </div>
-        {getWarning(stock.percentRise) && (
+        {getWarning(value) && (
           <div className="component-warning">
-            {getWarning(stock.percentRise)}
+            {getWarning(value)}
           </div>
         )}
       </div>

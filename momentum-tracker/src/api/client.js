@@ -47,15 +47,29 @@ class ApiClient {
   }
 
   // Auth methods
-  async createUser(email) {
+  async login(email, password) {
+    return this.request('/auth/login', {
+      method: 'POST',
+      body: JSON.stringify({ email, password }),
+    });
+  }
+
+  async createUser(email, password) {
     return this.request('/auth/create', {
       method: 'POST',
-      body: JSON.stringify({ email }),
+      body: JSON.stringify({ email, password }),
     });
   }
 
   async getUser() {
     return this.request('/auth/me');
+  }
+
+  async enableDevMode(code) {
+    return this.request('/auth/enable-dev-mode', {
+      method: 'POST',
+      body: JSON.stringify({ code }),
+    });
   }
 
   async updateSettings(settings) {

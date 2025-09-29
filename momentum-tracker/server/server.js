@@ -25,6 +25,37 @@ global.db = db;
   try {
     await db.init();
     console.log('Database initialization completed');
+    
+    // Start server after database is initialized
+    const server = app.listen(PORT, () => {
+      console.log(`Server running on port ${PORT}`);
+      console.log(`Environment: ${process.env.NODE_ENV || 'development'}`);
+    });
+
+    // Handle server errors
+    server.on('error', (error) => {
+      console.error('Server error:', error);
+      process.exit(1);
+    });
+
+    // Keep the process alive
+    process.on('SIGTERM', () => {
+      console.log('SIGTERM signal received: closing HTTP server');
+      server.close(() => {
+        console.log('HTTP server closed');
+        db.close();
+      });
+    });
+
+    process.on('SIGINT', () => {
+      console.log('\nSIGINT signal received: closing HTTP server');
+      server.close(() => {
+        console.log('HTTP server closed');
+        db.close();
+        process.exit(0);
+      });
+    });
+
   } catch (error) {
     console.error('Database initialization failed:', error);
     process.exit(1);
@@ -79,10 +110,5 @@ app.use(handleError);
 
 // 404 handler
 app.use('*', handleNotFound);
-
-app.listen(PORT, () => {
-  console.log(`Server running on port ${PORT}`);
-  console.log(`Environment: ${process.env.NODE_ENV || 'development'}`);
-});
 
 module.exports = app;

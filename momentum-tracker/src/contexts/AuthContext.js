@@ -38,15 +38,17 @@ export function AuthProvider({ children }) {
     }
   };
 
-  const login = async (providedApiKey) => {
+  const login = async (email, password) => {
     try {
       setLoading(true);
-      apiClient.setApiKey(providedApiKey);
-      const response = await apiClient.getUser();
+      const response = await apiClient.login(email, password);
       
-      setApiKey(providedApiKey);
+      const apiKey = response.user.apiKey;
+      apiClient.setApiKey(apiKey);
+      
+      setApiKey(apiKey);
       setUser(response.user);
-      localStorage.setItem('momentum_api_key', providedApiKey);
+      localStorage.setItem('momentum_api_key', apiKey);
       
       return { success: true };
     } catch (error) {
@@ -64,13 +66,12 @@ export function AuthProvider({ children }) {
     apiClient.setApiKey(null);
   };
 
-  const createAccount = async (email) => {
+  const createAccount = async (email, password) => {
     try {
-      const response = await apiClient.createUser(email);
+      const response = await apiClient.createUser(email, password);
       return { 
         success: true, 
-        user: response.user,
-        apiKey: response.user.apiKey 
+        user: response.user
       };
     } catch (error) {
       console.error('Account creation failed:', error);

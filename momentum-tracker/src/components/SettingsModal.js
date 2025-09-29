@@ -1,8 +1,9 @@
 import React, { useState } from 'react';
 import { useAuth } from '../contexts/AuthContext';
+import apiClient from '../api/client';
 
 function SettingsModal({ isOpen, onClose, user: propUser }) {
-  const { user: contextUser, logout } = useAuth();
+  const { user: contextUser, logout, loadUser } = useAuth();
   const user = propUser || contextUser;
   const [settings, setSettings] = useState({
     theme: localStorage.getItem('app-theme') || 'dark',
@@ -11,6 +12,8 @@ function SettingsModal({ isOpen, onClose, user: propUser }) {
     apiTimeout: parseInt(localStorage.getItem('api-timeout')) || 10000,
     refreshInterval: parseInt(localStorage.getItem('refresh-interval')) || 300000
   });
+  const [devCode, setDevCode] = useState('');
+  const [devCodeError, setDevCodeError] = useState('');
 
   if (!isOpen) return null;
 
@@ -54,7 +57,25 @@ function SettingsModal({ isOpen, onClose, user: propUser }) {
     // For now, just show account info in an alert
     // In the future, this could open a dedicated account management modal
     if (user) {
-      alert(`Account Information:\n\nEmail: ${user.email}\nAccount created: ${user.created_at ? new Date(user.created_at).toLocaleDateString() : 'Unknown'}\n\nTo change account settings or delete your account, please contact support.`);
+      alert(`Account Information:\n\nEmail: ${user.email}\nAccount created: ${user.created_at ? new Date(user.created_at).toLocaleDateString() : 'Unknown'}\nDev Access: ${user.devAccess ? 'Enabled' : 'Disabled'}\n\nTo change account settings or delete your account, please contact support.`);
+    }
+  };
+
+  const handleEnableDevMode = async () => {
+    if (!devCode.trim()) {
+      setDevCodeError('Please enter access code');
+      return;
+    }
+
+    try {
+      await apiClient.enableDevMode(devCode);
+      alert('Dev mode access enabled successfully!');
+      setDevCode('');
+      setDevCodeError('');
+      // Reload user data to reflect dev access change
+      await loadUser();
+    } catch (error) {
+      setDevCodeError('Invalid access code');
     }
   };
 
@@ -161,8 +182,37 @@ function SettingsModal({ isOpen, onClose, user: propUser }) {
                   <div className="setting-item">
                     <div className="account-info">
                       <span className="account-email">Signed in as: {user.email}</span>
+                      {user.devAccess && <span className="dev-badge"> 🔧 Dev Access</span>}
                     </div>
                   </div>
+
+                  {!user.devAccess && (
+                    <div className="setting-item">
+                      <label className="setting-label">Enable Dev Mode Access</label>
+                      <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'flex-start' }}>
+                        <div style={{ flex: 1 }}>
+                          <input
+                            type="password"
+                            value={devCode}
+                            onChange={(e) => {
+                              setDevCode(e.target.value);
+                              setDevCodeError('');
+                            }}
+                            placeholder="Enter access code"
+                            className="setting-input"
+                          />
+                          {devCodeError && <small style={{ color: '#ff4444' }}>{devCodeError}</small>}
+                        </div>
+                        <button 
+                          onClick={handleEnableDevMode}
+                          className="account-btn manage-btn"
+                          style={{ whiteSpace: 'nowrap' }}
+                        >
+                          Enable
+                        </button>
+                      </div>
+                    </div>
+                  )}
 
                   <div className="setting-item">
                     <div className="account-actions">
@@ -176,26 +226,12 @@ function SettingsModal({ isOpen, onClose, user: propUser }) {
                         onClick={handleSignOut}
                         className="account-btn signout-btn"
                       >
-                        🚪 Sign Out
+                        � Sign Out
                       </button>
                     </div>
                   </div>
                 </>
-              ) : (
-                <div className="setting-item">
-                  <div className="account-info">
-                    <span className="account-email">Running in Development Mode</span>
-                  </div>
-                  <div className="account-actions">
-                    <button 
-                      onClick={() => window.location.reload()}
-                      className="account-btn manage-btn"
-                    >
-                      🔄 Restart Application
-                    </button>
-                  </div>
-                </div>
-              )}
+              ) : null}
             </div>
           </div>
         </div>

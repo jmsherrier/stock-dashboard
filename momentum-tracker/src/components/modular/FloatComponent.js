@@ -3,26 +3,35 @@ import { calculateComponentScore, getComponentScoreColor } from './ComponentRegi
 import CriteriaInput from '../CriteriaInput';
 
 function FloatComponent({ stock, onUpdate, config }) {
-  const score = calculateComponentScore('float', stock.float);
-  const scoreColor = getComponentScoreColor('float', stock.float);
+  // Get value from modular or legacy format
+  const getValue = () => stock.components?.float?.value || stock.float || '';
+  const value = getValue();
+  
+  const score = calculateComponentScore('float', value);
+  const scoreColor = getComponentScoreColor('float', value);
 
   // Auto-calculate float when shares data is available
   useEffect(() => {
     const sharesOutstanding = stock.sharesOutstanding || stock.components?.sharesOutstanding?.value;
     const restrictedShares = stock.restrictedShares || stock.components?.restrictedShares?.value || 0;
     
+    console.log('FloatComponent useEffect - sharesOutstanding:', sharesOutstanding, 'restrictedShares:', restrictedShares, 'currentFloat:', value);
+    
     const outstanding = parseFloat(sharesOutstanding) || 0;
     const restricted = parseFloat(restrictedShares) || 0;
     
     if (outstanding > 0) {
       const calculatedFloat = (outstanding - restricted) / 1000000; // Convert to millions
-      const currentFloat = parseFloat(stock.float) || 0;
+      const currentFloat = parseFloat(value) || 0;
+      
+      console.log('FloatComponent calculation - calculated:', calculatedFloat, 'current:', currentFloat, 'diff:', Math.abs(calculatedFloat - currentFloat));
       
       if (calculatedFloat > 0 && Math.abs(calculatedFloat - currentFloat) > 0.01) {
-        onUpdate(stock.id, 'float', calculatedFloat.toFixed(2));
+        console.log('FloatComponent updating float to:', calculatedFloat.toFixed(2));
+        onUpdate(stock.id, 'float', { value: calculatedFloat.toFixed(2) });
       }
     }
-  }, [stock.sharesOutstanding, stock.restrictedShares, stock.components?.sharesOutstanding?.value, stock.components?.restrictedShares?.value, stock.float, stock.id, onUpdate]);
+  }, [stock.sharesOutstanding, stock.restrictedShares, stock.components?.sharesOutstanding?.value, stock.components?.restrictedShares?.value, value, stock.id, onUpdate]);
 
   const getWarning = (value) => {
     const val = parseFloat(value) || 0;
@@ -64,13 +73,13 @@ function FloatComponent({ stock, onUpdate, config }) {
     return (
       <CriteriaInput
         label="Float"
-        value={stock.float || ''}
-        onChange={(value) => onUpdate(stock.id, 'float', value)}
+        value={value}
+        onChange={(val) => onUpdate(stock.id, 'float', { value: val })}
         type="number"
         step="0.1"
         suffix="M"
-        currentPoints={getScorePoints(stock.float)}
-        warning={getWarning(stock.float)}
+        currentPoints={getScorePoints(value)}
+        warning={getWarning(value)}
         scale={floatScale}
       />
     );
@@ -78,7 +87,6 @@ function FloatComponent({ stock, onUpdate, config }) {
 
   // Full modular component mode
   const components = stock.components || {};
-  const floatValue = components.float?.value || stock.float || '';
   const sharesOutstanding = components.sharesOutstanding?.value || '';
   const isAutoCalculated = sharesOutstanding && parseFloat(sharesOutstanding) > 0;
 
@@ -103,16 +111,16 @@ function FloatComponent({ stock, onUpdate, config }) {
           <input
             type="number"
             step="0.1"
-            value={floatValue}
-            onChange={(e) => onUpdate(stock.id, 'float', e.target.value)}
+            value={value}
+            onChange={(e) => onUpdate(stock.id, 'float', { value: e.target.value })}
             placeholder="0.0"
             disabled={isAutoCalculated}
           />
           <span className="input-suffix">M</span>
         </div>
-        {getWarning(floatValue) && (
+        {getWarning(value) && (
           <div className="component-warning">
-            {getWarning(floatValue)}
+            {getWarning(value)}
           </div>
         )}
       </div>

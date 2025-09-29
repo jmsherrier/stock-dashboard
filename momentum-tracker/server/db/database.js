@@ -40,10 +40,12 @@ class Database {
       `CREATE TABLE IF NOT EXISTS users (
         id TEXT PRIMARY KEY,
         email TEXT UNIQUE NOT NULL,
+        password_hash TEXT NOT NULL,
         api_key TEXT UNIQUE NOT NULL,
         created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
         updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-        is_active BOOLEAN DEFAULT 1
+        is_active BOOLEAN DEFAULT 1,
+        dev_access BOOLEAN DEFAULT 0
       )`,
 
       // User settings
@@ -105,8 +107,8 @@ class Database {
     // Create indexes
     const indexes = [
       'CREATE INDEX IF NOT EXISTS idx_users_api_key ON users (api_key)',
+      'CREATE INDEX IF NOT EXISTS idx_users_email ON users (email)',
       'CREATE INDEX IF NOT EXISTS idx_user_stocks_user_id ON user_stocks (user_id)',
-      'CREATE INDEX IF NOT EXISTS idx_strategies_user_id ON strategies (user_id)',
       'CREATE INDEX IF NOT EXISTS idx_paper_configs_user_id ON paper_configs (user_id)',
       'CREATE INDEX IF NOT EXISTS idx_user_api_usage_user_id ON user_api_usage (user_id)'
     ];
