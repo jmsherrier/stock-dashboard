@@ -8,32 +8,32 @@ Volitiliraptor is a comprehensive trading analysis platform that transforms trad
 
 ## Key Features
 
-### 🎯 Multi-Strategy System
+### Multi-Strategy System
 - **Momentum Strategy**: Focus on price movement and volume
 - **Growth Strategy**: Emphasize fundamental growth metrics
 - **Value Strategy**: Concentrate on valuation indicators
 - **Custom Strategies**: Create your own trading criteria
 
-### 🧩 Modular Component Architecture
+### Modular Component Architecture
 - **Drag-and-Drop Interface**: Reorder stocks intuitively
 - **Flexible Components**: Each metric is a standalone, configurable component
 - **Dual-Format Support**: Works with legacy and modern data structures
 - **Auto-Calculations**: Float automatically calculated from shares data
 
-### 📊 Advanced Scoring System
+### Advanced Scoring System
 - **Color-Coded Scoring**: Green (positive), Orange (neutral), Red (negative)
 - **Custom Ranges**: Define your own scoring criteria
 - **Bonus Checks**: Additional strategy-specific criteria
 - **Real-Time Updates**: Live score recalculation
 
-### 🔐 Robust Backend
+### Robust Backend
 - **User Authentication**: Email and password authentication system
 - **Data Persistence**: SQLite database with comprehensive user storage
 - **Real-Time Data**: Alpha Vantage API integration with fallback demo data
 - **Multi-User Support**: Individual user spaces and settings
 - **Developer Access**: Optional dev mode accessible via settings with access code
 
-### 🎨 Modern UI/UX
+### Modern UI/UX
 - **Clean Interface**: Streamlined design focused on data analysis
 - **Settings Menu**: Easy access to configuration and data management
 - **Responsive Design**: Works on desktop and mobile devices
@@ -229,9 +229,6 @@ npm run analyze
 3. Test API endpoints directly (use curl or Postman)
 4. Check database file exists and is writable
 5. Verify environment variables are set correctly
-
-## License
-MIT License - See LICENSE file for details
 
 ## Support
 For issues, feature requests, or contributions, please use the GitHub issue tracker.
