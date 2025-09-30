@@ -1431,15 +1431,10 @@ body {
   height: 16px;
   margin: 0;
   flex-shrink: 0;
-  accent-color: #ffc107;
 }
 
 .lock-checkbox-label:hover {
   color: rgba(255, 255, 255, 0.7);
-}
-
-.stock-paper.locked .lock-checkbox-label {
-  color: #ffc107;
 }
 
 /* Scale Bar Styles */

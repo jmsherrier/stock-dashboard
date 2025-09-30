@@ -159,7 +159,6 @@ function PresetMenu({ isOpen, onClose, onPresetApply, onUpdateStocks }) {
   };
 
   const handleApplyPreset = (e) => {
-    console.log('handleApplyPreset called!');
     e.preventDefault();
     e.stopPropagation();
     
@@ -171,9 +170,7 @@ function PresetMenu({ isOpen, onClose, onPresetApply, onUpdateStocks }) {
       customCriteria: customCriteria
     };
     
-    console.log('Calling onPresetApply with preset:', preset);
     onPresetApply(preset);
-    console.log('Called onPresetApply, now closing...');
     onClose();
   };
 

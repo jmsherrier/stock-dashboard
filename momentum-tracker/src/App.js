@@ -311,7 +311,7 @@ function MainApp() {
 
   const toggleLock = (stockId) => {
     setStocks(prev => prev.map(stock => 
-      stock.id === stockId ? { ...stock, locked: !stock.locked } : stock
+      stock.id === stockId ? { ...stock, locked: !(stock.locked === true) } : stock
     ));
   };
 
@@ -598,9 +598,6 @@ function MainApp() {
         isOpen={showPresetMenu}
         onClose={() => setShowPresetMenu(false)}
         onPresetApply={(preset) => {
-          console.log('Applying preset:', preset.name);
-          console.log('Current stocks before update:', stocks);
-          
           // Track current preset
           setCurrentPreset(preset.name);
           
@@ -610,11 +607,9 @@ function MainApp() {
               ...stock,
               paperConfig: { ...preset.paperConfig }
             }));
-            console.log('Updated stocks after applying paperConfig:', updated);
             
             // Check if auto-update is enabled in settings
             const autoUpdate = localStorage.getItem('auto-update-on-preset') !== 'false';
-            console.log('Auto-update enabled:', autoUpdate);
             if (autoUpdate) {
               // Use the updated stocks array for updating
               setTimeout(() => {
