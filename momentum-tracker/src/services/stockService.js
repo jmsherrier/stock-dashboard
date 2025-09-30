@@ -25,6 +25,8 @@ export class StockService {
       if (!updatedComponents.price) {
         updatedComponents.price = { value: quote.price.toString() };
       } else {
+        // Store previous value before updating
+        updatedComponents.price.previousValue = updatedComponents.price.value;
         updatedComponents.price.value = preserveFormatting(
           quote.price.toString(), 
           updatedComponents.price.value
@@ -37,6 +39,8 @@ export class StockService {
       if (!updatedComponents.percentRise) {
         updatedComponents.percentRise = { value: quote.percentChange.toString() };
       } else {
+        // Store previous value before updating
+        updatedComponents.percentRise.previousValue = updatedComponents.percentRise.value;
         updatedComponents.percentRise.value = preserveFormatting(
           quote.percentChange.toString(), 
           updatedComponents.percentRise.value
@@ -49,6 +53,8 @@ export class StockService {
       if (!updatedComponents.relativeVolume) {
         updatedComponents.relativeVolume = { value: quote.relativeVolume.toString() };
       } else {
+        // Store previous value before updating
+        updatedComponents.relativeVolume.previousValue = updatedComponents.relativeVolume.value;
         updatedComponents.relativeVolume.value = preserveFormatting(
           quote.relativeVolume.toString(), 
           updatedComponents.relativeVolume.value
@@ -84,6 +90,51 @@ export class StockService {
     } else {
       console.log('sharesOutstanding NOT found in quote');
     }
+    
+    // Add all new fields from Alpha Vantage OVERVIEW
+    const fieldMappings = {
+      marketCap: 'marketCap',
+      beta: 'beta',
+      week52High: 'week52High',
+      week52Low: 'week52Low',
+      movingAverage50: 'movingAverage50',
+      movingAverage200: 'movingAverage200',
+      sector: 'sector',
+      industry: 'industry',
+      profitMargin: 'profitMargin',
+      revenueGrowth: 'revenueGrowth',
+      peRatio: 'peRatio',
+      analystTarget: 'analystTarget',
+      pegRatio: 'pegRatio',
+      priceToBook: 'priceToBook',
+      roe: 'roe',
+      dividendYield: 'dividendYield',
+      eps: 'eps',
+      operatingMargin: 'operatingMargin',
+      institutionalOwnership: 'institutionalOwnership',
+      actualFloat: 'actualFloat',
+      forwardPE: 'forwardPE',
+      trailingPE: 'trailingPE',
+      priceToSales: 'priceToSales',
+      bookValue: 'bookValue',
+      ebitda: 'ebitda',
+      earningsGrowth: 'earningsGrowth',
+      insiderOwnership: 'insiderOwnership',
+      roa: 'roa'
+    };
+    
+    Object.entries(fieldMappings).forEach(([apiField, componentId]) => {
+      if (quote[apiField]) {
+        if (!updatedComponents[componentId]) {
+          updatedComponents[componentId] = { value: quote[apiField].toString() };
+        } else {
+          // Store previous value before updating
+          updatedComponents[componentId].previousValue = updatedComponents[componentId].value;
+          updatedComponents[componentId].value = quote[apiField].toString();
+        }
+        console.log(`Updated ${componentId} to:`, quote[apiField]);
+      }
+    });
     
     return { ...stock, components: updatedComponents };
   }
