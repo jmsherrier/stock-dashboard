@@ -1,6 +1,7 @@
 // Centralized stock data management service
 import apiClient from '../api/client';
 import { preserveFormatting } from '../utils/stockUtils';
+import { apiService } from '../services';
 
 export class StockService {
   static async updateStockQuote(stock) {
@@ -9,6 +10,10 @@ export class StockService {
     }
     
     const ticker = stock.components.ticker.value;
+    
+    // Increment API counter before making request
+    apiService.incrementCounter();
+    
     const quote = await apiClient.getStockQuote(ticker);
     
     console.log('Quote received for', ticker, ':', quote);
