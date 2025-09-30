@@ -1,8 +1,4 @@
-// Backend API integration
-
-
-const ALPHA_VANTAGE_KEY = 'PVJHQQP8W1YPYAYP';
-const BASE_URL = 'https://www.alphavantage.co/query';
+// Backend API integration and local storage management
 
 // local counters key (fallback for dev mode)
 const COUNTERS_KEY = 'momentum_api_counters_v1';
@@ -56,116 +52,18 @@ export const apiService = {
     return counters;
   },
 
-  async getQuote(ticker, { useDemoIfLimit = true } = {}) {
-    // Validate ticker symbol
-    if (!ticker || typeof ticker !== 'string' || ticker.trim() === '') {
-      console.warn('Invalid ticker symbol provided:', ticker);
-      return this.getStockDataDemo(ticker || 'DEMO');
-    }
-
-    ticker = ticker.trim().toUpperCase();
-
-    // Basic client-side rate limiting enforcement
+  // Increment counter for API calls
+  incrementCounter() {
     let counters = this.getLocalCounters();
-
-    // reset per-minute at the end of each minute
-    const currentMinute = Math.floor(now() / 60000);
-    const lastMinute = Math.floor((counters.minuteTs || 0) / 60000);
-    if (currentMinute !== lastMinute) {
-      counters.minute = 0;
-      counters.minuteTs = now();
-    }
-
-    if (counters.daily >= 500 || counters.minute >= 5) {
-      if (useDemoIfLimit) return this.getStockDataDemo(ticker);
-      throw new Error('API limit reached');
-    }
-
-    // increment counters and persist
+    
+    // Increment both daily and per-minute counters
     counters.daily = (counters.daily || 0) + 1;
     counters.minute = (counters.minute || 0) + 1;
     counters.minuteTs = counters.minuteTs || now();
+    
     saveCounters(counters);
-
-    // Call Alpha Vantage GLOBAL_QUOTE for price and percent change
-    try {
-      const url = `${BASE_URL}?function=GLOBAL_QUOTE&symbol=${encodeURIComponent(ticker)}&apikey=${ALPHA_VANTAGE_KEY}`;
-      const resp = await fetch(url);
-      if (!resp.ok) throw new Error(`Network ${resp.status}`);
-      const data = await resp.json();
-
-      console.log('API Response for', ticker, ':', data); // Debug logging
-
-      // Check for API error messages
-      if (data['Error Message']) {
-        throw new Error(`API Error: ${data['Error Message']}`);
-      }
-      if (data['Note'] && data['Note'].includes('call frequency')) {
-        throw new Error('API rate limit exceeded');
-      }
-
-      // Handle Global Quote response - try multiple possible structures
-      const g = data['Global Quote'] || data['01. symbol'] || {};
-      
-      // Try different field name variations
-      let price = 0;
-      let changePercent = 0;
-      
-      // Price field variations
-      const priceFields = ['05. price', '05. Price', 'price', 'Price'];
-      for (const field of priceFields) {
-        if (g[field] && !isNaN(parseFloat(g[field]))) {
-          price = parseFloat(g[field]);
-          break;
-        }
-      }
-      
-      // Change percent field variations
-      const changeFields = ['10. change percent', '10. Change Percent', 'change percent', 'Change Percent'];
-      for (const field of changeFields) {
-        if (g[field]) {
-          const raw = g[field].toString().replace('%', '');
-          if (!isNaN(parseFloat(raw))) {
-            changePercent = parseFloat(raw);
-            break;
-          }
-        }
-      }
-
-      // If we didn't get valid data, fall back to demo
-      if (price === 0 && changePercent === 0) {
-        console.warn('No valid price/change data found, using demo data');
-        return this.getStockDataDemo(ticker);
-      }
-
-      // relativeVolume not available via Global Quote; use realistic demo data
-      const relativeVolume = (0.5 + (Math.random() * 4)).toFixed(2);
-
-      return { 
-        price: price > 0 ? price.toFixed(2) : (Math.random() * 18 + 2).toFixed(2), 
-        percentChange: changePercent.toFixed(2), 
-        relativeVolume 
-      };
-    } catch (err) {
-      console.warn('API call failed, falling back to demo data:', err.message || err);
-      // ensure counters reflect attempted call (already incremented) but return demo
-      return this.getStockDataDemo(ticker);
-    }
-  },
-
-  getStockDataDemo(ticker) {
-    return new Promise((resolve) => {
-      setTimeout(() => {
-        resolve({ 
-          price: (Math.random() * 18 + 2).toFixed(2), // $2-20 range
-          percentChange: (Math.random() * 20 - 5).toFixed(2), // -5% to +15% range
-          relativeVolume: (Math.random() * 20 + 0.5).toFixed(2) // 0.5x to 20x range
-        });
-      }, 150);
-    });
-  },
-
-
+    return counters;
+  }
 };
 
 // Enhanced storage with multiple persistence methods
