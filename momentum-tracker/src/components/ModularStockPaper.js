@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { COMPONENT_REGISTRY } from './modular/ComponentRegistry';
 
 function ModularStockPaper({
@@ -13,14 +13,8 @@ function ModularStockPaper({
   dragListeners,
   onToggleLock
 }) {
-  console.log('ModularStockPaper RENDERING - stock:', stock.id, 'paperConfig keys:', Object.keys(stock.paperConfig || {}));
-  
   const [isEditingTicker, setIsEditingTicker] = useState(false);
   const [tickerValue, setTickerValue] = useState(stock.ticker || '');
-
-  useEffect(() => {
-    console.log('ModularStockPaper useEffect - stock:', stock.id, 'paperConfig:', stock.paperConfig, 'locked:', stock.locked);
-  }, [stock, stock.id, stock.paperConfig, stock.locked]);
 
   // Get current ticker from either old or new format
   const getCurrentTicker = () => {
@@ -281,7 +275,7 @@ function ModularStockPaper({
           >
             <input
               type="checkbox"
-              checked={stock.locked || false}
+              checked={stock.locked === true}
               onChange={() => {}} // Controlled by label click
               className="lock-checkbox"
               tabIndex={-1}
