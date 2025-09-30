@@ -18,11 +18,36 @@ export const useStocks = () => {
           const response = await apiClient.getUserStocks();
           console.log('Loaded from backend:', response);
           const userStocks = response?.stocks || [];
-          setStocks(Array.isArray(userStocks) ? userStocks : []);
+          // Only assign positions to stocks that don't have them (legacy data)
+          // Preserve existing positions to maintain gaps
+          const stocksArray = Array.isArray(userStocks) ? userStocks : [];
+          const hasAnyPositions = stocksArray.some(stock => stock.position != null);
+          
+          const stocksWithPositions = stocksArray.map((stock, idx) => ({
+            ...stock,
+            // If no stocks have positions (legacy data), assign sequential
+            // Otherwise, preserve existing positions or assign next available
+            position: hasAnyPositions 
+              ? (stock.position ?? Math.max(...stocksArray.map(s => s.position ?? 0), -1) + 1)
+              : idx
+          }));
+          setStocks(stocksWithPositions);
         } else {
           // Load from localStorage for unauthenticated users
           const loaded = await storage.load();
-          if (loaded) setStocks(Array.isArray(loaded.stocks) ? loaded.stocks : []);
+          if (loaded) {
+            // Only assign positions to stocks that don't have them (legacy data)
+            const stocksArray = Array.isArray(loaded.stocks) ? loaded.stocks : [];
+            const hasAnyPositions = stocksArray.some(stock => stock.position != null);
+            
+            const stocksWithPositions = stocksArray.map((stock, idx) => ({
+              ...stock,
+              position: hasAnyPositions 
+                ? (stock.position ?? Math.max(...stocksArray.map(s => s.position ?? 0), -1) + 1)
+                : idx
+            }));
+            setStocks(stocksWithPositions);
+          }
         }
       } catch (e) {
         console.error('Failed to load saved data:', e);

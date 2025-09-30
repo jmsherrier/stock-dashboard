@@ -268,6 +268,45 @@ body {
   z-index: 1;
 }
 
+/* Empty Slot Styles */
+.empty-slot {
+  background: transparent;
+  border-radius: 8px;
+  padding: 20px;
+  margin-bottom: 16px;
+  border: 2px dashed rgba(255, 255, 255, 0.2);
+  transition: all 0.2s ease;
+  cursor: pointer;
+  min-height: 100px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.empty-slot:hover {
+  border-color: rgba(255, 255, 255, 0.4);
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.empty-slot.drag-over {
+  border-color: rgba(76, 175, 80, 0.8);
+  background: rgba(76, 175, 80, 0.1);
+}
+
+.empty-slot-content {
+  text-align: center;
+}
+
+.empty-slot-text {
+  color: rgba(255, 255, 255, 0.5);
+  font-size: 0.9rem;
+  font-weight: 500;
+}
+
+.empty-slot:hover .empty-slot-text {
+  color: rgba(255, 255, 255, 0.7);
+}
+
 /* Drag now attaches to stock-paper root; header boxes suppress drag start */
 
 .stock-title {
