@@ -52,19 +52,6 @@ function ModularStockPaper({
     <div className={`stock-paper ${stock.locked ? 'locked' : ''}`}>
       {dragListeners && <div className="drag-bg-handle" {...dragListeners} title="Drag to reorder" />}
       
-      {onToggleLock && (
-        <button
-          className={`lock-btn ${stock.locked ? 'locked' : ''}`}
-          onClick={(e) => {
-            e.stopPropagation();
-            onToggleLock(stock.id);
-          }}
-          title={stock.locked ? "Unlock stock position" : "Lock stock position"}
-        >
-          {stock.locked ? '🔒' : '🔓'}
-        </button>
-      )}
-      
       {onRemove && (
         <button
           className="remove-x"
@@ -131,29 +118,120 @@ function ModularStockPaper({
       </div>
 
       <div className="criteria-grid">
-        {COMPONENT_REGISTRY.price && (
+        {stock.paperConfig?.price === true && COMPONENT_REGISTRY.price && (
           <COMPONENT_REGISTRY.price.component
             stock={stock}
             onUpdate={onUpdate}
           />
         )}
 
-        {COMPONENT_REGISTRY.percentRise && (
+        {stock.paperConfig?.percentRise === true && COMPONENT_REGISTRY.percentRise && (
           <COMPONENT_REGISTRY.percentRise.component
             stock={stock}
             onUpdate={onUpdate}
           />
         )}
 
-        {COMPONENT_REGISTRY.relativeVolume && (
+        {stock.paperConfig?.relativeVolume === true && COMPONENT_REGISTRY.relativeVolume && (
           <COMPONENT_REGISTRY.relativeVolume.component
             stock={stock}
             onUpdate={onUpdate}
           />
         )}
 
-        {COMPONENT_REGISTRY.float && (
+        {stock.paperConfig?.float === true && COMPONENT_REGISTRY.float && (
           <COMPONENT_REGISTRY.float.component
+            stock={stock}
+            onUpdate={onUpdate}
+          />
+        )}
+
+        {stock.paperConfig?.marketCap === true && COMPONENT_REGISTRY.marketCap && (
+          <COMPONENT_REGISTRY.marketCap.component
+            stock={stock}
+            onUpdate={onUpdate}
+          />
+        )}
+
+        {stock.paperConfig?.beta === true && COMPONENT_REGISTRY.beta && (
+          <COMPONENT_REGISTRY.beta.component
+            stock={stock}
+            onUpdate={onUpdate}
+          />
+        )}
+
+        {stock.paperConfig?.week52High === true && COMPONENT_REGISTRY.week52High && (
+          <COMPONENT_REGISTRY.week52High.component
+            stock={stock}
+            onUpdate={onUpdate}
+          />
+        )}
+
+        {stock.paperConfig?.movingAverage50 === true && COMPONENT_REGISTRY.movingAverage50 && (
+          <COMPONENT_REGISTRY.movingAverage50.component
+            stock={stock}
+            onUpdate={onUpdate}
+          />
+        )}
+
+        {stock.paperConfig?.movingAverage200 === true && COMPONENT_REGISTRY.movingAverage200 && (
+          <COMPONENT_REGISTRY.movingAverage200.component
+            stock={stock}
+            onUpdate={onUpdate}
+          />
+        )}
+
+        {stock.paperConfig?.analystTarget === true && COMPONENT_REGISTRY.analystTarget && (
+          <COMPONENT_REGISTRY.analystTarget.component
+            stock={stock}
+            onUpdate={onUpdate}
+          />
+        )}
+
+        {stock.paperConfig?.sector === true && COMPONENT_REGISTRY.sector && (
+          <COMPONENT_REGISTRY.sector.component
+            stock={stock}
+            onUpdate={onUpdate}
+          />
+        )}
+
+        {stock.paperConfig?.industry === true && COMPONENT_REGISTRY.industry && (
+          <COMPONENT_REGISTRY.industry.component
+            stock={stock}
+            onUpdate={onUpdate}
+          />
+        )}
+
+        {stock.paperConfig?.profitMargin === true && COMPONENT_REGISTRY.profitMargin && (
+          <COMPONENT_REGISTRY.profitMargin.component
+            stock={stock}
+            onUpdate={onUpdate}
+          />
+        )}
+
+        {stock.paperConfig?.revenueGrowth === true && COMPONENT_REGISTRY.revenueGrowth && (
+          <COMPONENT_REGISTRY.revenueGrowth.component
+            stock={stock}
+            onUpdate={onUpdate}
+          />
+        )}
+
+        {stock.paperConfig?.peRatio === true && COMPONENT_REGISTRY.peRatio && (
+          <COMPONENT_REGISTRY.peRatio.component
+            stock={stock}
+            onUpdate={onUpdate}
+          />
+        )}
+
+        {stock.paperConfig?.sharesOutstanding === true && COMPONENT_REGISTRY.sharesOutstanding && (
+          <COMPONENT_REGISTRY.sharesOutstanding.component
+            stock={stock}
+            onUpdate={onUpdate}
+          />
+        )}
+
+        {stock.paperConfig?.restrictedShares === true && COMPONENT_REGISTRY.restrictedShares && (
+          <COMPONENT_REGISTRY.restrictedShares.component
             stock={stock}
             onUpdate={onUpdate}
           />
@@ -161,7 +239,7 @@ function ModularStockPaper({
       </div>
 
       {/* News Section */}
-      {COMPONENT_REGISTRY.news && (
+      {stock.paperConfig?.news === true && COMPONENT_REGISTRY.news && (
         <COMPONENT_REGISTRY.news.component
           stock={stock}
           onUpdate={onUpdate}
@@ -169,7 +247,7 @@ function ModularStockPaper({
       )}
 
       {/* Bonus Criteria Section */}
-      {COMPONENT_REGISTRY.bonusChecks && (
+      {stock.paperConfig?.bonusChecks === true && COMPONENT_REGISTRY.bonusChecks && (
         <COMPONENT_REGISTRY.bonusChecks.component
           stock={stock}
           onUpdate={onUpdate}
@@ -177,11 +255,27 @@ function ModularStockPaper({
       )}
 
       {/* Notes Section */}
-      {COMPONENT_REGISTRY.notes && (
+      {stock.paperConfig?.notes === true && COMPONENT_REGISTRY.notes && (
         <COMPONENT_REGISTRY.notes.component
           stock={stock}
           onUpdate={onUpdate}
         />
+      )}
+
+      {/* Lock Position Checkbox */}
+      {onToggleLock && (
+        <div className="lock-position-control">
+          <label className="lock-checkbox-label">
+            <input
+              type="checkbox"
+              checked={stock.locked || false}
+              onChange={() => onToggleLock(stock.id)}
+              onClick={(e) => e.stopPropagation()}
+              className="lock-checkbox"
+            />
+            <span>Lock position</span>
+          </label>
+        </div>
       )}
     </div>
   );

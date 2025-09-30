@@ -263,7 +263,7 @@ body {
 }
 .drag-bg-handle:active { cursor: grabbing; }
 /* Elevate interactive content above drag layer */
-.stock-paper > *:not(.drag-bg-handle):not(.remove-x):not(.lock-btn) {
+.stock-paper > *:not(.drag-bg-handle):not(.remove-x) {
   position: relative;
   z-index: 1;
 }
@@ -1404,46 +1404,47 @@ body {
   color: rgba(255, 255, 255, 0.8);
 }
 
-/* Lock button styles */
-.lock-btn {
-  position: absolute;
-  top: 2px;
-  left: 2px;
-  background: rgba(0, 0, 0, 0.5);
-  border: 1px solid rgba(255, 255, 255, 0.2);
-  color: rgba(255, 255, 255, 0.6);
-  font-size: 1rem;
-  cursor: pointer;
-  width: 24px;
-  height: 24px;
+/* Lock position checkbox at bottom */
+.lock-position-control {
+  margin-top: 1rem;
+  padding: 0.75rem 1rem;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  background: rgba(0, 0, 0, 0.2);
+}
+
+.lock-checkbox-label {
   display: flex;
   align-items: center;
-  justify-content: center;
-  border-radius: 4px;
-  transition: all 0.2s;
-  z-index: 2;
-  padding: 0;
+  gap: 0.5rem;
+  cursor: pointer;
+  user-select: none;
+  font-size: 0.85rem;
+  color: rgba(255, 255, 255, 0.7);
 }
 
-.lock-btn:hover {
-  background: rgba(0, 0, 0, 0.7);
-  border-color: rgba(255, 255, 255, 0.4);
+.lock-checkbox {
+  cursor: pointer;
+  width: 16px;
+  height: 16px;
+  accent-color: #ffc107;
+}
+
+.lock-checkbox-label:hover {
   color: rgba(255, 255, 255, 0.9);
-}
-
-.lock-btn.locked {
-  background: rgba(255, 193, 7, 0.2);
-  border-color: rgba(255, 193, 7, 0.5);
-  color: #ffc107;
-}
-
-.lock-btn.locked:hover {
-  background: rgba(255, 193, 7, 0.3);
-  border-color: rgba(255, 193, 7, 0.7);
 }
 
 .stock-paper.locked {
   box-shadow: 0 0 0 2px rgba(255, 193, 7, 0.3);
+}
+
+.stock-paper.locked .lock-position-control {
+  background: rgba(255, 193, 7, 0.1);
+  border-top-color: rgba(255, 193, 7, 0.3);
+}
+
+.stock-paper.locked .lock-checkbox-label {
+  color: #ffc107;
+  font-weight: 500;
 }
 
 /* Scale Bar Styles */

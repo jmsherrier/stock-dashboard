@@ -4,6 +4,10 @@
 
 A React-based stock analysis platform with modular components, real-time data fetching, and multi-strategy support. Built with drag-and-drop functionality, customizable presets, and comprehensive scoring algorithms.
 
+## Project Preview
+
+[Add demo video here - momentum-tracker-demo.mp4]
+
 ## Architecture
 
 ### Core Technologies

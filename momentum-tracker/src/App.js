@@ -100,13 +100,13 @@ function MainApp() {
 
   const addStock = () => {
     const newStock = createDefaultStock();
-    setStocks(prev => [newStock, ...prev]);
+    setStocks(prev => [...prev, newStock]);
     
     // Auto-focus ticker input after creation
     setTimeout(() => {
       const tickerInputs = document.querySelectorAll('.component-wrapper input');
       if (tickerInputs.length > 0) {
-        tickerInputs[0].focus();
+        tickerInputs[tickerInputs.length - 1].focus();
       }
     }, 100);
   };
@@ -553,8 +553,15 @@ function MainApp() {
         onClose={() => setShowPresetMenu(false)}
         onPresetApply={(preset) => {
           console.log('Preset applied:', preset);
-          // Presets are now handled at the component level within each stock
+          
+          // Apply paperConfig to all stocks
+          setStocks(prev => prev.map(stock => ({
+            ...stock,
+            paperConfig: preset.paperConfig
+          })));
+          
           setShowPresetMenu(false);
+          
           // Check if auto-update is enabled in settings
           const autoUpdate = localStorage.getItem('auto-update-on-preset') !== 'false';
           if (autoUpdate) {
