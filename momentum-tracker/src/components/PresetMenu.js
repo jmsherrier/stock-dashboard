@@ -158,14 +158,22 @@ function PresetMenu({ isOpen, onClose, onPresetApply, onUpdateStocks }) {
     }
   };
 
-  const handleApplyPreset = () => {
+  const handleApplyPreset = (e) => {
+    console.log('handleApplyPreset called!');
+    e.preventDefault();
+    e.stopPropagation();
+    
     const preset = {
       ...({ ...STRATEGY_PRESETS, ...customPresets }[selectedPreset]),
+      name: selectedPreset, // Pass the preset ID as name
       bonusChecks: customBonusChecks,
       paperConfig: activeComponents,
       customCriteria: customCriteria
     };
+    
+    console.log('Calling onPresetApply with preset:', preset);
     onPresetApply(preset);
+    console.log('Called onPresetApply, now closing...');
     onClose();
   };
 
@@ -407,7 +415,11 @@ function PresetMenu({ isOpen, onClose, onPresetApply, onUpdateStocks }) {
           <button onClick={handleResetPreset} className="reset-preset-btn" title="Reset to default configuration">
             Reset to Default
           </button>
-          <button onClick={handleApplyPreset} className="apply-preset-btn">
+          <button 
+            onClick={handleApplyPreset} 
+            className="apply-preset-btn"
+            type="button"
+          >
             Apply Preset
           </button>
         </div>

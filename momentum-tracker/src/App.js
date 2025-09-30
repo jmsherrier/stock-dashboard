@@ -78,6 +78,7 @@ function MainApp() {
     refreshCounters 
   } = useApiCounters();
   
+  const [currentPreset, setCurrentPreset] = useState('momentum');
   const [showPresetMenu, setShowPresetMenu] = useState(false);
   const [showSettingsMenu, setShowSettingsMenu] = useState(false);
   const [showSettingsModal, setShowSettingsModal] = useState(false);
@@ -99,7 +100,7 @@ function MainApp() {
   }, [showSettingsMenu]);
 
   const addStock = () => {
-    const newStock = createDefaultStock();
+    const newStock = createDefaultStock(currentPreset);
     setStocks(prev => [...prev, newStock]);
     
     // Auto-focus ticker input after creation
@@ -141,6 +142,46 @@ function MainApp() {
       }
     } catch (error) {
       console.error('Error in updateAllStocks:', error);
+    } finally {
+      setIsUpdating(false);
+      refreshCounters();
+    }
+  };
+
+  const updateAllStocksWithArray = async (stocksArray) => {
+    if (!canMakeRequest()) {
+      return;
+    }
+    
+    setIsUpdating(true);
+    try {
+      const updated = await StockService.updateMultipleStocks(stocksArray);
+      // Preserve paperConfig for stocks without tickers (they won't be updated by service)
+      const merged = updated.map((updatedStock, idx) => {
+        const originalStock = stocksArray[idx];
+        // If stock has no ticker, preserve the paperConfig we just set
+        if (!originalStock.components?.ticker?.value?.trim()) {
+          return {
+            ...updatedStock,
+            paperConfig: originalStock.paperConfig
+          };
+        }
+        return updatedStock;
+      });
+      setStocks(merged);
+      
+      // Auto-sort if enabled
+      const autoSort = localStorage.getItem('auto-sort-on-update') !== 'false';
+      if (autoSort) {
+        setTimeout(() => reorderByScore(), 100);
+      }
+      
+      // Save to backend if authenticated
+      if (user) {
+        await saveStocksToBackend(merged);
+      }
+    } catch (error) {
+      console.error('Error in updateAllStocksWithArray:', error);
     } finally {
       setIsUpdating(false);
       refreshCounters();
@@ -455,9 +496,14 @@ function MainApp() {
         <div className="header-buttons">
           <div className="button-group primary-actions">
             <button 
-              onClick={() => setShowPresetMenu(!showPresetMenu)} 
+              onClick={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                setShowPresetMenu(!showPresetMenu);
+              }} 
               className="preset-btn"
               title="Configure preset settings"
+              type="button"
             >
               Configure
             </button>
@@ -552,21 +598,34 @@ function MainApp() {
         isOpen={showPresetMenu}
         onClose={() => setShowPresetMenu(false)}
         onPresetApply={(preset) => {
-          console.log('Preset applied:', preset);
+          console.log('Applying preset:', preset.name);
+          console.log('Current stocks before update:', stocks);
           
-          // Apply paperConfig to all stocks
-          setStocks(prev => prev.map(stock => ({
-            ...stock,
-            paperConfig: preset.paperConfig
-          })));
+          // Track current preset
+          setCurrentPreset(preset.name);
+          
+          // Apply paperConfig to all stocks (create completely new objects to force re-render)
+          setStocks(prev => {
+            const updated = prev.map(stock => ({
+              ...stock,
+              paperConfig: { ...preset.paperConfig }
+            }));
+            console.log('Updated stocks after applying paperConfig:', updated);
+            
+            // Check if auto-update is enabled in settings
+            const autoUpdate = localStorage.getItem('auto-update-on-preset') !== 'false';
+            console.log('Auto-update enabled:', autoUpdate);
+            if (autoUpdate) {
+              // Use the updated stocks array for updating
+              setTimeout(() => {
+                updateAllStocksWithArray(updated);
+              }, 100);
+            }
+            
+            return updated;
+          });
           
           setShowPresetMenu(false);
-          
-          // Check if auto-update is enabled in settings
-          const autoUpdate = localStorage.getItem('auto-update-on-preset') !== 'false';
-          if (autoUpdate) {
-            updateAllStocks();
-          }
         }}
         onUpdateStocks={updateAllStocks}
       />
