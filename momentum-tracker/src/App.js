@@ -117,6 +117,12 @@ function MainApp() {
 
   const updateSingle = async (id) => {
     console.log('updateSingle called for id:', id);
+    
+    if (!canMakeRequest()) {
+      console.log('Cannot make request - rate limit reached');
+      return;
+    }
+    
     const stock = stocks.find(s => s.id === id);
     if (!stock) {
       console.log('Stock not found:', id);
@@ -296,12 +302,11 @@ function MainApp() {
             </div>
             <h1>Volitiliraptor</h1>
           </div>
-          {user && <span className="user-info">Welcome, {user.email}</span>}
         </div>
         
         <div className="header-center">
           <div className="api-status">
-            {user ? `Requests: ${counters.daily}/500 daily | ${counters.minute}/5 per minute` : 'Development Mode'}
+            {user ? `API Requests: ${counters.daily || 0}/500 daily | ${counters.minute || 0}/5 per minute` : 'Development Mode'}
           </div>
         </div>
         
@@ -319,7 +324,7 @@ function MainApp() {
             </button>
             <button 
               onClick={updateAllStocks} 
-              disabled={isUpdating || (user && (counters.daily >= 500 || counters.minute >= 5))}
+              disabled={!canMakeRequest()}
               className="update-all-btn"
               title="Update all stocks with latest data (U)"
             >
@@ -353,6 +358,7 @@ function MainApp() {
                 onRemove={removeStock}
                 perStockUpdating={perStockUpdating}
                 onUpdateSingle={updateSingle}
+                canMakeRequest={canMakeRequest}
                 useModular={true}
               />
             ))}

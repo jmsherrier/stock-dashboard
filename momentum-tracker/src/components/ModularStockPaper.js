@@ -9,6 +9,7 @@ function ModularStockPaper({
   onRemove,
   onUpdateSingle,
   perStockUpdating,
+  canMakeRequest,
   dragListeners
 }) {
   const [isEditingTicker, setIsEditingTicker] = useState(false);
@@ -71,7 +72,7 @@ function ModularStockPaper({
                 e.stopPropagation();
                 onUpdateSingle(stock.id);
               }}
-              disabled={perStockUpdating && perStockUpdating[stock.id]}
+              disabled={(perStockUpdating && perStockUpdating[stock.id]) || (canMakeRequest && !canMakeRequest())}
             >
               {perStockUpdating && perStockUpdating[stock.id] ? 'Updating...' : 'Update'}
             </button>
