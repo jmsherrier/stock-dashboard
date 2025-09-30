@@ -9,6 +9,8 @@ function SettingsModal({ isOpen, onClose, user: propUser }) {
     theme: localStorage.getItem('app-theme') || 'dark',
     autoSave: localStorage.getItem('auto-save') === 'true',
     showScores: localStorage.getItem('show-scores') !== 'false',
+    autoUpdateOnPreset: localStorage.getItem('auto-update-on-preset') !== 'false',
+    autoSortOnUpdate: localStorage.getItem('auto-sort-on-update') !== 'false',
     apiTimeout: parseInt(localStorage.getItem('api-timeout')) || 10000,
     refreshInterval: parseInt(localStorage.getItem('refresh-interval')) || 300000
   });
@@ -33,6 +35,8 @@ function SettingsModal({ isOpen, onClose, user: propUser }) {
         theme: 'dark',
         autoSave: true,
         showScores: true,
+        autoUpdateOnPreset: true,
+        autoSortOnUpdate: true,
         apiTimeout: 10000,
         refreshInterval: 300000
       };
@@ -142,6 +146,30 @@ function SettingsModal({ isOpen, onClose, user: propUser }) {
                     className="setting-checkbox"
                   />
                   Auto-save changes
+                </label>
+              </div>
+
+              <div className="setting-item">
+                <label className="setting-label">
+                  <input 
+                    type="checkbox"
+                    checked={settings.autoUpdateOnPreset}
+                    onChange={(e) => handleSettingChange('autoUpdateOnPreset', e.target.checked)}
+                    className="setting-checkbox"
+                  />
+                  Auto-update stocks when applying preset
+                </label>
+              </div>
+
+              <div className="setting-item">
+                <label className="setting-label">
+                  <input 
+                    type="checkbox"
+                    checked={settings.autoSortOnUpdate}
+                    onChange={(e) => handleSettingChange('autoSortOnUpdate', e.target.checked)}
+                    className="setting-checkbox"
+                  />
+                  Auto-sort stocks after updating
                 </label>
               </div>
 

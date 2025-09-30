@@ -99,11 +99,12 @@ npm run server:prod
 
 ### Getting Started
 1. **Authentication**: Create account with email and password, or login with existing credentials
-2. **Add Stocks**: Press 'A' or click "Add Ticker" to add a new stock
+2. **Add Stocks**: Press 'A' or click "Add Paper" to add a new stock
 3. **Enter Data**: Click on any field to edit stock information
 4. **Update Prices**: Click "Update" button to fetch real-time data
 5. **Reorder**: Drag stock papers to rearrange them
-6. **Configure**: Use settings menu to adjust preferences and access dev mode
+6. **Configure Strategy**: Use "Configure" menu to adjust strategy presets, enable/disable components, and set bonus criteria
+7. **Settings**: Use settings menu to adjust preferences, enable auto-update on preset apply, and access dev mode
 
 ### Developer Mode
 - Access developer features through Settings → Account Management
