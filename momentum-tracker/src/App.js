@@ -17,6 +17,7 @@ import { calculateScore } from './utils/scoreCalculator';
 import { StockService } from './services/stockService';
 import apiClient from './api/client';
 import { storage } from './services';
+import { APP_CONFIG } from './config';
 
 
 function MainApp() {
@@ -37,14 +38,36 @@ function MainApp() {
   const handleDragEnd = (event) => {
     const { active, over } = event;
 
-    if (active.id !== over?.id) {
-      setStocks((items) => {
-        const oldIndex = items.findIndex((item) => item.id === active.id);
-        const newIndex = items.findIndex((item) => item.id === over.id);
+    if (!over || active.id === over.id) return;
 
-        return arrayMove(items, oldIndex, newIndex);
-      });
-    }
+    setStocks((items) => {
+      const oldIndex = items.findIndex((item) => item.id === active.id);
+      const newIndex = items.findIndex((item) => item.id === over.id);
+
+      // Don't allow moving locked stocks
+      if (items[oldIndex]?.locked) return items;
+
+      const newArray = arrayMove(items, oldIndex, newIndex);
+      
+      // Preserve locked positions: if a locked stock would be displaced, adjust
+      const lockedStocks = items.map((stock, idx) => stock.locked ? idx : -1).filter(idx => idx !== -1);
+      if (lockedStocks.length > 0) {
+        // Keep locked stocks in their original positions
+        const finalArray = [...newArray];
+        lockedStocks.forEach(originalIdx => {
+          const lockedStock = items[originalIdx];
+          const currentIdx = finalArray.findIndex(s => s.id === lockedStock.id);
+          if (currentIdx !== originalIdx) {
+            // Move locked stock back to original position
+            finalArray.splice(currentIdx, 1);
+            finalArray.splice(originalIdx, 0, lockedStock);
+          }
+        });
+        return finalArray;
+      }
+
+      return newArray;
+    });
   };  const { 
     counters, 
     isUpdating, 
@@ -59,6 +82,9 @@ function MainApp() {
   const [showSettingsMenu, setShowSettingsMenu] = useState(false);
   const [showSettingsModal, setShowSettingsModal] = useState(false);
   const [showAboutModal, setShowAboutModal] = useState(false);
+  const [autoUpdateEnabled, setAutoUpdateEnabled] = useState(false);
+  const [autoUpdateInterval, setAutoUpdateInterval] = useState(15); // seconds
+  const [timeUntilLimitReached, setTimeUntilLimitReached] = useState(null);
 
   // Close settings menu when clicking outside
   useEffect(() => {
@@ -102,6 +128,12 @@ function MainApp() {
       setStocks(updated);
       console.log('State updated with:', updated);
       
+      // Auto-sort if enabled
+      const autoSort = localStorage.getItem('auto-sort-on-update') !== 'false';
+      if (autoSort) {
+        setTimeout(() => reorderByScore(), 100);
+      }
+      
       // Save to backend if authenticated
       if (user) {
         console.log('Saving to backend...');
@@ -117,6 +149,12 @@ function MainApp() {
 
   const updateSingle = async (id) => {
     console.log('updateSingle called for id:', id);
+    
+    if (!canMakeRequest()) {
+      console.log('Cannot make request - rate limit reached');
+      return;
+    }
+    
     const stock = stocks.find(s => s.id === id);
     if (!stock) {
       console.log('Stock not found:', id);
@@ -150,10 +188,10 @@ function MainApp() {
 
   const clearAllData = async () => {
     const confirmed = window.confirm(
-      'Are you sure you want to clear all data? This action cannot be undone.\n\n' +
-      'This will remove:\n' +
-      '• All saved stocks and their data\n' +
-      '• All custom settings and preferences\n' +
+      'Are you sure you want to clear all data? This action cannot be undone.\\n\\n' +
+      'This will remove:\\n' +
+      '• All saved stocks and their data\\n' +
+      '• All custom settings and preferences\\n' +
       '• All user authentication data'
     );
     
@@ -191,7 +229,49 @@ function MainApp() {
   };
 
   const reorderByScore = () => {
-    setStocks(prev => [...prev].sort((a, b) => calculateScore(b) - calculateScore(a)));
+    setStocks(prev => {
+      const sorted = [...prev].sort((a, b) => calculateScore(b) - calculateScore(a));
+      
+      // Preserve locked stocks in their original positions
+      const lockedPositions = new Map();
+      prev.forEach((stock, idx) => {
+        if (stock.locked) {
+          lockedPositions.set(stock.id, idx);
+        }
+      });
+      
+      if (lockedPositions.size === 0) return sorted;
+      
+      // Remove locked stocks from sorted array
+      const unlockedSorted = sorted.filter(s => !s.locked);
+      
+      // Create final array with locked stocks in original positions
+      const finalArray = [];
+      let unlockedIdx = 0;
+      
+      for (let i = 0; i < prev.length; i++) {
+        const lockedStock = prev[i];
+        if (lockedStock.locked) {
+          finalArray[i] = lockedStock;
+        } else {
+          // Fill with next unlocked sorted stock
+          while (finalArray[i] === undefined && unlockedIdx < unlockedSorted.length) {
+            if (!lockedPositions.has(unlockedSorted[unlockedIdx].id)) {
+              finalArray[i] = unlockedSorted[unlockedIdx];
+            }
+            unlockedIdx++;
+          }
+        }
+      }
+      
+      return finalArray.filter(Boolean);
+    });
+  };
+
+  const toggleLock = (stockId) => {
+    setStocks(prev => prev.map(stock => 
+      stock.id === stockId ? { ...stock, locked: !stock.locked } : stock
+    ));
   };
 
 
@@ -238,6 +318,74 @@ function MainApp() {
     window.addEventListener('keydown', handler);
     return () => window.removeEventListener('keydown', handler);
   }, [selectedStock, stocks, counters]);
+
+  // Auto-update effect
+  useEffect(() => {
+    if (!autoUpdateEnabled) {
+      setTimeUntilLimitReached(null);
+      return;
+    }
+
+    // Calculate if auto-update rate exceeds API limits
+    const updatesPerMinute = 60 / autoUpdateInterval;
+    const stockCount = stocks.length;
+    const requestsPerUpdate = stockCount;
+    const requestsPerMinute = updatesPerMinute * requestsPerUpdate;
+
+    // Check if rate would exceed minute limit
+    if (requestsPerMinute > APP_CONFIG.apiLimits.minuteLimit) {
+      alert(
+        `Auto-update rate too fast!\\n\\n` +
+        `At ${autoUpdateInterval}s intervals with ${stockCount} stocks, you would make ${requestsPerMinute.toFixed(1)} requests/minute.\\n` +
+        `Your limit is ${APP_CONFIG.apiLimits.minuteLimit} requests/minute.\\n\\n` +
+        `Please increase the interval or reduce the number of stocks.`
+      );
+      setAutoUpdateEnabled(false);
+      return;
+    }
+
+    // Calculate time until daily limit is reached
+    const calculateTimeRemaining = () => {
+      const remainingDaily = APP_CONFIG.apiLimits.dailyLimit - counters.daily;
+      const updatesRemaining = Math.floor(remainingDaily / requestsPerUpdate);
+      const secondsRemaining = updatesRemaining * autoUpdateInterval;
+      setTimeUntilLimitReached(secondsRemaining);
+    };
+
+    calculateTimeRemaining();
+    const timerInterval = setInterval(calculateTimeRemaining, 1000);
+
+    // Set up auto-update interval
+    const updateInterval = setInterval(() => {
+      if (canMakeRequest()) {
+        updateAllStocks();
+      } else {
+        setAutoUpdateEnabled(false);
+        alert('API limit reached. Auto-update has been disabled.');
+      }
+    }, autoUpdateInterval * 1000);
+
+    return () => {
+      clearInterval(updateInterval);
+      clearInterval(timerInterval);
+    };
+  }, [autoUpdateEnabled, autoUpdateInterval, stocks.length, counters.daily]);
+
+  // Format time remaining
+  const formatTimeRemaining = (seconds) => {
+    if (seconds === null || seconds < 0) return 'N/A';
+    const hours = Math.floor(seconds / 3600);
+    const minutes = Math.floor((seconds % 3600) / 60);
+    const secs = seconds % 60;
+    
+    if (hours > 0) {
+      return `${hours}h ${minutes}m`;
+    } else if (minutes > 0) {
+      return `${minutes}m ${secs}s`;
+    } else {
+      return `${secs}s`;
+    }
+  };
 
   // Click outside to deselect stock
   useEffect(() => {
@@ -296,12 +444,11 @@ function MainApp() {
             </div>
             <h1>Volitiliraptor</h1>
           </div>
-          {user && <span className="user-info">Welcome, {user.email}</span>}
         </div>
         
         <div className="header-center">
           <div className="api-status">
-            {user ? `Requests: ${counters.daily}/500 daily | ${counters.minute}/5 per minute` : 'Development Mode'}
+            {user ? `API Requests: ${counters.daily || 0}/${APP_CONFIG.apiLimits.dailyLimit} daily | ${counters.minute || 0}/${APP_CONFIG.apiLimits.minuteLimit} per minute` : 'Development Mode'}
           </div>
         </div>
         
@@ -312,19 +459,52 @@ function MainApp() {
               className="preset-btn"
               title="Configure preset settings"
             >
-              Presets
+              Configure
             </button>
             <button onClick={addStock} className="add-btn" title="Add new stock ticker (A)">
-              Add Stock
+              Add Paper
             </button>
             <button 
               onClick={updateAllStocks} 
-              disabled={isUpdating || (user && (counters.daily >= 500 || counters.minute >= 5))}
+              disabled={!canMakeRequest()}
               className="update-all-btn"
               title="Update all stocks with latest data (U)"
             >
               {isUpdating ? 'Updating...' : 'Update All'}
             </button>
+            
+            {/* Auto-Update Controls */}
+            <div className="auto-update-button">
+              <label className="auto-update-checkbox">
+                <input
+                  type="checkbox"
+                  checked={autoUpdateEnabled}
+                  onChange={(e) => setAutoUpdateEnabled(e.target.checked)}
+                  disabled={stocks.length === 0}
+                />
+                <span>Auto</span>
+              </label>
+              <select
+                value={autoUpdateInterval}
+                onChange={(e) => setAutoUpdateInterval(Number(e.target.value))}
+                className="auto-update-interval"
+                disabled={!autoUpdateEnabled}
+              >
+                <option value={10}>10s</option>
+                <option value={15}>15s</option>
+                <option value={20}>20s</option>
+                <option value={30}>30s</option>
+                <option value={60}>1min</option>
+                <option value={120}>2min</option>
+                <option value={300}>5min</option>
+              </select>
+            </div>
+            {autoUpdateEnabled && timeUntilLimitReached !== null && (
+              <span className="auto-update-timer" title="Time until daily limit reached">
+                {formatTimeRemaining(timeUntilLimitReached)}
+              </span>
+            )}
+            
             <button onClick={reorderByScore} className="reorder-btn" title="Sort all stocks by current score (descending)">
               Sort
             </button>
@@ -353,6 +533,8 @@ function MainApp() {
                 onRemove={removeStock}
                 perStockUpdating={perStockUpdating}
                 onUpdateSingle={updateSingle}
+                canMakeRequest={canMakeRequest}
+                onToggleLock={toggleLock}
                 useModular={true}
               />
             ))}
@@ -360,7 +542,7 @@ function MainApp() {
           {stocks.length === 0 && (
             <div className="empty-state">
               <h3>No stocks added yet</h3>
-              <p>Press 'A' or click 'Add Ticker' to get started</p>
+              <p>Press 'A' or click 'Add Paper' to get started</p>
             </div>
           )}
         </div>
@@ -373,6 +555,11 @@ function MainApp() {
           console.log('Preset applied:', preset);
           // Presets are now handled at the component level within each stock
           setShowPresetMenu(false);
+          // Check if auto-update is enabled in settings
+          const autoUpdate = localStorage.getItem('auto-update-on-preset') !== 'false';
+          if (autoUpdate) {
+            updateAllStocks();
+          }
         }}
         onUpdateStocks={updateAllStocks}
       />

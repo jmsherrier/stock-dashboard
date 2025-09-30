@@ -8,6 +8,10 @@ function NewsComponent({ stock, onUpdate, config }) {
   const [newNewsPoints, setNewNewsPoints] = useState(1);
 
   const totalPoints = newsItems.reduce((sum, item) => sum + (item.points || 0), 0);
+  
+  // Check if penalize mode is enabled in config
+  const penalizeNoNews = config?.scoring?.penalizeNoNews !== false;
+  const penaltyPoints = config?.scoring?.penaltyPoints || -2;
 
   const handleAddNews = () => {
     if (newNewsText.trim()) {
@@ -31,7 +35,11 @@ function NewsComponent({ stock, onUpdate, config }) {
         <h4>News & Catalysts</h4>
         <div className="news-score">
           {newsItems.length === 0 ? (
-            <span className="hazard-symbol" title="No news items">⚠️</span>
+            penalizeNoNews ? (
+              <span className="news-points-penalty" title={`Penalty for no news: ${penaltyPoints} pts`}>{penaltyPoints} pts</span>
+            ) : (
+              <span className="hazard-symbol" title="No news items">⚠️</span>
+            )
           ) : (
             <span className="news-points-positive">+{totalPoints} pts</span>
           )}

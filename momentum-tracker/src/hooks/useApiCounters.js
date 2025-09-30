@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { apiService } from '../services';
+import { APP_CONFIG } from '../config';
 
 export const useApiCounters = () => {
   const [counters, setCounters] = useState(apiService.getCounters());
@@ -9,12 +10,14 @@ export const useApiCounters = () => {
   useEffect(() => {
     const refreshCounters = () => setCounters(apiService.getCounters());
     refreshCounters();
-    const interval = setInterval(refreshCounters, 5000);
+    const interval = setInterval(refreshCounters, APP_CONFIG.ui.counterRefreshInterval);
     return () => clearInterval(interval);
   }, []);
 
   const canMakeRequest = () => {
-    return !isUpdating && counters.daily < 500 && counters.minute < 5;
+    return !isUpdating && 
+           counters.daily < APP_CONFIG.apiLimits.dailyLimit && 
+           counters.minute < APP_CONFIG.apiLimits.minuteLimit;
   };
 
   const setStockUpdating = (stockId, updating) => {

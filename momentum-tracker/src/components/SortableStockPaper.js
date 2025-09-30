@@ -12,6 +12,7 @@ function SortableStockPaper({
   onSelect, 
   perStockUpdating, 
   onUpdateSingle, 
+  onToggleLock,
   useModular = false,
   ...props 
 }) {
@@ -22,7 +23,7 @@ function SortableStockPaper({
     transform,
     transition,
     isDragging,
-  } = useSortable({ id: stock.id });
+  } = useSortable({ id: stock.id, disabled: stock.locked });
 
   const style = {
     transform: CSS.Transform.toString(transform),
@@ -46,7 +47,8 @@ function SortableStockPaper({
         rank={rank} 
         onUpdateSingle={onUpdateSingle} 
         perStockUpdating={perStockUpdating} 
-        dragListeners={listeners}
+        dragListeners={stock.locked ? null : listeners}
+        onToggleLock={onToggleLock}
         {...props} 
       />
     </div>
