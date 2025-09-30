@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { memo } from 'react';
 import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 import StockPaper from './StockPaper';
@@ -58,4 +58,6 @@ function SortableStockPaper({
   );
 }
 
-export default SortableStockPaper;
+// Shallow memo - will re-render if stock object reference changes
+export default memo(SortableStockPaper);
+

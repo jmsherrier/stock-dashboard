@@ -1,12 +1,13 @@
 // Data transformation utilities for handling legacy and modular formats
 import { STRATEGY_PRESETS } from '../components/modular/ComponentRegistry';
 
-export const createDefaultStock = (presetName = 'momentum') => {
+export const createDefaultStock = (presetName = 'momentum', position = null) => {
   const id = `stock-${Date.now()}`;
   const preset = STRATEGY_PRESETS[presetName] || STRATEGY_PRESETS.momentum;
   
   return {
     id,
+    position, // Position in the grid (null means append to end)
     paperConfig: preset.paperConfig, // Use specified preset's layout
     components: {
       ticker: { value: '' },

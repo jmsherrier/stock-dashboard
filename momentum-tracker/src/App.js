@@ -1,7 +1,9 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import './App.css';
 import { DndContext, closestCenter } from '@dnd-kit/core';
-import { SortableContext, verticalListSortingStrategy, arrayMove } from '@dnd-kit/sortable';
+import { SortableContext, verticalListSortingStrategy } from '@dnd-kit/sortable';
+import { useSortable } from '@dnd-kit/sortable';
+import { CSS } from '@dnd-kit/utilities';
 
 import { AuthProvider, useAuth } from './contexts/AuthContext';
 import ApiKeyPrompt from './components/ApiKeyPrompt';
@@ -19,6 +21,39 @@ import apiClient from './api/client';
 import { storage } from './services';
 import { APP_CONFIG } from './config';
 
+// Sortable wrapper for empty slots
+function SortableEmptySlot({ id, position, onAddStock }) {
+  const {
+    attributes,
+    listeners,
+    setNodeRef,
+    transform,
+    transition,
+    isDragging,
+    isOver
+  } = useSortable({ id });
+
+  const style = {
+    transform: CSS.Transform.toString(transform),
+    transition,
+    opacity: isDragging ? 0.5 : 1,
+  };
+
+  return (
+    <div
+      ref={setNodeRef}
+      style={style}
+      {...attributes}
+      {...listeners}
+      className={`empty-slot ${isOver ? 'drag-over' : ''}`}
+      onClick={() => onAddStock(position)}
+    >
+      <div className="empty-slot-content">
+        <span className="empty-slot-text">+ Add stock here</span>
+      </div>
+    </div>
+  );
+}
 
 function MainApp() {
   const { user } = useAuth();
@@ -41,32 +76,43 @@ function MainApp() {
     if (!over || active.id === over.id) return;
 
     setStocks((items) => {
-      const oldIndex = items.findIndex((item) => item.id === active.id);
-      const newIndex = items.findIndex((item) => item.id === over.id);
+      // Check if dragging a stock
+      const activeStock = items.find(item => item.id === active.id);
+      if (!activeStock || activeStock.locked) return items;
 
-      // Don't allow moving locked stocks
-      if (items[oldIndex]?.locked) return items;
+      const currentPosition = activeStock.position ?? 0;
 
-      const newArray = arrayMove(items, oldIndex, newIndex);
-      
-      // Preserve locked positions: if a locked stock would be displaced, adjust
-      const lockedStocks = items.map((stock, idx) => stock.locked ? idx : -1).filter(idx => idx !== -1);
-      if (lockedStocks.length > 0) {
-        // Keep locked stocks in their original positions
-        const finalArray = [...newArray];
-        lockedStocks.forEach(originalIdx => {
-          const lockedStock = items[originalIdx];
-          const currentIdx = finalArray.findIndex(s => s.id === lockedStock.id);
-          if (currentIdx !== originalIdx) {
-            // Move locked stock back to original position
-            finalArray.splice(currentIdx, 1);
-            finalArray.splice(originalIdx, 0, lockedStock);
-          }
-        });
-        return finalArray;
+      // Check if dropping on another stock or empty slot
+      let targetPosition;
+      if (over.id.toString().startsWith('empty-')) {
+        // Dropping on empty slot
+        targetPosition = parseInt(over.id.toString().replace('empty-', ''));
+      } else {
+        // Dropping on another stock - swap positions
+        const overStock = items.find(item => item.id === over.id);
+        if (overStock) {
+          targetPosition = overStock.position ?? 0;
+          
+          // If dropping on another stock, swap their positions
+          return items.map(stock => {
+            if (stock.id === active.id) {
+              return { ...stock, position: targetPosition };
+            } else if (stock.id === over.id) {
+              return { ...stock, position: currentPosition };
+            }
+            return stock;
+          });
+        } else {
+          return items;
+        }
       }
 
-      return newArray;
+      // Dropping on empty slot - just move there
+      return items.map(stock => 
+        stock.id === active.id 
+          ? { ...stock, position: targetPosition }
+          : stock
+      );
     });
   };  const { 
     counters, 
@@ -100,7 +146,23 @@ function MainApp() {
   }, [showSettingsMenu]);
 
   const addStock = () => {
-    const newStock = createDefaultStock(currentPreset);
+    // Find first empty position
+    const maxPosition = stocks.length > 0 
+      ? Math.max(...stocks.map(s => s.position ?? 0))
+      : -1;
+    
+    // Find first gap in positions
+    let firstEmptyPosition = null;
+    for (let i = 0; i <= maxPosition; i++) {
+      if (!stocks.some(s => (s.position ?? 0) === i)) {
+        firstEmptyPosition = i;
+        break;
+      }
+    }
+    
+    // If no gaps, add to end
+    const position = firstEmptyPosition !== null ? firstEmptyPosition : maxPosition + 1;
+    const newStock = createDefaultStock(currentPreset, position);
     setStocks(prev => [...prev, newStock]);
     
     // Auto-focus ticker input after creation
@@ -277,11 +339,14 @@ function MainApp() {
       const lockedPositions = new Map();
       prev.forEach((stock, idx) => {
         if (stock.locked) {
-          lockedPositions.set(stock.id, idx);
+          lockedPositions.set(stock.id, stock.position ?? idx);
         }
       });
       
-      if (lockedPositions.size === 0) return sorted;
+      if (lockedPositions.size === 0) {
+        // No locked stocks, just reassign positions sequentially
+        return sorted.map((stock, idx) => ({ ...stock, position: idx }));
+      }
       
       // Remove locked stocks from sorted array
       const unlockedSorted = sorted.filter(s => !s.locked);
@@ -290,30 +355,39 @@ function MainApp() {
       const finalArray = [];
       let unlockedIdx = 0;
       
-      for (let i = 0; i < prev.length; i++) {
-        const lockedStock = prev[i];
-        if (lockedStock.locked) {
-          finalArray[i] = lockedStock;
+      // Get max position to iterate through all slots
+      const maxPos = Math.max(...prev.map(s => s.position ?? 0));
+      
+      for (let i = 0; i <= maxPos; i++) {
+        const lockedStock = prev.find(s => s.locked && (s.position ?? 0) === i);
+        if (lockedStock) {
+          finalArray.push({ ...lockedStock, position: i });
         } else {
           // Fill with next unlocked sorted stock
-          while (finalArray[i] === undefined && unlockedIdx < unlockedSorted.length) {
-            if (!lockedPositions.has(unlockedSorted[unlockedIdx].id)) {
-              finalArray[i] = unlockedSorted[unlockedIdx];
-            }
+          if (unlockedIdx < unlockedSorted.length) {
+            finalArray.push({ ...unlockedSorted[unlockedIdx], position: i });
             unlockedIdx++;
           }
         }
       }
       
-      return finalArray.filter(Boolean);
+      return finalArray;
     });
   };
 
-  const toggleLock = (stockId) => {
-    setStocks(prev => prev.map(stock => 
-      stock.id === stockId ? { ...stock, locked: !(stock.locked === true) } : stock
-    ));
-  };
+  const toggleLock = useCallback((stockId) => {
+    setStocks(prev => {
+      const stockIndex = prev.findIndex(s => s.id === stockId);
+      if (stockIndex === -1) return prev;
+      
+      const newStocks = [...prev];
+      newStocks[stockIndex] = {
+        ...prev[stockIndex],
+        locked: !(prev[stockIndex].locked === true)
+      };
+      return newStocks;
+    });
+  }, [setStocks]);
 
 
 
@@ -566,25 +640,65 @@ function MainApp() {
 
       <DndContext collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
         <div className="stocks-container">
-          <SortableContext items={stocks.map(s => s.id)} strategy={verticalListSortingStrategy}>
-            {stocks.map((stock, index) => (
-              <SortableStockPaper
-                key={stock.id}
-                stock={stock}
-                score={calculateScore(stock)}
-                rank={index + 1}
-                isSelected={selectedStock === stock.id}
-                onSelect={() => setSelectedStock(stock.id)}
-                onUpdate={updateStock}
-                onRemove={removeStock}
-                perStockUpdating={perStockUpdating}
-                onUpdateSingle={updateSingle}
-                canMakeRequest={canMakeRequest}
-                onToggleLock={toggleLock}
-                useModular={true}
-              />
-            ))}
-          </SortableContext>
+          {(() => {
+            // Find max position to render all slots
+            const maxPosition = stocks.length > 0
+              ? Math.max(...stocks.map(s => s.position ?? 0))
+              : -1;
+            
+            // Add extra empty slots beyond the last stock to allow dragging further
+            const extraSlots = 5; // Always show 5 extra empty slots
+            const renderUpTo = maxPosition + extraSlots;
+            
+            // Create array of all positions from 0 to renderUpTo
+            const positions = [];
+            const sortableIds = [];
+            for (let i = 0; i <= renderUpTo; i++) {
+              const stock = stocks.find(s => (s.position ?? 0) === i);
+              positions.push({ position: i, stock });
+              sortableIds.push(stock ? stock.id : `empty-${i}`);
+            }
+            
+            return (
+              <SortableContext items={sortableIds} strategy={verticalListSortingStrategy}>
+                {positions.map(({ position, stock }, index) => {
+                  if (stock) {
+                    // Render actual stock
+                    return (
+                      <SortableStockPaper
+                        key={stock.id}
+                        stock={stock}
+                        score={calculateScore(stock)}
+                        rank={index + 1}
+                        isSelected={selectedStock === stock.id}
+                        onSelect={() => setSelectedStock(stock.id)}
+                        onUpdate={updateStock}
+                        onRemove={removeStock}
+                        perStockUpdating={perStockUpdating}
+                        onUpdateSingle={updateSingle}
+                        canMakeRequest={canMakeRequest}
+                        onToggleLock={toggleLock}
+                        useModular={true}
+                      />
+                    );
+                  } else {
+                    // Render empty slot with sortable wrapper
+                    return (
+                      <SortableEmptySlot
+                        key={`empty-${position}`}
+                        id={`empty-${position}`}
+                        position={position}
+                        onAddStock={(pos) => {
+                          const newStock = createDefaultStock(currentPreset, pos);
+                          setStocks(prev => [...prev, newStock]);
+                        }}
+                      />
+                    );
+                  }
+                })}
+              </SortableContext>
+            );
+          })()}
           {stocks.length === 0 && (
             <div className="empty-state">
               <h3>No stocks added yet</h3>
