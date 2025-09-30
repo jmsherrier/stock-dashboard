@@ -1,11 +1,14 @@
 import React from 'react';
 import { calculateComponentScore, getComponentScoreColor } from './ComponentRegistry';
 import CriteriaInput from '../CriteriaInput';
+import ChangeIndicator from './ChangeIndicator';
 
 function PriceComponent({ stock, onUpdate, config }) {
   // Get value from modular or legacy format
   const getValue = () => stock.components?.price?.value || stock.price || '';
+  const getPreviousValue = () => stock.components?.price?.previousValue || '';
   const value = getValue();
+  const previousValue = getPreviousValue();
   
   const score = calculateComponentScore('price', value);
   const scoreColor = getComponentScoreColor('price', value);
@@ -81,6 +84,7 @@ function PriceComponent({ stock, onUpdate, config }) {
             onChange={(e) => onUpdate(stock.id, 'price', { value: e.target.value })}
             placeholder="0.00"
           />
+          <ChangeIndicator currentValue={value} previousValue={previousValue} />
           <span className="input-suffix">$</span>
         </div>
         {getWarning(value) && (

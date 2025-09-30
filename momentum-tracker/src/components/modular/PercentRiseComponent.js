@@ -1,11 +1,14 @@
 import React from 'react';
 import { calculateComponentScore, getComponentScoreColor } from './ComponentRegistry';
 import CriteriaInput from '../CriteriaInput';
+import ChangeIndicator from './ChangeIndicator';
 
 function PercentRiseComponent({ stock, onUpdate, config }) {
   // Get value from modular or legacy format
   const getValue = () => stock.components?.percentRise?.value || stock.percentRise || '';
+  const getPreviousValue = () => stock.components?.percentRise?.previousValue || '';
   const value = getValue();
+  const previousValue = getPreviousValue();
   
   const score = calculateComponentScore('percentRise', value);
   const scoreColor = getComponentScoreColor('percentRise', value);
@@ -80,6 +83,7 @@ function PercentRiseComponent({ stock, onUpdate, config }) {
             onChange={(e) => onUpdate(stock.id, 'percentRise', { value: e.target.value })}
             placeholder="0.0"
           />
+          <ChangeIndicator currentValue={value} previousValue={previousValue} />
           <span className="input-suffix">%</span>
         </div>
         {getWarning(value) && (
