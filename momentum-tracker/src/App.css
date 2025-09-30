@@ -1406,10 +1406,12 @@ body {
 
 /* Lock position checkbox at bottom */
 .lock-position-control {
-  margin-top: 1rem;
-  padding: 0.75rem 1rem;
-  border-top: 1px solid rgba(255, 255, 255, 0.1);
-  background: rgba(0, 0, 0, 0.2);
+  margin-top: 0.5rem;
+  padding: 0.5rem 1rem;
+  border-radius: 0 0 8px 8px;
+  margin-left: -1rem;
+  margin-right: -1rem;
+  margin-bottom: -0.5rem;
 }
 
 .lock-checkbox-label {
@@ -1418,33 +1420,26 @@ body {
   gap: 0.5rem;
   cursor: pointer;
   user-select: none;
-  font-size: 0.85rem;
-  color: rgba(255, 255, 255, 0.7);
+  font-size: 0.8rem;
+  color: rgba(255, 255, 255, 0.5);
+  transition: color 0.2s;
 }
 
 .lock-checkbox {
   cursor: pointer;
   width: 16px;
   height: 16px;
+  margin: 0;
+  flex-shrink: 0;
   accent-color: #ffc107;
 }
 
 .lock-checkbox-label:hover {
-  color: rgba(255, 255, 255, 0.9);
-}
-
-.stock-paper.locked {
-  box-shadow: 0 0 0 2px rgba(255, 193, 7, 0.3);
-}
-
-.stock-paper.locked .lock-position-control {
-  background: rgba(255, 193, 7, 0.1);
-  border-top-color: rgba(255, 193, 7, 0.3);
+  color: rgba(255, 255, 255, 0.7);
 }
 
 .stock-paper.locked .lock-checkbox-label {
   color: #ffc107;
-  font-weight: 500;
 }
 
 /* Scale Bar Styles */

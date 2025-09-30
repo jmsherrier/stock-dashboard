@@ -1,4 +1,4 @@
-import React, { useState, memo } from 'react';
+import React, { useState, useEffect } from 'react';
 import { COMPONENT_REGISTRY } from './modular/ComponentRegistry';
 
 function ModularStockPaper({
@@ -13,8 +13,14 @@ function ModularStockPaper({
   dragListeners,
   onToggleLock
 }) {
+  console.log('ModularStockPaper RENDERING - stock:', stock.id, 'paperConfig keys:', Object.keys(stock.paperConfig || {}));
+  
   const [isEditingTicker, setIsEditingTicker] = useState(false);
   const [tickerValue, setTickerValue] = useState(stock.ticker || '');
+
+  useEffect(() => {
+    console.log('ModularStockPaper useEffect - stock:', stock.id, 'paperConfig:', stock.paperConfig, 'locked:', stock.locked);
+  }, [stock, stock.id, stock.paperConfig, stock.locked]);
 
   // Get current ticker from either old or new format
   const getCurrentTicker = () => {
@@ -73,7 +79,7 @@ function ModularStockPaper({
                 e.stopPropagation();
                 onUpdateSingle(stock.id);
               }}
-              disabled={(perStockUpdating && perStockUpdating[stock.id]) || (canMakeRequest && !canMakeRequest())}
+              disabled={perStockUpdating && perStockUpdating[stock.id]}
             >
               {perStockUpdating && perStockUpdating[stock.id] ? 'Updating...' : 'Update'}
             </button>
@@ -265,13 +271,20 @@ function ModularStockPaper({
       {/* Lock Position Checkbox */}
       {onToggleLock && (
         <div className="lock-position-control">
-          <label className="lock-checkbox-label">
+          <label 
+            className="lock-checkbox-label"
+            onClick={(e) => {
+              e.stopPropagation();
+              e.preventDefault();
+              onToggleLock(stock.id);
+            }}
+          >
             <input
               type="checkbox"
               checked={stock.locked || false}
-              onChange={() => onToggleLock(stock.id)}
-              onClick={(e) => e.stopPropagation()}
+              onChange={() => {}} // Controlled by label click
               className="lock-checkbox"
+              tabIndex={-1}
             />
             <span>Lock position</span>
           </label>
@@ -281,4 +294,4 @@ function ModularStockPaper({
   );
 }
 
-export default memo(ModularStockPaper);
+export default ModularStockPaper;

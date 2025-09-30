@@ -1,4 +1,4 @@
-import React, { memo } from 'react';
+import React from 'react';
 import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 import StockPaper from './StockPaper';
@@ -23,7 +23,10 @@ function SortableStockPaper({
     transform,
     transition,
     isDragging,
-  } = useSortable({ id: stock.id, disabled: stock.locked });
+  } = useSortable({ 
+    id: stock.id, 
+    disabled: stock.locked === true 
+  });
 
   const style = {
     transform: CSS.Transform.toString(transform),
@@ -47,7 +50,7 @@ function SortableStockPaper({
         rank={rank} 
         onUpdateSingle={onUpdateSingle} 
         perStockUpdating={perStockUpdating} 
-        dragListeners={stock.locked ? null : listeners}
+        dragListeners={stock.locked === true ? null : listeners}
         onToggleLock={onToggleLock}
         {...props} 
       />
@@ -55,15 +58,4 @@ function SortableStockPaper({
   );
 }
 
-// Memoize to prevent unnecessary re-renders when stock data hasn't changed
-export default memo(SortableStockPaper, (prevProps, nextProps) => {
-  // Custom comparison function for better performance
-  return (
-    prevProps.stock.id === nextProps.stock.id &&
-    prevProps.score === nextProps.score &&
-    prevProps.rank === nextProps.rank &&
-    prevProps.isSelected === nextProps.isSelected &&
-    (prevProps.perStockUpdating || {})[prevProps.stock.id] === (nextProps.perStockUpdating || {})[nextProps.stock.id] &&
-    JSON.stringify(prevProps.stock.components || {}) === JSON.stringify(nextProps.stock.components || {})
-  );
-});
+export default SortableStockPaper;
