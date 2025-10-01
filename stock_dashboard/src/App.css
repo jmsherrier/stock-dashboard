@@ -17,6 +17,8 @@ body {
   background: #1a1a1a;
   color: #e5e5e5;
   min-height: 100vh;
+  display: flex;
+  flex-direction: column;
 }
 
 .app-header {
@@ -93,6 +95,19 @@ body {
 .header-buttons button:disabled {
   opacity: 0.5;
   cursor: not-allowed;
+}
+
+/* Grid Canvas Container - fills remaining viewport space */
+.grid-canvas-container {
+  flex: 1;
+  overflow: hidden;
+  position: relative;
+  width: 100%;
+  background: #1a1a1a;
+}
+
+.grid-canvas-container.dragging {
+  cursor: grabbing;
 }
 
 /* Auto-update controls */

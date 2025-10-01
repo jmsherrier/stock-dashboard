@@ -520,7 +520,7 @@ const GridCanvas = forwardRef(({
             onUpdateSingle={null}
             canMakeRequest={() => false}
             dragListeners={null}
-            onToggleLock={null}
+            onToggleLock={() => {}} // Include lock control in measurement
           />
         </div>
         
