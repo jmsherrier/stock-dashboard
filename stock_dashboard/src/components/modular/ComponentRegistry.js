@@ -43,6 +43,7 @@ export const COMPONENT_REGISTRY = {
     description: 'Stock ticker symbol',
     component: TickerComponent,
     required: true,
+    removable: false,
     category: 'core',
     defaultSize: 'small'
   },

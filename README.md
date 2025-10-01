@@ -1,10 +1,10 @@
 # Volitiliraptor - Multi-Strategy Trading Analysis Platform
 
 ## Current Version
-v3.0.0 - Modular Architecture & Multi-Strategy Support
+v3.0.0 - Grid-Based Layout & Multi-Strategy Support
 
 ## Overview
-Volitiliraptor is a comprehensive trading analysis platform that transforms traditional stock screening into a flexible, multi-strategy system. Built with React and Express, it provides modular components that can be configured for different trading strategies with real-time data integration and sophisticated scoring systems.
+Volitiliraptor is a comprehensive trading analysis platform that transforms traditional stock screening into a flexible, multi-strategy system. Built with React and Express, it provides modular components with a dynamic 2D grid layout system for organizing stocks spatially, real-time data integration, and sophisticated scoring systems.
 
 ## Key Features
 
@@ -15,10 +15,18 @@ Volitiliraptor is a comprehensive trading analysis platform that transforms trad
 - **Custom Strategies**: Create your own trading criteria
 
 ### Modular Component Architecture
-- **Drag-and-Drop Interface**: Reorder stocks intuitively
+- **2D Grid Layout**: Position stocks anywhere on an infinite, pannable grid
+- **Dynamic Sizing**: Empty grid slots automatically match the size of stock papers with current preset configuration
+- **Drag-and-Drop Interface**: Move stocks to any position with visual feedback and live preview of target cell
+- **Click-to-Add**: Click empty grid cells to instantly add new stocks (configurable)
+- **Mousewheel Zoom**: Zoom in/out (0.5x to 2x) using mousewheel for better overview or detail view
+- **Smart Sort**: Automatically arranges stocks in a grid pattern (left-to-right, top-to-bottom) based on screen width
+- **Visual Feedback**: Subtle outlines on empty cells, highlighted when hovering or dragging stocks
 - **Flexible Components**: Each metric is a standalone, configurable component
 - **Dual-Format Support**: Works with legacy and modern data structures
 - **Auto-Calculations**: Float automatically calculated from shares data
+- **Zero-Aligned Mode**: Optional constraint to keep grid anchored to origin
+- **Default Stock**: Application initializes with one stock paper for immediate use
 
 ### Advanced Scoring System
 - **Color-Coded Scoring**: Green (positive), Orange (neutral), Red (negative)
@@ -99,12 +107,20 @@ npm run server:prod
 
 ### Getting Started
 1. **Authentication**: Create account with email and password, or login with existing credentials
-2. **Add Stocks**: Press 'A' or click "Add Paper" to add a new stock
-3. **Enter Data**: Click on any field to edit stock information
-4. **Update Prices**: Click "Update" button to fetch real-time data
-5. **Reorder**: Drag stock papers to rearrange them
-6. **Configure Strategy**: Use "Configure" menu to adjust strategy presets, enable/disable components, and set bonus criteria
-7. **Settings**: Use settings menu to adjust preferences, enable auto-update on preset apply, and access dev mode
+2. **Initial Setup**: Application starts with one default stock paper already on the grid
+3. **Add More Stocks**: 
+   - With "Click empty space to add stocks" enabled (default): Click any empty grid cell to add
+   - With setting disabled: Click "Add Paper" button, then click grid cell to place
+4. **Navigate Grid**: 
+   - **Pan**: Click and drag on empty space to move your view around the infinite grid
+   - **Zoom**: Use mousewheel to zoom in (2x) or out (0.5x) for different perspectives
+5. **Position Stocks**: Drag stocks to any position on the grid canvas
+6. **Enter Data**: Click on any field to edit stock information
+7. **Update Prices**: Click "Update" button on individual stocks or "Update All" for all stocks
+8. **Sort Stocks**: Click "Sort" button to automatically arrange all unlocked stocks in a grid pattern (left-to-right, top-to-bottom) based on their scores and your screen width
+9. **Configure Strategy**: Use "Configure" menu to adjust strategy presets, enable/disable components, and set bonus criteria
+   - **Note**: When you change presets, all stock papers and empty grid slots resize automatically to match the new configuration
+10. **Settings**: Access grid layout options, auto-update preferences, and account management
 
 ### Developer Mode
 - Access developer features through Settings → Account Management

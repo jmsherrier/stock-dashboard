@@ -171,11 +171,28 @@ body {
   background: rgba(34, 197, 94, 0.1);
   border-color: rgba(34, 197, 94, 0.3);
   color: #22c55e;
+  transition: all 0.2s;
 }
 
 .add-btn:hover:not(:disabled) {
   background: rgba(34, 197, 94, 0.2);
   border-color: rgba(34, 197, 94, 0.5);
+}
+
+.add-btn.active {
+  background: rgba(34, 197, 94, 0.3);
+  border-color: rgba(34, 197, 94, 0.6);
+  box-shadow: 0 0 10px rgba(34, 197, 94, 0.4);
+  animation: pulse 2s ease-in-out infinite;
+}
+
+@keyframes pulse {
+  0%, 100% {
+    box-shadow: 0 0 10px rgba(34, 197, 94, 0.4);
+  }
+  50% {
+    box-shadow: 0 0 20px rgba(34, 197, 94, 0.6);
+  }
 }
 
 .update-all-btn {
@@ -189,12 +206,9 @@ body {
   border-color: rgba(59, 130, 246, 0.5);
 }
 
+/* Legacy stocks-container - now using grid canvas */
 .stocks-container {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(420px, 1fr));
-  gap: 2rem;
-  padding: 2rem;
-  min-height: calc(100vh - 80px);
+  display: none;
 }
 
 .empty-state {
@@ -218,18 +232,19 @@ body {
 .stock-paper {
   background: transparent;
   border-radius: 8px;
-  padding: 20px;
-  margin-bottom: 16px;
+  padding: 20px; /* Equal padding on all sides */
+  margin-bottom: 0; /* No margin in grid - spacing handled by cellGap */
   border: 2px solid rgba(255, 255, 255, 0.3);
   transition: all 0.2s ease;
   color: white;
   cursor: default;
   position: relative;
+  min-width: 420px;
 }
 
 .stock-paper:hover {
   border-color: rgba(255, 255, 255, 0.5);
-  transform: translateY(-2px);
+  /* transform: translateY(-2px); */ /* Removed to maintain consistent spacing */
 }
 
 .stock-paper:active {
@@ -1222,8 +1237,8 @@ body {
   font-weight: inherit;
   text-align: center;
   text-transform: uppercase;
-  width: 170px;
-  max-width: 170px;
+  width: 100%;
+  max-width: 100%;
   outline: none;
   box-sizing: border-box;
 }
@@ -1445,12 +1460,9 @@ body {
 
 /* Lock position checkbox at bottom */
 .lock-position-control {
-  margin-top: 0.5rem;
-  padding: 0.5rem 1rem;
-  border-radius: 0 0 8px 8px;
-  margin-left: -1rem;
-  margin-right: -1rem;
-  margin-bottom: -0.5rem;
+  margin-top: 0; /* No extra margin - spacing handled by sections above */
+  padding: 0;
+  background: transparent;
 }
 
 .lock-checkbox-label {
@@ -2902,6 +2914,30 @@ input:disabled + .toggle-slider {
   width: 1rem;
   height: 1rem;
   accent-color: #8b5cf6;
+}
+
+.keybind-item {
+  flex-direction: row;
+  align-items: center;
+  gap: 1rem;
+}
+
+.keybind-label {
+  flex: 1;
+  min-width: 120px;
+}
+
+.keybind-display {
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  border-radius: 4px;
+  padding: 0.25rem 0.75rem;
+  font-family: 'Courier New', monospace;
+  font-size: 0.85rem;
+  color: #fff;
+  min-width: 80px;
+  text-align: center;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
 }
 
 .setting-help {

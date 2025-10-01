@@ -11,6 +11,8 @@ function SettingsModal({ isOpen, onClose, user: propUser }) {
     showScores: localStorage.getItem('show-scores') !== 'false',
     autoUpdateOnPreset: localStorage.getItem('auto-update-on-preset') !== 'false',
     autoSortOnUpdate: localStorage.getItem('auto-sort-on-update') !== 'false',
+    clickEmptyToAdd: localStorage.getItem('click-empty-to-add') !== 'false',
+    zeroAligned: localStorage.getItem('zero-aligned') === 'true',
     apiTimeout: parseInt(localStorage.getItem('api-timeout')) || 10000,
     refreshInterval: parseInt(localStorage.getItem('refresh-interval')) || 300000
   });
@@ -37,6 +39,8 @@ function SettingsModal({ isOpen, onClose, user: propUser }) {
         showScores: true,
         autoUpdateOnPreset: true,
         autoSortOnUpdate: true,
+        clickEmptyToAdd: true,
+        zeroAligned: false,
         apiTimeout: 10000,
         refreshInterval: 300000
       };
@@ -130,6 +134,72 @@ function SettingsModal({ isOpen, onClose, user: propUser }) {
                   />
                   Show stock scores
                 </label>
+              </div>
+            </div>
+          </div>
+
+          <div className="settings-section">
+            <h4>Grid Layout</h4>
+            <div className="settings-group">
+              <div className="setting-item">
+                <label className="setting-label">
+                  <input 
+                    type="checkbox"
+                    checked={settings.clickEmptyToAdd}
+                    onChange={(e) => handleSettingChange('clickEmptyToAdd', e.target.checked)}
+                    className="setting-checkbox"
+                  />
+                  Click empty space to add stocks
+                </label>
+                <small className="setting-help">When enabled, click any empty grid cell to add a stock</small>
+              </div>
+
+              <div className="setting-item">
+                <label className="setting-label">
+                  <input 
+                    type="checkbox"
+                    checked={settings.zeroAligned}
+                    onChange={(e) => handleSettingChange('zeroAligned', e.target.checked)}
+                    className="setting-checkbox"
+                  />
+                  Zero-aligned grid
+                </label>
+                <small className="setting-help">When enabled, grid can only expand down and right from origin</small>
+              </div>
+            </div>
+          </div>
+
+          <div className="settings-section">
+            <h4>Keyboard Shortcuts</h4>
+            <div className="settings-group">
+              <div className="setting-item keybind-item">
+                <label className="setting-label keybind-label">Add Stock</label>
+                <kbd className="keybind-display">A</kbd>
+                <small className="setting-help">Add a stock at cursor position or find nearest empty slot</small>
+              </div>
+
+              <div className="setting-item keybind-item">
+                <label className="setting-label keybind-label">Update All</label>
+                <kbd className="keybind-display">U</kbd>
+                <small className="setting-help">Refresh data for all stocks</small>
+              </div>
+
+              <div className="setting-item keybind-item">
+                <label className="setting-label keybind-label">Delete Stock</label>
+                <kbd className="keybind-display">Del</kbd>
+                <small className="setting-help">Delete the hovered or selected stock</small>
+              </div>
+
+              <div className="setting-item keybind-item">
+                <label className="setting-label keybind-label">Undo</label>
+                <kbd className="keybind-display">Ctrl+Z</kbd>
+                <small className="setting-help">Undo last action</small>
+              </div>
+
+              <div className="setting-item keybind-item">
+                <label className="setting-label keybind-label">Cancel</label>
+                <kbd className="keybind-display">Esc</kbd>
+                <small className="setting-help">Cancel adding mode</small>
               </div>
             </div>
           </div>
