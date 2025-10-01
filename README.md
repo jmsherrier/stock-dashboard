@@ -57,7 +57,7 @@ Volitiliraptor is a comprehensive trading analysis platform that transforms trad
 ```bash
 # Clone the repository
 git clone <repository-url>
-cd momentum-tracker
+cd stock_dashboard
 
 # Install dependencies
 npm install

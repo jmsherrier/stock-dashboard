@@ -1,9 +1,9 @@
-# Copilot Instructions for Volitiliraptor (Momentum Tracker)
+# Copilot Instructions for Volitiliraptor (Stock Dashboard)
 
 ## Project Overview
 - **Volitiliraptor** is a modular multi-strategy trading analysis platform built with React 19.1.1 (frontend) and Express.js (backend).
 - The architecture supports drag-and-drop stock management (@dnd-kit), modular scoring components, and real-time data integration via Alpha Vantage API.
-- Data persistence is handled via SQLite (see `server/data/momentum_tracker.db`) with dual-layer storage (database + localStorage).
+- Data persistence is handled via SQLite (see `server/data/stock_dashboard.db`) with dual-layer storage (database + localStorage).
 
 ## Key Architectural Patterns
 - **Component Registry System**: All metric components are registered in `src/components/modular/ComponentRegistry.js` with metadata (scoring criteria, categories, defaults). This is the single source of truth for available components.
@@ -13,6 +13,8 @@
 - **Scoring Engine**: Color-coded scoring (green/orange/red) defined in component registry, calculated in `utils/scoreCalculator.js` with bonus checks support.
 
 ## Developer Workflows
+- Do not run npm start or build commands unless specifically instructed
+- Assume backend and frontend are running in separate terminal tabs/windows
 - **Full Setup**: `npm run install:all` → `npm run dev` (starts both frontend and backend concurrently)
 - **Backend Only**: `npm run server` or `npm run server:dev` (nodemon, port 3001)
 - **Frontend Only**: `npm start` (React dev server, port 3000)
@@ -31,7 +33,7 @@
 
 ## Integration Points
 - **Alpha Vantage API**: Configure API key in `server/.env`. All stock quote requests route through backend (`/api/stocks/quote/:ticker`).
-- **Database**: SQLite file at `server/data/momentum_tracker.db`. Schema documented in README.
+- **Database**: SQLite file at `server/data/stock_dashboard.db`. Schema documented in README.
 - **Frontend-Backend Communication**: All data flows through RESTful API endpoints (see `server/routes/`).
 - **Authentication Flow**: `ApiKeyPrompt` → `AuthContext.login()` → `apiClient.setApiKey()` → Backend validates via `authenticateAPIKey` middleware.
 - **Data Persistence**: Frontend uses `localStorage` for temporary data, backend handles permanent storage. Both layers sync via `saveStocksToBackend()`.
@@ -55,7 +57,7 @@
 - **Port Conflicts**: If `EADDRINUSE` error occurs on port 3001, check for orphaned node processes: `Get-Process node` then `Stop-Process -Name node -Force`
 - **Server Won't Stay Active**: Verify `server.js` calls `app.listen()` inside async database initialization block (after `await db.init()`)
 - **Database Initialization**: Server must complete "Database initialization completed" before accepting requests. Check for invalid table/index references in `database.js`
-- **Starting Server**: Use dedicated terminal tab with `cd .\momentum-tracker\server; npm run dev` or separate window with `npm run dev:windows`
+- **Starting Server**: Use dedicated terminal tab with `cd .\stock_dashboard\server; npm run dev` or separate window with `npm run dev:windows`
 - **Testing Server**: Use separate terminal tab for API requests (curl/Invoke-RestMethod). Health check: `http://localhost:3001/api/health`
 
 ---
@@ -83,6 +85,8 @@
 - Execute only explicitly requested tasks
 - Seek explicit permission before performing additional or related actions
 - Do not make assumptions about unstated requirements or preferences
+- Do not run npm start or build commands unless specifically instructed
+- Assume backend and frontend are running in separate terminal tabs/windows
 
 ### Documentation Requirements
 - Update README.md after implementing changes to reflect current state
@@ -95,11 +99,11 @@
 These guidelines ensure efficient, focused interactions that respect user intentions and time constraints while maintaining helpful assistance within defined boundaries.
 
 ## Command line / Terminal
-Generally, working folder is Whiteboard/momentum-tracker/
+Generally, working folder is volatiliraptor/stock_dashboard/
 
 ### PowerShell Syntax
 - Use semicolon (`;`) syntax to join commands on a single line when needed
-- Example: `cd .\momentum-tracker\; npm install` `set PORT="3001"; npm start`
+- Example: `cd .\stock_dashboard\; npm install` `set PORT="3001"; npm start`
 - This ensures compatibility with Windows PowerShell command execution
 
 ## Code Modernization & Legacy Cleanup
@@ -134,7 +138,8 @@ Generally, working folder is Whiteboard/momentum-tracker/
 - Maintain consistent styling architecture aligned with current component structure
 
 ### Documentation Maintenance
-- Update ARCHITECTURE.md to reflect current system state
+- Only expand existing .md files; do not create new documentation files
+- Document all major changes in README.md or relevant existing documentation
 - Remove references to deprecated features in documentation
 - Update README.md when major architectural changes are implemented
 - Ensure documentation accurately represents the modernized codebase
