@@ -1,0 +1,130 @@
+.grid-canvas-container {
+  position: relative;
+  width: 100%;
+  height: calc(100vh - 80px);
+  overflow: hidden;
+  cursor: default;
+  user-select: none;
+  background: transparent;
+}
+
+.grid-canvas-container.dragging {
+  cursor: grabbing;
+}
+
+.grid-canvas {
+  position: relative;
+  width: max-content;
+  height: max-content;
+  min-width: 100%;
+  min-height: 100%;
+  background: transparent;
+}
+
+.grid-cell {
+  position: absolute;
+  transition: opacity 0.2s;
+}
+
+.grid-cell.empty {
+  pointer-events: none;
+}
+
+.grid-cell.occupied {
+  pointer-events: auto;
+}
+
+/* Cell outline for empty cells */
+.cell-outline {
+  width: 100%;
+  height: 100%;
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 1;
+  transition: all 0.08s ease-out;
+  pointer-events: none;
+}
+
+.outline-border {
+  position: absolute;
+  inset: 0;
+  border: 2px dashed rgba(255, 255, 255, 0.08);
+  border-radius: 8px;
+  background: transparent;
+  transition: all 0.08s ease-out;
+}
+
+/* Show outline when hovered or during drag */
+.grid-cell.hovered .outline-border,
+.grid-cell.drag-over .outline-border {
+  border-color: rgba(76, 175, 80, 0.6);
+  background: rgba(76, 175, 80, 0.05);
+}
+
+/* Plus sign in the center of outlines */
+.cell-outline::after {
+  content: '+';
+  font-size: 3rem;
+  color: rgba(255, 255, 255, 0.1);
+  font-weight: 300;
+  z-index: 1;
+  transition: all 0.08s ease-out;
+  pointer-events: none;
+}
+
+.grid-cell.hovered .cell-outline::after,
+.grid-cell.drag-over .cell-outline::after {
+  color: rgba(76, 175, 80, 0.8);
+  transform: scale(1.1);
+}
+
+/* Stock wrapper in grid */
+.grid-cell .stock-wrapper {
+  width: 100%;
+  height: 100%;
+  cursor: default;
+}
+
+.grid-cell .stock-wrapper.selected .stock-paper {
+  border-color: rgba(255, 255, 255, 0.6);
+  box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.2);
+}
+
+/* Prevent rotation during drag */
+.stock-drag-overlay {
+  transform: rotate(0deg) !important;
+}
+
+.stock-drag-overlay .stock-paper {
+  transform: rotate(0deg) !important;
+  cursor: grabbing;
+}
+
+/* Drag overlay styling */
+.stock-drag-overlay {
+  cursor: grabbing;
+  opacity: 0.9;
+  transform: rotate(-3deg);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+}
+
+.stock-drag-overlay .stock-paper {
+  border-color: rgba(255, 255, 255, 0.6);
+}
+
+/* Empty state for grid */
+.empty-state-grid {
+  display: none;
+}
+
+/* Cursor styles for different modes */
+.grid-cell.empty {
+  pointer-events: none;
+}
+
+/* Make sure stock papers don't interfere with grid dragging */
+.grid-cell.occupied .stock-paper {
+  pointer-events: auto;
+}

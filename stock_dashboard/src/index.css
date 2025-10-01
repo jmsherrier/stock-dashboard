@@ -16,3 +16,12 @@ code {
   font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
     monospace;
 }
+
+/* Prevent @dnd-kit from rotating dragged items */
+[data-dnd-kit-drag-overlay] {
+  transform-origin: center center !important;
+}
+
+[data-dnd-kit-drag-overlay] * {
+  transform: rotate(0deg) !important;
+}
