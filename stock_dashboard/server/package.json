@@ -1,6 +1,6 @@
 {
-  "name": "momentum-tracker-server",
-  "version": "1.0.0",
+  "name": "stock_dashboard-server",
+  "version": "3.0",
   "description": "Backend server for Momentum Tracker",
   "main": "server.js",
   "scripts": {
@@ -28,6 +28,5 @@
     "jest": "^29.7.0"
   },
   "keywords": ["trading", "momentum", "tracker", "stocks"],
-  "author": "",
-  "license": "MIT"
+  "author": ""
 }

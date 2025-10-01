@@ -37,9 +37,9 @@ export const APP_CONFIG = {
   
   // Storage keys
   storage: {
-    stocksKey: 'momentum-tracker-stocks',
-    settingsKey: 'momentum-tracker-settings',
-    countersKey: 'momentum-tracker-counters'
+    stocksKey: 'stock_dashboard-stocks',
+    settingsKey: 'stock_dashboard-settings',
+    countersKey: 'stock_dashboard-counters'
   }
 };
 

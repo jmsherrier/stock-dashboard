@@ -1,6 +1,6 @@
 {
-  "name": "momentum-tracker",
-  "version": "0.1.0",
+  "name": "stock_dashboard",
+  "version": "3.0",
   "private": true,
   "dependencies": {
     "@dnd-kit/core": "^6.3.1",

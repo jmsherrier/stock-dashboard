@@ -3,7 +3,7 @@ import React from 'react';
 function AboutModal({ isOpen, onClose }) {
   if (!isOpen) return null;
 
-  const appVersion = "2.0.0";
+  const appVersion = "3.0";
   const buildDate = new Date().toLocaleDateString();
 
   return (
@@ -78,7 +78,7 @@ function AboutModal({ isOpen, onClose }) {
               <h4>Links & Resources</h4>
               <div className="link-buttons">
                 <button 
-                  onClick={() => window.open('https://github.com/jmsherrier/whiteboard', '_blank')}
+                  onClick={() => window.open('https://github.com/jmsherrier/volatiliraptor', '_blank')}
                   className="link-btn"
                 >
                   📂 View Source Code
@@ -90,7 +90,7 @@ function AboutModal({ isOpen, onClose }) {
                   📊 Alpha Vantage API
                 </button>
                 <button 
-                  onClick={() => window.open('https://github.com/jmsherrier/whiteboard/issues', '_blank')}
+                  onClick={() => window.open('https://github.com/jmsherrier/volatiliraptor/issues', '_blank')}
                   className="link-btn"
                 >
                   🐛 Report Issues

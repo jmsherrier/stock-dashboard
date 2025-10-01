@@ -6,7 +6,7 @@ A React-based stock analysis platform with modular components, real-time data fe
 
 ## Project Preview
 
-[Add demo video here - momentum-tracker-demo.mp4]
+[Add demo video here - stock_dashboard-demo.mp4]
 
 ## Architecture
 
@@ -442,7 +442,3 @@ For issues or questions:
 3. Review documentation
 4. Check GitHub issues
 5. Contact support
-
-## License
-
-MIT License - See LICENSE file for details
