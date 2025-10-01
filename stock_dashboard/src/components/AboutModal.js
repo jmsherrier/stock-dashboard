@@ -3,7 +3,7 @@ import React from 'react';
 function AboutModal({ isOpen, onClose }) {
   if (!isOpen) return null;
 
-  const appVersion = "2.0.0";
+  const appVersion = "3.0";
   const buildDate = new Date().toLocaleDateString();
 
   return (

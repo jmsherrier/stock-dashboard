@@ -442,7 +442,3 @@ For issues or questions:
 3. Review documentation
 4. Check GitHub issues
 5. Contact support
-
-## License
-
-MIT License - See LICENSE file for details
