@@ -1,5 +1,5 @@
 {
-  "name": "momentum-tracker-server",
+  "name": "stock_dashboard-server",
   "version": "1.0.0",
   "description": "Backend server for Momentum Tracker",
   "main": "server.js",
