@@ -59,7 +59,7 @@ export const COMPONENT_REGISTRY = {
     component: TickerComponent,
     required: true,
     removable: false,
-    category: 'core',
+    category: 'Core',
     defaultSize: 'small'
   },
   price: {
@@ -68,7 +68,7 @@ export const COMPONENT_REGISTRY = {
     description: 'Current stock price',
     component: PriceComponent,
     required: false,
-    category: 'Price & Momentum',
+    category: 'Price Action',
     defaultSize: 'small',
     scoring: true,
     criteria: {
@@ -89,7 +89,7 @@ export const COMPONENT_REGISTRY = {
     description: 'Daily percentage change',
     component: PercentRiseComponent,
     required: false,
-    category: 'Price & Momentum',
+    category: 'Price Analysis',
     defaultSize: 'small',
     scoring: true,
     criteria: {
@@ -109,7 +109,7 @@ export const COMPONENT_REGISTRY = {
     description: 'Volume relative to average',
     component: RelativeVolumeComponent,
     required: false,
-    category: 'Volume & Float',
+    category: 'Volume & Momentum',
     defaultSize: 'small',
     scoring: true,
     criteria: {
@@ -130,7 +130,7 @@ export const COMPONENT_REGISTRY = {
     description: 'Free float shares (auto-calculated from outstanding - restricted)',
     component: FloatComponent,
     required: false,
-    category: 'Volume & Float',
+    category: 'Ownership & Structure',
     defaultSize: 'small',
     scoring: true,
     criteria: {
@@ -150,7 +150,7 @@ export const COMPONENT_REGISTRY = {
     description: 'Total shares outstanding',
     component: SharesOutstandingComponent,
     required: false,
-    category: 'Company Size',
+    category: 'Ownership & Structure',
     defaultSize: 'small',
     scoring: 'range',
     criteria: {
@@ -168,7 +168,7 @@ export const COMPONENT_REGISTRY = {
     description: 'Restricted/insider shares',
     component: RestrictedSharesComponent,
     required: false,
-    category: 'Company Size',
+    category: 'Ownership & Structure',
     defaultSize: 'small',
     scoring: 'range',
     criteria: {
@@ -186,7 +186,7 @@ export const COMPONENT_REGISTRY = {
     description: 'News items and catalysts',
     component: NewsComponent,
     required: false,
-    category: 'analysis',
+    category: 'Research & Analysis',
     defaultSize: 'large',
     scoring: true
   },
@@ -196,7 +196,7 @@ export const COMPONENT_REGISTRY = {
     description: 'Personal notes and observations',
     component: NotesComponent,
     required: false,
-    category: 'analysis',
+    category: 'Research & Analysis',
     defaultSize: 'large',
     scoring: false
   },
@@ -206,7 +206,7 @@ export const COMPONENT_REGISTRY = {
     description: 'Additional scoring criteria',
     component: BonusChecksComponent,
     required: false,
-    category: 'scoring',
+    category: 'Research & Analysis',
     defaultSize: 'medium',
     scoring: true
   },
@@ -216,7 +216,7 @@ export const COMPONENT_REGISTRY = {
     description: 'Total market capitalization',
     component: MarketCapComponent,
     required: false,
-    category: 'Company Size',
+    category: 'Valuation Metrics',
     defaultSize: 'small',
     scoring: true,
     criteria: {
@@ -235,7 +235,7 @@ export const COMPONENT_REGISTRY = {
     description: 'Volatility relative to market',
     component: BetaComponent,
     required: false,
-    category: 'Technical Indicators',
+    category: 'Ownership & Structure',
     defaultSize: 'small',
     scoring: true,
     criteria: {
@@ -255,7 +255,7 @@ export const COMPONENT_REGISTRY = {
     description: 'Current price as % of 52-week high',
     component: Week52HighComponent,
     required: false,
-    category: 'Technical Indicators',
+    category: 'Price Analysis',
     defaultSize: 'small',
     scoring: true,
     criteria: {
@@ -276,7 +276,7 @@ export const COMPONENT_REGISTRY = {
     description: 'Current price as % above 52-week low',
     component: Week52LowComponent,
     required: false,
-    category: 'Technical Indicators',
+    category: 'Price Analysis',
     defaultSize: 'small',
     scoring: true,
     criteria: {
@@ -297,7 +297,7 @@ export const COMPONENT_REGISTRY = {
     description: '50-day moving average',
     component: MovingAverage50Component,
     required: false,
-    category: 'Technical Indicators',
+    category: 'Price Analysis',
     defaultSize: 'small',
     scoring: true,
     criteria: {
@@ -317,7 +317,7 @@ export const COMPONENT_REGISTRY = {
     description: '200-day moving average',
     component: MovingAverage200Component,
     required: false,
-    category: 'Technical Indicators',
+    category: 'Price Analysis',
     defaultSize: 'small',
     scoring: true,
     criteria: {
@@ -337,7 +337,7 @@ export const COMPONENT_REGISTRY = {
     description: 'Market sector',
     component: SectorComponent,
     required: false,
-    category: 'Classification',
+    category: 'Company Details',
     defaultSize: 'small',
     scoring: 'categorical',
     categories: [
@@ -363,7 +363,7 @@ export const COMPONENT_REGISTRY = {
     description: 'Industry classification',
     component: IndustryComponent,
     required: false,
-    category: 'Classification',
+    category: 'Company Details',
     defaultSize: 'small',
     scoring: 'categorical',
     categories: [
@@ -399,7 +399,7 @@ export const COMPONENT_REGISTRY = {
     description: 'Net profit margin percentage',
     component: ProfitMarginComponent,
     required: false,
-    category: 'Fundamentals',
+    category: 'Financial Health',
     defaultSize: 'small',
     scoring: true,
     criteria: {
@@ -420,7 +420,7 @@ export const COMPONENT_REGISTRY = {
     description: 'Quarterly revenue growth YoY',
     component: RevenueGrowthComponent,
     required: false,
-    category: 'Fundamentals',
+    category: 'Growth & Performance',
     defaultSize: 'small',
     scoring: true,
     criteria: {
@@ -439,7 +439,7 @@ export const COMPONENT_REGISTRY = {
     description: 'Price-to-earnings ratio',
     component: PERatioComponent,
     required: false,
-    category: 'Fundamentals',
+    category: 'Valuation Metrics',
     defaultSize: 'small',
     scoring: true,
     criteria: {
@@ -457,7 +457,7 @@ export const COMPONENT_REGISTRY = {
     description: 'Analyst price target vs current price',
     component: AnalystTargetComponent,
     required: false,
-    category: 'Fundamentals',
+    category: 'Valuation Metrics',
     defaultSize: 'small',
     scoring: true,
     criteria: {
@@ -477,7 +477,7 @@ export const COMPONENT_REGISTRY = {
     description: 'Price/Earnings to Growth ratio',
     component: PEGRatioComponent,
     required: false,
-    category: 'Fundamentals',
+    category: 'Valuation Metrics',
     defaultSize: 'small',
     scoring: true,
     criteria: {
@@ -496,7 +496,7 @@ export const COMPONENT_REGISTRY = {
     description: 'Price to book value ratio',
     component: PriceToBookComponent,
     required: false,
-    category: 'Fundamentals',
+    category: 'Valuation Metrics',
     defaultSize: 'small',
     scoring: true,
     criteria: {
@@ -515,7 +515,7 @@ export const COMPONENT_REGISTRY = {
     description: 'Return on equity percentage',
     component: ROEComponent,
     required: false,
-    category: 'Fundamentals',
+    category: 'Financial Health',
     defaultSize: 'small',
     scoring: true,
     criteria: {
@@ -536,7 +536,7 @@ export const COMPONENT_REGISTRY = {
     description: 'Annual dividend yield percentage',
     component: DividendYieldComponent,
     required: false,
-    category: 'Fundamentals',
+    category: 'Growth & Performance',
     defaultSize: 'small',
     scoring: true,
     criteria: {
@@ -557,7 +557,7 @@ export const COMPONENT_REGISTRY = {
     description: 'Earnings per share',
     component: EPSComponent,
     required: false,
-    category: 'Fundamentals',
+    category: 'Growth & Performance',
     defaultSize: 'small',
     scoring: true,
     criteria: {
@@ -578,7 +578,7 @@ export const COMPONENT_REGISTRY = {
     description: 'Operating profit margin percentage',
     component: OperatingMarginComponent,
     required: false,
-    category: 'Fundamentals',
+    category: 'Financial Health',
     defaultSize: 'small',
     scoring: true,
     criteria: {
@@ -597,7 +597,7 @@ export const COMPONENT_REGISTRY = {
     description: 'Percentage owned by institutions',
     component: InstitutionalOwnershipComponent,
     required: false,
-    category: 'Technical Indicators',
+    category: 'Ownership & Structure',
     defaultSize: 'small',
     scoring: true,
     criteria: {
@@ -616,7 +616,7 @@ export const COMPONENT_REGISTRY = {
     description: 'Forward price-to-earnings ratio',
     component: ForwardPEComponent,
     required: false,
-    category: 'Fundamentals',
+    category: 'Valuation Metrics',
     defaultSize: 'small',
     scoring: true,
     criteria: {
@@ -635,7 +635,7 @@ export const COMPONENT_REGISTRY = {
     description: 'Trailing twelve month P/E ratio',
     component: TrailingPEComponent,
     required: false,
-    category: 'Fundamentals',
+    category: 'Valuation Metrics',
     defaultSize: 'small',
     scoring: true,
     criteria: {
@@ -654,7 +654,7 @@ export const COMPONENT_REGISTRY = {
     description: 'Annual dividend payment per share',
     component: DividendPerShareComponent,
     required: false,
-    category: 'Financial Metrics',
+    category: 'Growth & Performance',
     defaultSize: 'small',
     scoring: true,
     criteria: {
@@ -673,7 +673,7 @@ export const COMPONENT_REGISTRY = {
     description: 'Enterprise Value to Revenue ratio',
     component: EVToRevenueComponent,
     required: false,
-    category: 'Valuation Ratios',
+    category: 'Valuation Metrics',
     defaultSize: 'small',
     scoring: true,
     criteria: {
@@ -692,7 +692,7 @@ export const COMPONENT_REGISTRY = {
     description: 'Enterprise Value to EBITDA ratio',
     component: EVToEBITDAComponent,
     required: false,
-    category: 'Valuation Ratios',
+    category: 'Valuation Metrics',
     defaultSize: 'small',
     scoring: true,
     criteria: {
@@ -711,7 +711,7 @@ export const COMPONENT_REGISTRY = {
     description: 'Revenue per share TTM',
     component: RevenuePerShareComponent,
     required: false,
-    category: 'Financial Metrics',
+    category: 'Financial Health',
     defaultSize: 'small',
     scoring: true,
     criteria: {
@@ -730,7 +730,7 @@ export const COMPONENT_REGISTRY = {
     description: 'Analyst buy/sell recommendations',
     component: AnalystRatingsComponent,
     required: false,
-    category: 'Market Sentiment',
+    category: 'Valuation Metrics',
     defaultSize: 'large',
     scoring: true,
     criteria: {
@@ -749,7 +749,7 @@ export const COMPONENT_REGISTRY = {
     description: 'Type of security (Common Stock, ETF, etc.)',
     component: AssetTypeComponent,
     required: false,
-    category: 'Classification',
+    category: 'Company Details',
     defaultSize: 'small',
     scoring: 'categorical',
     categories: [
@@ -772,7 +772,7 @@ export const COMPONENT_REGISTRY = {
     description: 'Full legal company name',
     component: CompanyNameComponent,
     required: false,
-    category: 'Company Info',
+    category: 'Company Details',
     defaultSize: 'medium',
     scoring: false
   },
@@ -782,7 +782,7 @@ export const COMPONENT_REGISTRY = {
     description: 'Business description and overview',
     component: CompanyDescriptionComponent,
     required: false,
-    category: 'Company Info',
+    category: 'Company Details',
     defaultSize: 'large',
     scoring: false
   },
@@ -792,7 +792,7 @@ export const COMPONENT_REGISTRY = {
     description: 'Price to sales ratio',
     component: PriceToSalesComponent,
     required: false,
-    category: 'Fundamentals',
+    category: 'Valuation Metrics',
     defaultSize: 'small',
     scoring: true,
     criteria: {
@@ -811,7 +811,7 @@ export const COMPONENT_REGISTRY = {
     description: 'Book value per share',
     component: BookValueComponent,
     required: false,
-    category: 'Fundamentals',
+    category: 'Financial Health',
     defaultSize: 'small',
     scoring: true,
     criteria: {
@@ -830,7 +830,7 @@ export const COMPONENT_REGISTRY = {
     description: 'Earnings before interest, taxes, depreciation, and amortization',
     component: EBITDAComponent,
     required: false,
-    category: 'Fundamentals',
+    category: 'Financial Health',
     defaultSize: 'small',
     scoring: true,
     criteria: {
@@ -849,7 +849,7 @@ export const COMPONENT_REGISTRY = {
     description: 'Quarterly earnings growth year-over-year',
     component: EarningsGrowthComponent,
     required: false,
-    category: 'Fundamentals',
+    category: 'Growth & Performance',
     defaultSize: 'small',
     scoring: true,
     criteria: {
@@ -868,7 +868,7 @@ export const COMPONENT_REGISTRY = {
     description: 'Percentage owned by insiders',
     component: InsiderOwnershipComponent,
     required: false,
-    category: 'Company Size',
+    category: 'Ownership & Structure',
     defaultSize: 'small',
     scoring: true,
     criteria: {
@@ -887,7 +887,7 @@ export const COMPONENT_REGISTRY = {
     description: 'Return on assets percentage',
     component: ROAComponent,
     required: false,
-    category: 'Fundamentals',
+    category: 'Financial Health',
     defaultSize: 'small',
     scoring: true,
     criteria: {
@@ -905,70 +905,50 @@ export const COMPONENT_REGISTRY = {
 };
 
 export const COMPONENT_CATEGORIES = {
-  core: {
+  Core: {
     name: 'Core',
     description: 'Essential components',
     color: '#3b82f6'
   },
-  'Price & Momentum': {
-    name: 'Price & Momentum',
-    description: 'Price action and momentum indicators',
-    color: '#10b981'
-  },
-  'Volume & Float': {
-    name: 'Volume & Float',
-    description: 'Volume and share availability metrics',
-    color: '#06b6d4'
-  },
-  'Company Size': {
-    name: 'Company Size',
-    description: 'Share structure and market cap',
-    color: '#8b5cf6'
-  },
-  'Technical Indicators': {
-    name: 'Technical Indicators',
-    description: 'Technical analysis metrics',
-    color: '#f59e0b'
-  },
-  'Classification': {
-    name: 'Classification',
-    description: 'Sector and industry categorization',
-    color: '#6b7280'
-  },
-  'Fundamentals': {
-    name: 'Fundamentals',
-    description: 'Financial and business fundamentals',
-    color: '#ec4899'
-  },
-  'Valuation Ratios': {
-    name: 'Valuation Ratios',
-    description: 'Enterprise value and valuation metrics',
-    color: '#f97316'
-  },
-  'Financial Metrics': {
-    name: 'Financial Metrics',
-    description: 'Per-share financial metrics',
-    color: '#06b6d4'
-  },
-  'Market Sentiment': {
-    name: 'Market Sentiment',
-    description: 'Analyst opinions and market sentiment',
-    color: '#84cc16'
-  },
-  'Company Info': {
-    name: 'Company Info',
-    description: 'Company identification and description',
+  'Company Details': {
+    name: 'Company Details',
+    description: 'Company identification and classification',
     color: '#64748b'
   },
-  analysis: {
-    name: 'Analysis',
-    description: 'Qualitative analysis tools',
+  'Research & Analysis': {
+    name: 'Research & Analysis',
+    description: 'News, notes, and qualitative analysis',
     color: '#14b8a6'
   },
-  scoring: {
-    name: 'Scoring',
-    description: 'Scoring and evaluation',
-    color: '#a855f7'
+  'Valuation Metrics': {
+    name: 'Valuation Metrics',
+    description: 'Price, earnings, and valuation ratios',
+    color: '#ec4899'
+  },
+  'Financial Health': {
+    name: 'Financial Health',
+    description: 'Profitability and balance sheet strength',
+    color: '#f97316'
+  },
+  'Growth & Performance': {
+    name: 'Growth & Performance',
+    description: 'Growth rates and income metrics',
+    color: '#84cc16'
+  },
+  'Ownership & Structure': {
+    name: 'Ownership & Structure',
+    description: 'Share structure and ownership data',
+    color: '#8b5cf6'
+  },
+  'Price Analysis': {
+    name: 'Price Analysis',
+    description: 'Price trends and moving averages',
+    color: '#f59e0b'
+  },
+  'Volume & Momentum': {
+    name: 'Volume & Momentum',
+    description: 'Volume and momentum indicators',
+    color: '#10b981'
   }
 };
 
@@ -1049,33 +1029,13 @@ export const STRATEGY_PRESETS = {
     description: 'Classic fundamental analysis targeting undervalued companies with strong balance sheets. Emphasizes profitability, growth, and valuation metrics for long-term wealth building.',
     paperConfig: {
       ticker: true,
-      price: true,
-      marketCap: true,
-      sector: true,
-      industry: true,
-      // Valuation metrics (most important)
+      // Core valuation metrics (4 criteria)
       peRatio: true,
-      forwardPE: true,
-      pegRatio: true,
       priceToBook: true,
-      priceToSales: true,
-      evToRevenue: true,
-      // Profitability metrics
-      roe: true,
-      roa: true,
-      profitMargin: true,
-      operatingMargin: true,
-      // Growth metrics
-      revenueGrowth: true,
-      earningsGrowth: true,
-      eps: true,
-      // Income metrics
       dividendYield: true,
-      dividendPerShare: true,
-      // Risk metrics
-      beta: true,
-      insiderOwnership: true,
-      institutionalOwnership: true,
+      roe: true,
+      // Analysis tools
+      news: true,
       bonusChecks: true,
       notes: true
     },
@@ -1130,16 +1090,6 @@ export const STRATEGY_PRESETS = {
           { min: 2, max: 3, points: 0, color: 'orange' },           // Slightly expensive
           { min: 3, max: Infinity, points: -2, color: 'red' }       // Overvalued
         ]
-      },
-      // Prefer stable, lower beta for value
-      beta: {
-        ranges: [
-          { min: -Infinity, max: 0.5, points: 1, color: 'green' },  // Very stable (good for value)
-          { min: 0.5, max: 1.0, points: 2, color: 'green' },        // Stable
-          { min: 1.0, max: 1.3, points: 3, color: 'green' },        // Market-like
-          { min: 1.3, max: 1.8, points: 1, color: 'orange' },       // Moderate volatility
-          { min: 1.8, max: Infinity, points: -1, color: 'red' }     // High volatility (risky)
-        ]
       }
     }
   },
@@ -1149,27 +1099,16 @@ export const STRATEGY_PRESETS = {
     description: 'Pure technical analysis strategy focusing on chart patterns, moving averages, and momentum. Tracks stocks breaking 52-week highs with strong institutional support and volume confirmation.',
     paperConfig: {
       ticker: true,
-      price: true,
-      percentRise: true,
-      relativeVolume: true,
-      // Technical indicators (core)
+      // Technical indicators (6 criteria)
       week52High: true,
-      week52Low: true,
       movingAverage50: true,
       movingAverage200: true,
-      // Volatility and momentum
-      beta: true,
-      // Institutional backing
+      relativeVolume: true,
       institutionalOwnership: true,
-      insiderOwnership: true,
-      // Float for liquidity
-      float: true,
-      sharesOutstanding: true,
-      // Market sentiment
-      analystRatings: true,
-      analystTarget: true,
-      bonusChecks: true,
+      beta: true,
+      // Analysis tools
       news: true,
+      bonusChecks: true,
       notes: true
     },
     bonusChecks: {
@@ -1245,18 +1184,6 @@ export const STRATEGY_PRESETS = {
           { min: 0.50, max: 0.70, points: 2, color: 'green' },      // Good
           { min: 0.70, max: 0.85, points: 3, color: 'green' },      // Strong (smart money)
           { min: 0.85, max: Infinity, points: 2, color: 'green' }   // Very high (less volatile)
-        ]
-      },
-      // Percent rise - looking for momentum
-      percentRise: {
-        ranges: [
-          { min: -Infinity, max: 0, points: -3, color: 'red' },     // Down (against trend)
-          { min: 0, max: 3, points: -1, color: 'orange' },          // Flat
-          { min: 3, max: 5, points: 0, color: 'orange' },           // Slight rise
-          { min: 5, max: 10, points: 1, color: 'green' },           // Good momentum
-          { min: 10, max: 15, points: 2, color: 'green' },          // Strong
-          { min: 15, max: 25, points: 3, color: 'green' },          // Explosive
-          { min: 25, max: Infinity, points: 2, color: 'green' }     // Extreme (may cool off)
         ]
       }
     }

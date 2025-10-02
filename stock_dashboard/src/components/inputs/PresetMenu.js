@@ -192,32 +192,26 @@ function PresetMenu({ isOpen, onClose, onPresetApply, onUpdateStocks }) {
     
     // Define category order and component importance order within each category
     const categoryOrder = [
-      'Price & Momentum',
-      'Volume & Float', 
-      'Technical Indicators',
-      'Fundamentals',
-      'Valuation Ratios',
-      'Financial Metrics',
-      'Market Sentiment',
-      'Company Size',
-      'Classification',
-      'Company Info',
-      'analysis'
+      'Company Details',
+      'Research & Analysis',
+      'Valuation Metrics',
+      'Financial Health',
+      'Growth & Performance',
+      'Ownership & Structure',
+      'Price Analysis',
+      'Volume & Momentum'
     ];
     
     // Define component order within each category (most important first)
     const componentImportanceOrder = {
-      'Price & Momentum': ['price', 'percentRise'],
-      'Volume & Float': ['relativeVolume', 'float'],
-      'Technical Indicators': ['week52High', 'movingAverage50', 'movingAverage200', 'week52Low', 'beta', 'institutionalOwnership'],
-      'Fundamentals': ['revenueGrowth', 'earningsGrowth', 'eps', 'profitMargin', 'operatingMargin', 'roe', 'roa', 'ebitda', 'peRatio', 'forwardPE', 'trailingPE', 'pegRatio', 'priceToBook', 'priceToSales', 'bookValue', 'dividendYield'],
-      'Valuation Ratios': ['evToRevenue', 'evToEbitda'],
-      'Financial Metrics': ['dividendPerShare', 'revenuePerShare'],
-      'Market Sentiment': ['analystRatings', 'analystTarget'],
-      'Company Size': ['marketCap', 'sharesOutstanding', 'restrictedShares', 'insiderOwnership'],
-      'Classification': ['sector', 'industry'],
-      'Company Info': ['companyName', 'assetType', 'companyDescription'],
-      'analysis': ['news']
+      'Company Details': ['companyName', 'companyDescription', 'sector', 'industry', 'assetType'],
+      'Research & Analysis': ['news', 'bonusChecks', 'notes'],
+      'Valuation Metrics': ['price', 'marketCap', 'peRatio', 'forwardPE', 'trailingPE', 'pegRatio', 'priceToBook', 'priceToSales', 'evToRevenue', 'evToEbitda', 'analystTarget', 'analystRatings'],
+      'Financial Health': ['roe', 'roa', 'ebitda', 'bookValue', 'revenuePerShare', 'operatingMargin', 'profitMargin'],
+      'Growth & Performance': ['eps', 'earningsGrowth', 'revenueGrowth', 'dividendYield', 'dividendPerShare'],
+      'Ownership & Structure': ['float', 'sharesOutstanding', 'restrictedShares', 'institutionalOwnership', 'insiderOwnership', 'beta'],
+      'Price Analysis': ['movingAverage50', 'movingAverage200', 'week52High', 'week52Low', 'percentRise'],
+      'Volume & Momentum': ['relativeVolume']
     };
     
     categoryOrder.forEach(category => {
