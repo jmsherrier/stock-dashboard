@@ -210,19 +210,40 @@ body {
   cursor: not-allowed;
 }
 
+.auto-update-interval-input {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  padding: 0.25rem 0.5rem;
+}
+
 .auto-update-interval {
-  padding: 0.5rem 0.75rem;
-  background: transparent;
-  border: none;
+  width: 50px;
+  padding: 0.25rem 0.5rem;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 4px;
   color: #e5e5e5;
   font-size: 0.85rem;
-  cursor: pointer;
+  text-align: center;
+  cursor: text;
   outline: none;
+}
+
+.auto-update-interval:focus {
+  background: rgba(255, 255, 255, 0.08);
+  border-color: rgba(139, 92, 246, 0.5);
 }
 
 .auto-update-interval:disabled {
   opacity: 0.5;
   cursor: not-allowed;
+}
+
+.interval-unit {
+  font-size: 0.85rem;
+  color: #888;
+  white-space: nowrap;
 }
 
 .auto-update-timer {
