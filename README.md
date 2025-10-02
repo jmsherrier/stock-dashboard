@@ -1,7 +1,54 @@
 # Volitiliraptor - Multi-Strategy Trading Analysis Platform
 
 ## Current Version
-v3.1.0 - Enhanced Grid Interaction & Keyboard Controls
+v3.2.0 - Component Refactoring & Improved Scoring Criteria
+
+### Latest Changes (v3.2.0)
+- **Component Organization**: Refactored all components into logical folders (scoring/, info/, technical/)
+- **Enhanced Configuration Menu**: All 47+ components now properly organized in 11 categories
+- **Improved Scoring Criteria**: Updated 8+ components with more accurate trading-based scoring
+- **Smart Category Ordering**: Components within each category ordered by trading importance
+- **New Categories**: Added Valuation Ratios, Financial Metrics, Market Sentiment, and Company Info categories
+- **Better Risk Assessment**: Price and volume scoring now reflects actual trading risk profiles
+- **Enhanced Metrics**: ROE, ROA, EPS, Profit Margin, and Dividend Yield now have more granular ranges
+
+### Configuration Menu Organization
+Components are organized in **11 categories**, ordered by trading importance within each:
+
+**Price & Momentum** (2 components)
+- Price, Percent Rise
+
+**Volume & Float** (2 components)  
+- Relative Volume, Float
+
+**Technical Indicators** (6 components)
+- 52-Week High %, 50-Day MA, 200-Day MA, 52-Week Low %, Beta, Institutional Ownership
+
+**Fundamentals** (16 components)
+- Revenue Growth, Earnings Growth, EPS, Profit Margin, Operating Margin
+- ROE, ROA, EBITDA, P/E Ratio, Forward P/E, Trailing P/E
+- PEG Ratio, Price-to-Book, Price-to-Sales, Book Value, Dividend Yield
+
+**Valuation Ratios** (2 components)
+- EV/Revenue, EV/EBITDA
+
+**Financial Metrics** (2 components)
+- Dividend Per Share, Revenue Per Share
+
+**Market Sentiment** (2 components)
+- Analyst Ratings, Analyst Target
+
+**Company Size** (4 components)
+- Market Cap, Shares Outstanding, Restricted Shares, Insider Ownership
+
+**Classification** (2 components)
+- Sector, Industry
+
+**Company Info** (3 components - no editors)
+- Company Name, Asset Type, Company Description
+
+**Analysis** (1 component)
+- News & Catalysts
 
 ## Overview
 Volitiliraptor is a comprehensive trading analysis platform that transforms traditional stock screening into a flexible, multi-strategy system. Built with React and Express, it provides modular components with a dynamic 2D infinite grid layout system for organizing stocks spatially, real-time data integration, sophisticated scoring systems, and advanced keyboard-based controls.

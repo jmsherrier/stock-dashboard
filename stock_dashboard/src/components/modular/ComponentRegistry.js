@@ -73,13 +73,13 @@ export const COMPONENT_REGISTRY = {
     scoring: true,
     criteria: {
       ranges: [
-        { min: 0, max: 2, points: 3, color: 'green' },
-        { min: 2, max: 3, points: 2, color: 'green' },
-        { min: 3, max: 5, points: 1, color: 'green' },
-        { min: 5, max: 8, points: -1, color: 'orange' },
-        { min: 8, max: 10, points: -2, color: 'red' },
-        { min: 10, max: 15, points: -2, color: 'red' },
-        { min: 15, max: Infinity, points: -3, color: 'red' }
+        { min: 0, max: 1, points: -2, color: 'red' },            // Sub-dollar (high risk)
+        { min: 1, max: 2, points: 1, color: 'green' },           // Low price momentum plays
+        { min: 2, max: 5, points: 2, color: 'green' },           // Ideal momentum range
+        { min: 5, max: 10, points: 1, color: 'green' },          // Mid-range momentum
+        { min: 10, max: 20, points: 0, color: 'orange' },        // Higher capital requirement
+        { min: 20, max: 50, points: -1, color: 'orange' },       // Large position cost
+        { min: 50, max: Infinity, points: -2, color: 'red' }     // Very expensive per share
       ]
     }
   },
@@ -114,12 +114,13 @@ export const COMPONENT_REGISTRY = {
     scoring: true,
     criteria: {
       ranges: [
-        { min: 0, max: 2, points: -3, color: 'red' },
-        { min: 2, max: 3, points: -2, color: 'red' },
-        { min: 3, max: 5, points: -1, color: 'orange' },
-        { min: 5, max: 8, points: 1, color: 'green' },
-        { min: 8, max: 12, points: 2, color: 'green' },
-        { min: 12, max: Infinity, points: 3, color: 'green' }
+        { min: 0, max: 1, points: -3, color: 'red' },            // Very low interest
+        { min: 1, max: 2, points: -2, color: 'red' },            // Below average volume
+        { min: 2, max: 3, points: -1, color: 'orange' },         // Slightly low volume
+        { min: 3, max: 5, points: 1, color: 'green' },           // Good volume increase
+        { min: 5, max: 10, points: 2, color: 'green' },          // Strong volume
+        { min: 10, max: 20, points: 3, color: 'green' },         // Exceptional volume
+        { min: 20, max: Infinity, points: 1, color: 'orange' }   // Extreme spike (may reverse)
       ]
     }
   },
@@ -239,11 +240,12 @@ export const COMPONENT_REGISTRY = {
     scoring: true,
     criteria: {
       ranges: [
-        { min: -Infinity, max: 0.5, points: -2, color: 'red' },   // Too stable
+        { min: -Infinity, max: 0.5, points: -3, color: 'red' },   // Too stable (no movement)
         { min: 0.5, max: 1.0, points: -1, color: 'orange' },      // Low volatility
-        { min: 1.0, max: 1.5, points: 1, color: 'green' },        // Moderate volatility
-        { min: 1.5, max: 2.5, points: 2, color: 'green' },        // Good volatility
-        { min: 2.5, max: Infinity, points: 3, color: 'green' }    // High volatility
+        { min: 1.0, max: 1.5, points: 1, color: 'green' },        // Market-like volatility
+        { min: 1.5, max: 2.5, points: 2, color: 'green' },        // Good volatility for swings
+        { min: 2.5, max: 4.0, points: 3, color: 'green' },        // High volatility (big moves)
+        { min: 4.0, max: Infinity, points: 1, color: 'orange' }   // Extreme volatility (risky)
       ]
     }
   },
@@ -402,11 +404,13 @@ export const COMPONENT_REGISTRY = {
     scoring: true,
     criteria: {
       ranges: [
-        { min: -Infinity, max: 0, points: 0, color: 'orange' },   // Negative (acceptable for growth)
-        { min: 0, max: 5, points: 1, color: 'green' },            // Low margin
-        { min: 5, max: 15, points: 1, color: 'green' },           // Moderate margin
-        { min: 15, max: 30, points: 2, color: 'green' },          // Good margin
-        { min: 30, max: Infinity, points: 2, color: 'green' }     // Excellent margin
+        { min: -Infinity, max: -10, points: -3, color: 'red' },   // Deeply unprofitable
+        { min: -10, max: 0, points: -1, color: 'orange' },        // Unprofitable (growth stage)
+        { min: 0, max: 5, points: 0, color: 'orange' },           // Low margin
+        { min: 5, max: 10, points: 1, color: 'green' },           // Acceptable margin
+        { min: 10, max: 20, points: 2, color: 'green' },          // Good margin
+        { min: 20, max: 30, points: 3, color: 'green' },          // Strong margin
+        { min: 30, max: Infinity, points: 3, color: 'green' }     // Excellent margin
       ]
     }
   },
@@ -516,11 +520,13 @@ export const COMPONENT_REGISTRY = {
     scoring: true,
     criteria: {
       ranges: [
-        { min: 0, max: 0.05, points: -2, color: 'red' },          // Poor (0-5%)
-        { min: 0.05, max: 0.10, points: -1, color: 'orange' },    // Below average (5-10%)
-        { min: 0.10, max: 0.15, points: 1, color: 'green' },      // Average (10-15%)
-        { min: 0.15, max: 0.20, points: 2, color: 'green' },      // Good (15-20%)
-        { min: 0.20, max: Infinity, points: 3, color: 'green' }   // Excellent (20%+)
+        { min: -Infinity, max: 0, points: -3, color: 'red' },     // Negative ROE
+        { min: 0, max: 5, points: -2, color: 'red' },             // Very poor (0-5%)
+        { min: 5, max: 10, points: -1, color: 'orange' },         // Below average (5-10%)
+        { min: 10, max: 15, points: 1, color: 'green' },          // Average (10-15%)
+        { min: 15, max: 20, points: 2, color: 'green' },          // Good (15-20%)
+        { min: 20, max: 30, points: 3, color: 'green' },          // Excellent (20-30%)
+        { min: 30, max: Infinity, points: 3, color: 'green' }     // Outstanding (30%+)
       ]
     }
   },
@@ -535,11 +541,13 @@ export const COMPONENT_REGISTRY = {
     scoring: true,
     criteria: {
       ranges: [
-        { min: 0, max: 0.01, points: 0, color: 'orange' },        // No/minimal dividend (0-1%)
-        { min: 0.01, max: 0.02, points: 1, color: 'green' },      // Low yield (1-2%)
-        { min: 0.02, max: 0.04, points: 2, color: 'green' },      // Moderate yield (2-4%)
-        { min: 0.04, max: 0.06, points: 3, color: 'green' },      // Good yield (4-6%)
-        { min: 0.06, max: Infinity, points: 2, color: 'green' }   // High yield (6%+, may be risky)
+        { min: 0, max: 1, points: -1, color: 'red' },             // No dividend
+        { min: 1, max: 2, points: 0, color: 'orange' },           // Low yield (1-2%)
+        { min: 2, max: 3, points: 1, color: 'green' },            // Moderate yield (2-3%)
+        { min: 3, max: 5, points: 2, color: 'green' },            // Good yield (3-5%)
+        { min: 5, max: 7, points: 3, color: 'green' },            // Strong yield (5-7%)
+        { min: 7, max: 10, points: 2, color: 'green' },           // High yield (7-10%)
+        { min: 10, max: Infinity, points: 0, color: 'orange' }    // Very high (unsustainable risk)
       ]
     }
   },
@@ -554,11 +562,13 @@ export const COMPONENT_REGISTRY = {
     scoring: true,
     criteria: {
       ranges: [
-        { min: -Infinity, max: 0, points: -2, color: 'red' },     // Negative earnings
-        { min: 0, max: 1, points: -1, color: 'orange' },          // Low earnings
-        { min: 1, max: 3, points: 1, color: 'green' },            // Moderate earnings
-        { min: 3, max: 5, points: 2, color: 'green' },            // Good earnings
-        { min: 5, max: Infinity, points: 3, color: 'green' }      // Strong earnings
+        { min: -Infinity, max: -1, points: -3, color: 'red' },    // Deeply negative earnings
+        { min: -1, max: 0, points: -1, color: 'orange' },         // Negative (growth stage OK)
+        { min: 0, max: 0.5, points: 0, color: 'orange' },         // Minimal earnings
+        { min: 0.5, max: 1.5, points: 1, color: 'green' },        // Low but positive
+        { min: 1.5, max: 3, points: 2, color: 'green' },          // Moderate earnings
+        { min: 3, max: 5, points: 3, color: 'green' },            // Strong earnings
+        { min: 5, max: Infinity, points: 3, color: 'green' }      // Excellent earnings
       ]
     }
   },
@@ -869,11 +879,13 @@ export const COMPONENT_REGISTRY = {
     scoring: true,
     criteria: {
       ranges: [
-        { min: 0, max: 0.02, points: -2, color: 'red' },          // Poor (0-2%)
-        { min: 0.02, max: 0.05, points: -1, color: 'orange' },    // Below average (2-5%)
-        { min: 0.05, max: 0.08, points: 1, color: 'green' },      // Average (5-8%)
-        { min: 0.08, max: 0.12, points: 2, color: 'green' },      // Good (8-12%)
-        { min: 0.12, max: Infinity, points: 3, color: 'green' }   // Excellent (>12%)
+        { min: -Infinity, max: 0, points: -3, color: 'red' },     // Negative ROA
+        { min: 0, max: 2, points: -2, color: 'red' },             // Very poor (0-2%)
+        { min: 2, max: 5, points: -1, color: 'orange' },          // Below average (2-5%)
+        { min: 5, max: 8, points: 1, color: 'green' },            // Average (5-8%)
+        { min: 8, max: 12, points: 2, color: 'green' },           // Good (8-12%)
+        { min: 12, max: 20, points: 3, color: 'green' },          // Excellent (12-20%)
+        { min: 20, max: Infinity, points: 3, color: 'green' }     // Outstanding (20%+)
       ]
     }
   }
@@ -914,6 +926,26 @@ export const COMPONENT_CATEGORIES = {
     name: 'Fundamentals',
     description: 'Financial and business fundamentals',
     color: '#ec4899'
+  },
+  'Valuation Ratios': {
+    name: 'Valuation Ratios',
+    description: 'Enterprise value and valuation metrics',
+    color: '#f97316'
+  },
+  'Financial Metrics': {
+    name: 'Financial Metrics',
+    description: 'Per-share financial metrics',
+    color: '#06b6d4'
+  },
+  'Market Sentiment': {
+    name: 'Market Sentiment',
+    description: 'Analyst opinions and market sentiment',
+    color: '#84cc16'
+  },
+  'Company Info': {
+    name: 'Company Info',
+    description: 'Company identification and description',
+    color: '#64748b'
   },
   analysis: {
     name: 'Analysis',
