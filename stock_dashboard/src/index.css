@@ -19,9 +19,5 @@ code {
 
 /* Prevent @dnd-kit from rotating dragged items */
 [data-dnd-kit-drag-overlay] {
-  transform-origin: center center !important;
-}
-
-[data-dnd-kit-drag-overlay] * {
-  transform: rotate(0deg) !important;
+  transform-origin: 0 0;
 }

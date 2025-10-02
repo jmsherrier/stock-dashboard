@@ -265,20 +265,16 @@ function ModularStockPaper({
       {/* Lock Position Checkbox */}
       {onToggleLock && (
         <div className="lock-position-control">
-          <label 
-            className="lock-checkbox-label"
-            onClick={(e) => {
-              e.stopPropagation();
-              e.preventDefault();
-              onToggleLock(stock.id);
-            }}
-          >
+          <label className="lock-checkbox-label">
             <input
               type="checkbox"
               checked={stock.locked === true}
-              onChange={() => {}} // Controlled by label click
+              onChange={(e) => {
+                e.stopPropagation();
+                onToggleLock(stock.id);
+              }}
+              onClick={(e) => e.stopPropagation()}
               className="lock-checkbox"
-              tabIndex={-1}
             />
             <span>Lock position</span>
           </label>

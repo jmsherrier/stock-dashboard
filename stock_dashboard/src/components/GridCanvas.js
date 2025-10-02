@@ -32,7 +32,15 @@ const GridCanvas = forwardRef(({
   const [hoveredCell, setHoveredCell] = useState(null);
   const [activeId, setActiveId] = useState(null);
   const [cellDimensions, setCellDimensions] = useState(null);
-  const [zoom, setZoom] = useState(1);
+  const [zoom, setZoom] = useState(() => {
+    const savedZoom = localStorage.getItem('grid-zoom');
+    return savedZoom ? parseFloat(savedZoom) : 1;
+  });
+
+  // Save zoom to localStorage when it changes
+  useEffect(() => {
+    localStorage.setItem('grid-zoom', zoom.toString());
+  }, [zoom]);
 
   // Grid settings
   const cellGap = 20; // Match internal padding of stock papers
@@ -562,7 +570,7 @@ const GridCanvas = forwardRef(({
           </div>
         )}
 
-        <DragOverlay>
+        <DragOverlay key={cellDimensions ? `${cellDimensions.width}-${cellDimensions.height}` : 'default'}>
           {activeStock ? (
             <div 
               className="stock-drag-overlay"
@@ -572,6 +580,7 @@ const GridCanvas = forwardRef(({
               }}
             >
               <ModularStockPaper
+                key={`overlay-${activeStock.id}-${JSON.stringify(activeStock.paperConfig)}`}
                 stock={activeStock}
                 score={calculateScore(activeStock)}
                 rank={0}
