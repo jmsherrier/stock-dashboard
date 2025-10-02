@@ -313,16 +313,17 @@ body {
   min-width: 420px;
 }
 
-.stock-paper:hover {
-  border-color: rgba(255, 255, 255, 0.5);
-  /* transform: translateY(-2px); */ /* Removed to maintain consistent spacing */
-}
-
 .stock-paper:active {
   cursor: grabbing;
 }
 
 .stock-wrapper.selected .stock-paper {
+  border-color: rgba(255, 255, 255, 0.5);
+  box-shadow: none;
+}
+
+/* Highlight border when clicked */
+.stock-wrapper.clicked .stock-paper {
   border-color: rgba(255, 255, 255, 0.5);
   box-shadow: none;
 }
@@ -3024,6 +3025,12 @@ input:disabled + .toggle-slider {
   border-color: rgba(76, 175, 80, 0.6);
   color: #4caf50;
   animation: pulse 1.5s ease-in-out infinite;
+}
+
+.keybind-display.keybind-duplicate {
+  background: rgba(244, 67, 54, 0.2);
+  border-color: rgba(244, 67, 54, 0.6);
+  color: #f44336;
 }
 
 @keyframes pulse {

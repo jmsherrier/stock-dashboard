@@ -7,6 +7,7 @@ function GridCell({
   y,
   stock,
   isHovered,
+  isDragging,
   cellDimensions,
   cellGap,
   zoom,
@@ -19,10 +20,11 @@ function GridCell({
   canMakeRequest,
   onToggleLock,
   calculateScore,
-  onHoverStock,
+  onClickStock,
+  clickedStockId,
   onHoverCell
 }) {
-  const { attributes, listeners, setNodeRef, isDragging } = useDraggable({
+  const { attributes, listeners, setNodeRef, isDragging: isDraggingThis } = useDraggable({
     id: stock ? stock.id : `empty-${x}-${y}`,
     disabled: !stock || stock.locked
   });
@@ -33,16 +35,18 @@ function GridCell({
     top: `${y * (cellDimensions.height + cellGap)}px`,
     width: `${cellDimensions.width}px`,
     height: `${cellDimensions.height}px`,
-    opacity: isDragging ? 0.3 : 1,
-    transition: isDragging ? 'none' : 'opacity 0.2s'
+    opacity: isDraggingThis ? 0.3 : 1,
+    transition: isDraggingThis ? 'none' : 'opacity 0.2s'
   };
 
-  const isDragOver = isHovered && !stock;
+  // Distinguish between drag-over (during drag) and hover (mouse over)
+  const isDragOver = isHovered && !stock && isDragging;
+  const isMouseHover = isHovered && !stock && !isDragging;
 
   return (
     <div
       ref={setNodeRef}
-      className={`grid-cell ${stock ? 'occupied' : 'empty'} ${isHovered ? 'hovered' : ''} ${isDragOver ? 'drag-over' : ''}`}
+      className={`grid-cell ${stock ? 'occupied' : 'empty'} ${isMouseHover ? 'hovered' : ''} ${isDragOver ? 'drag-over' : ''}`}
       style={cellStyle}
       onMouseEnter={() => !stock && onHoverCell && onHoverCell({ x, y })}
       onMouseLeave={() => !stock && onHoverCell && onHoverCell(null)}
@@ -51,13 +55,12 @@ function GridCell({
     >
       {stock ? (
         <div
-          className={`stock-wrapper ${selectedStock === stock.id ? 'selected' : ''}`}
+          className={`stock-wrapper ${selectedStock === stock.id ? 'selected' : ''} ${clickedStockId === stock.id ? 'clicked' : ''}`}
           onClick={(e) => {
             e.stopPropagation();
             onStockSelect(stock.id);
+            onClickStock && onClickStock(stock.id);
           }}
-          onMouseEnter={() => onHoverStock && onHoverStock(stock.id)}
-          onMouseLeave={() => onHoverStock && onHoverStock(null)}
         >
           <ModularStockPaper
             stock={stock}

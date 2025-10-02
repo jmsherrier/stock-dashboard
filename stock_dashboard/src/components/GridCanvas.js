@@ -21,7 +21,8 @@ const GridCanvas = forwardRef(({
   setIsAddingMode,
   settings,
   currentPreset,
-  onHoverStock
+  onClickStock,
+  clickedStockId
 }, ref) => {
   const containerRef = useRef(null);
   const [gridOffset, setGridOffset] = useState({ x: 0, y: 0 });
@@ -297,10 +298,8 @@ const GridCanvas = forwardRef(({
 
   // Handle cell hover - cells will call this directly
   const handleCellHover = (cell) => {
-    if (!activeId && (isAddingMode || settings.clickEmptyToAdd)) {
+    if (!activeId) {
       setHoveredCell(cell);
-    } else {
-      setHoveredCell(null);
     }
   };
 
@@ -335,14 +334,10 @@ const GridCanvas = forwardRef(({
 
     if (isOccupied) return;
 
-    if (isAddingMode) {
-      onStockAdd(cell);
-      setIsAddingMode(false);
-      setHoveredCell(null);
-    } else if (settings.clickEmptyToAdd) {
-      onStockAdd(cell);
-      setHoveredCell(null);
-    }
+    // Always add stock when clicking empty cell
+    onStockAdd(cell);
+    setIsAddingMode(false);
+    setHoveredCell(null);
   };
 
   // DnD handlers
@@ -359,8 +354,8 @@ const GridCanvas = forwardRef(({
     if (!activeStock) return;
 
     const currentPos = activeStock.gridPosition || { x: 0, y: 0 };
-    const cellWidth = cellDimensions.width + cellGap;
-    const cellHeight = cellDimensions.height + cellGap;
+    const cellWidth = (cellDimensions.width + cellGap) * zoom;
+    const cellHeight = (cellDimensions.height + cellGap) * zoom;
 
     const deltaX = Math.round(delta.x / cellWidth);
     const deltaY = Math.round(delta.y / cellHeight);
@@ -390,8 +385,8 @@ const GridCanvas = forwardRef(({
     }
 
     const currentPos = stock.gridPosition || { x: 0, y: 0 };
-    const cellWidth = cellDimensions.width + cellGap;
-    const cellHeight = cellDimensions.height + cellGap;
+    const cellWidth = (cellDimensions.width + cellGap) * zoom;
+    const cellHeight = (cellDimensions.height + cellGap) * zoom;
 
     const deltaX = Math.round(delta.x / cellWidth);
     const deltaY = Math.round(delta.y / cellHeight);
@@ -410,6 +405,10 @@ const GridCanvas = forwardRef(({
 
     if (!isOccupied && (deltaX !== 0 || deltaY !== 0)) {
       onStockMove(active.id, newPos);
+      // Set clicked state after drag to maintain highlight
+      if (onClickStock) {
+        onClickStock(active.id);
+      }
     }
 
     setActiveId(null);
@@ -444,6 +443,7 @@ const GridCanvas = forwardRef(({
             y={pos.y}
             stock={stock}
             isHovered={isHovered}
+            isDragging={activeId !== null}
             cellDimensions={cellDimensions}
             cellGap={cellGap}
             zoom={zoom}
@@ -456,7 +456,8 @@ const GridCanvas = forwardRef(({
             canMakeRequest={canMakeRequest}
             onToggleLock={onToggleLock}
             calculateScore={calculateScore}
-            onHoverStock={onHoverStock}
+            onClickStock={onClickStock}
+            clickedStockId={clickedStockId}
             onHoverCell={handleCellHover}
           />
         );
@@ -480,6 +481,7 @@ const GridCanvas = forwardRef(({
             y={hoveredCell.y}
             stock={null}
             isHovered={true}
+            isDragging={activeId !== null}
             cellDimensions={cellDimensions}
             cellGap={cellGap}
             zoom={zoom}
@@ -492,7 +494,8 @@ const GridCanvas = forwardRef(({
             canMakeRequest={canMakeRequest}
             onToggleLock={onToggleLock}
             calculateScore={calculateScore}
-            onHoverStock={onHoverStock}
+            onClickStock={onClickStock}
+            clickedStockId={clickedStockId}
             onHoverCell={handleCellHover}
           />
         );

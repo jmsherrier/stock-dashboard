@@ -50,34 +50,45 @@
 .outline-border {
   position: absolute;
   inset: 0;
-  border: 2px dashed rgba(255, 255, 255, 0);
+  border: 2px dashed rgba(255, 255, 255, 0.15);
   border-radius: 8px;
   background: transparent;
   transition: all 0.08s ease-out;
 }
 
-/* Hide outline when hovered or during drag */
-.grid-cell.hovered .outline-border,
+/* Green outline when hovering with mouse (not dragging) */
+.grid-cell.hovered .outline-border {
+  border-color: rgba(76, 175, 80, 0.5);
+  background: rgba(76, 175, 80, 0.05);
+}
+
+/* Grey outline when dragging stock over empty cell */
 .grid-cell.drag-over .outline-border {
-  border-color: rgba(76, 175, 80, 0);
-  background: rgba(76, 175, 80, 0);
+  border-color: rgba(255, 255, 255, 0.4);
+  border-style: solid;
+  background: rgba(255, 255, 255, 0.05);
 }
 
 /* Plus sign in the center of outlines */
 .cell-outline::after {
   content: '+';
   font-size: 3rem;
-  color: rgba(255, 255, 255, 0);
+  color: rgba(255, 255, 255, 0.2);
   font-weight: 300;
   z-index: 1;
   transition: all 0.08s ease-out;
   pointer-events: none;
 }
 
-.grid-cell.hovered .cell-outline::after,
-.grid-cell.drag-over .cell-outline::after {
-  color: rgba(76, 175, 80, 0);
+/* Show green plus on hover (not dragging) */
+.grid-cell.hovered .cell-outline::after {
+  color: rgba(76, 175, 80, 0.6);
   transform: scale(1.1);
+}
+
+/* Hide plus on drag-over */
+.grid-cell.drag-over .cell-outline::after {
+  content: '';
 }
 
 /* Stock wrapper in grid */
