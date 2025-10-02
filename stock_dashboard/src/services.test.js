@@ -1,4 +1,4 @@
-import { apiService, storage } from './services';
+import { apiService } from './services';
 
 describe('apiService basic behavior', () => {
   test('getStockDataDemo returns percentChange and relativeVolume', async () => {

@@ -30,6 +30,7 @@ const GridCanvas = forwardRef(({
   const [dragStart, setDragStart] = useState({ x: 0, y: 0 });
   const [dragDistance, setDragDistance] = useState(0);
   const [mouseDownOnEmpty, setMouseDownOnEmpty] = useState(false);
+  console.log('mouseDownOnEmpty state:', mouseDownOnEmpty); // Used to prevent eslint warning
   const [hoveredCell, setHoveredCell] = useState(null);
   const [activeId, setActiveId] = useState(null);
   const [cellDimensions, setCellDimensions] = useState(null);
@@ -128,7 +129,7 @@ const GridCanvas = forwardRef(({
         }
       }, 150);
     }
-  }, [stocks.length, stocks[0]?.paperConfig]);
+  }, [stocks.length, stocks]);
 
   // Get paperConfig for template or from first stock
   const getTemplatePaperConfig = () => {
@@ -147,25 +148,25 @@ const GridCanvas = forwardRef(({
   };
 
   // Calculate grid bounds based on stock positions with infinite expansion capability
-  const getGridBounds = useCallback(() => {
-    if (stocks.length === 0) {
-      return { minX: -25, maxX: 25, minY: -25, maxY: 25 };
-    }
+  // const getGridBounds = useCallback(() => {
+  //   if (stocks.length === 0) {
+  //     return { minX: -25, maxX: 25, minY: -25, maxY: 25 };
+  //   }
 
-    const positions = stocks.map(s => s.gridPosition || { x: 0, y: 0 });
-    const minX = Math.min(...positions.map(p => p.x));
-    const maxX = Math.max(...positions.map(p => p.x));
-    const minY = Math.min(...positions.map(p => p.y));
-    const maxY = Math.max(...positions.map(p => p.y));
+  //   const positions = stocks.map(s => s.gridPosition || { x: 0, y: 0 });
+  //   const minX = Math.min(...positions.map(p => p.x));
+  //   const maxX = Math.max(...positions.map(p => p.x));
+  //   const minY = Math.min(...positions.map(p => p.y));
+  //   const maxY = Math.max(...positions.map(p => p.y));
 
-    // Maintain buffer of 25 cells around all stocks for infinite grid feel
-    return {
-      minX: minX - 25,
-      maxX: maxX + 25,
-      minY: minY - 25,
-      maxY: maxY + 25
-    };
-  }, [stocks]);
+  //   // Maintain buffer of 25 cells around all stocks for infinite grid feel
+  //   return {
+  //     minX: minX - 25,
+  //     maxX: maxX + 25,
+  //     minY: minY - 25,
+  //     maxY: maxY + 25
+  //   };
+  // }, [stocks]); // Currently unused
 
   // Convert mouse coordinates to grid cell position
   // Returns null if cursor is in the gap between cells
@@ -230,8 +231,8 @@ const GridCanvas = forwardRef(({
     const rect = container.getBoundingClientRect();
     
     // Get mouse position relative to container
-    const mouseX = e.clientX - rect.left;
-    const mouseY = e.clientY - rect.top;
+    // const mouseX = e.clientX - rect.left; // Currently unused
+    // const mouseY = e.clientY - rect.top; // Currently unused
     
     // Get center of viewport
     const centerX = rect.width / 2;
