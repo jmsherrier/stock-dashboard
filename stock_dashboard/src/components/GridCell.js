@@ -56,11 +56,6 @@ function GridCell({
       {stock ? (
         <div
           className={`stock-wrapper ${selectedStock === stock.id ? 'selected' : ''} ${clickedStockId === stock.id ? 'clicked' : ''}`}
-          onClick={(e) => {
-            e.stopPropagation();
-            onStockSelect(stock.id);
-            onClickStock && onClickStock(stock.id);
-          }}
         >
           <ModularStockPaper
             stock={stock}
@@ -73,6 +68,7 @@ function GridCell({
             canMakeRequest={canMakeRequest}
             dragListeners={listeners}
             onToggleLock={onToggleLock}
+            onClickStock={onClickStock}
           />
         </div>
       ) : (

@@ -38,6 +38,13 @@ const GridCanvas = forwardRef(({
     const savedZoom = localStorage.getItem('grid-zoom');
     return savedZoom ? parseFloat(savedZoom) : 1;
   });
+  
+  // Track if there was a clicked stock before it gets cleared by capture phase
+  const hadClickedStockRef = useRef(false);
+  
+  useEffect(() => {
+    hadClickedStockRef.current = clickedStockId !== null;
+  }, [clickedStockId]);
 
   // Save zoom to localStorage when it changes
   useEffect(() => {
@@ -302,7 +309,7 @@ const GridCanvas = forwardRef(({
 
   // Update hovered cell based on mouse position
   useEffect(() => {
-    if (!mousePosition || !cellDimensions || activeId) {
+    if (!mousePosition || !cellDimensions || activeId || clickedStockId) {
       setHoveredCell(null);
       return;
     }
@@ -323,7 +330,7 @@ const GridCanvas = forwardRef(({
     } else {
       setHoveredCell(null);
     }
-  }, [mousePosition, cellDimensions, stocks, activeId, getCellFromMouse]);
+  }, [mousePosition, cellDimensions, stocks, activeId, clickedStockId, getCellFromMouse]);
 
   // Handle cell hover - cells will call this directly
   const handleCellHover = (cell) => {
@@ -338,7 +345,7 @@ const GridCanvas = forwardRef(({
   };
 
   const handleCanvasClick = (e) => {
-    // Don't create stock if user was dragging (1px threshold for precise click detection)
+    // Don't create stock if user was dragging (.1px threshold for precise click detection)
     if (dragDistance > .1) {
       setDragDistance(0);
       setMouseDownOnEmpty(false);
@@ -353,6 +360,15 @@ const GridCanvas = forwardRef(({
     const clickedOnStock = e.target.closest('.stock-paper');
     if (clickedOnStock) return;
 
+    // Don't add stock if we just deselected a stock (first click off)
+    // The capture phase listener in App.js already cleared clickedStockId,
+    // but we tracked it in the ref before it was cleared
+    if (hadClickedStockRef.current) {
+      // Don't reset the ref here - let the useEffect handle it
+      // This prevents the stock from being created on the deselect click
+      return;
+    }
+
     const cell = getCellFromMouse(e.clientX, e.clientY);
     if (!cell) return;
 
@@ -362,12 +378,8 @@ const GridCanvas = forwardRef(({
     });
 
     if (isOccupied) return;
-
-    // Don't add stock if we just clicked off a selected stock
-    // (clickedStockId gets cleared in capture phase, so it will be null here after first click)
-    // This check is redundant but kept for clarity
     
-    // Always add stock when clicking empty cell (unless we're deselecting)
+    // Add stock when clicking empty cell
     onStockAdd(cell);
     setIsAddingMode(false);
     setHoveredCell(null);
