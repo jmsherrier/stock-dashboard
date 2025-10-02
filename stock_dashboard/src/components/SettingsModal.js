@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import apiClient from '../api/client';
 
@@ -10,14 +10,66 @@ function SettingsModal({ isOpen, onClose, user: propUser }) {
     autoSave: localStorage.getItem('auto-save') === 'true',
     showScores: localStorage.getItem('show-scores') !== 'false',
     autoUpdateOnPreset: localStorage.getItem('auto-update-on-preset') !== 'false',
-    autoSortOnUpdate: localStorage.getItem('auto-sort-on-update') !== 'false',
-    clickEmptyToAdd: localStorage.getItem('click-empty-to-add') !== 'false',
+    autoSortOnUpdate: localStorage.getItem('auto-sort-on-update') === 'true',
     zeroAligned: localStorage.getItem('zero-aligned') === 'true',
     apiTimeout: parseInt(localStorage.getItem('api-timeout')) || 10000,
     refreshInterval: parseInt(localStorage.getItem('refresh-interval')) || 300000
   });
+  const [keybindings, setKeybindings] = useState({
+    addStock: localStorage.getItem('keybind-add-stock') || 'A',
+    updateAll: localStorage.getItem('keybind-update-all') || 'U',
+    deleteStock: localStorage.getItem('keybind-delete-stock') || 'Delete',
+    undo: localStorage.getItem('keybind-undo') || 'Control+Z',
+    cancel: localStorage.getItem('keybind-cancel') || 'Escape'
+  });
+  const [editingKeybind, setEditingKeybind] = useState(null);
   const [devCode, setDevCode] = useState('');
   const [devCodeError, setDevCodeError] = useState('');
+
+  // Keyboard listener for capturing new keybind assignments
+  useEffect(() => {
+    if (!editingKeybind) return;
+
+    const handleKeyDown = (e) => {
+      e.preventDefault();
+      
+      // Cancel editing on Escape
+      if (e.key === 'Escape') {
+        setEditingKeybind(null);
+        return;
+      }
+
+      // Build key string (e.g., "Control+Z", "A", "Delete")
+      const modifiers = [];
+      if (e.ctrlKey) modifiers.push('Control');
+      if (e.shiftKey) modifiers.push('Shift');
+      if (e.altKey) modifiers.push('Alt');
+      
+      // Normalize key name
+      let key = e.key;
+      if (key === ' ') key = 'Space';
+      
+      // Don't add modifier keys themselves as the final key
+      if (['Control', 'Shift', 'Alt', 'Meta'].includes(key)) return;
+      
+      const keyString = modifiers.length > 0 ? `${modifiers.join('+')}+${key}` : key;
+      
+      // Update keybinding
+      setKeybindings(prev => ({
+        ...prev,
+        [editingKeybind]: keyString
+      }));
+      
+      // Save to localStorage
+      localStorage.setItem(`keybind-${editingKeybind.replace(/([A-Z])/g, '-$1').toLowerCase()}`, keyString);
+      
+      // Exit editing mode
+      setEditingKeybind(null);
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [editingKeybind]);
 
   if (!isOpen) return null;
 
@@ -38,8 +90,7 @@ function SettingsModal({ isOpen, onClose, user: propUser }) {
         autoSave: true,
         showScores: true,
         autoUpdateOnPreset: true,
-        autoSortOnUpdate: true,
-        clickEmptyToAdd: true,
+        autoSortOnUpdate: false,
         zeroAligned: false,
         apiTimeout: 10000,
         refreshInterval: 300000
@@ -145,19 +196,6 @@ function SettingsModal({ isOpen, onClose, user: propUser }) {
                 <label className="setting-label">
                   <input 
                     type="checkbox"
-                    checked={settings.clickEmptyToAdd}
-                    onChange={(e) => handleSettingChange('clickEmptyToAdd', e.target.checked)}
-                    className="setting-checkbox"
-                  />
-                  Click empty space to add stocks
-                </label>
-                <small className="setting-help">When enabled, click any empty grid cell to add a stock</small>
-              </div>
-
-              <div className="setting-item">
-                <label className="setting-label">
-                  <input 
-                    type="checkbox"
                     checked={settings.zeroAligned}
                     onChange={(e) => handleSettingChange('zeroAligned', e.target.checked)}
                     className="setting-checkbox"
@@ -174,32 +212,52 @@ function SettingsModal({ isOpen, onClose, user: propUser }) {
             <div className="settings-group">
               <div className="setting-item keybind-item">
                 <label className="setting-label keybind-label">Add Stock</label>
-                <kbd className="keybind-display">A</kbd>
-                <small className="setting-help">Add a stock at cursor position or find nearest empty slot</small>
+                <kbd 
+                  className={`keybind-display ${editingKeybind === 'addStock' ? 'keybind-editing' : ''}`}
+                  onClick={() => setEditingKeybind('addStock')}
+                >
+                  {editingKeybind === 'addStock' ? 'Press a key...' : keybindings.addStock}
+                </kbd>
               </div>
 
               <div className="setting-item keybind-item">
                 <label className="setting-label keybind-label">Update All</label>
-                <kbd className="keybind-display">U</kbd>
-                <small className="setting-help">Refresh data for all stocks</small>
+                <kbd 
+                  className={`keybind-display ${editingKeybind === 'updateAll' ? 'keybind-editing' : ''}`}
+                  onClick={() => setEditingKeybind('updateAll')}
+                >
+                  {editingKeybind === 'updateAll' ? 'Press a key...' : keybindings.updateAll}
+                </kbd>
               </div>
 
               <div className="setting-item keybind-item">
                 <label className="setting-label keybind-label">Delete Stock</label>
-                <kbd className="keybind-display">Del</kbd>
-                <small className="setting-help">Delete the hovered or selected stock</small>
+                <kbd 
+                  className={`keybind-display ${editingKeybind === 'deleteStock' ? 'keybind-editing' : ''}`}
+                  onClick={() => setEditingKeybind('deleteStock')}
+                >
+                  {editingKeybind === 'deleteStock' ? 'Press a key...' : keybindings.deleteStock}
+                </kbd>
               </div>
 
               <div className="setting-item keybind-item">
                 <label className="setting-label keybind-label">Undo</label>
-                <kbd className="keybind-display">Ctrl+Z</kbd>
-                <small className="setting-help">Undo last action</small>
+                <kbd 
+                  className={`keybind-display ${editingKeybind === 'undo' ? 'keybind-editing' : ''}`}
+                  onClick={() => setEditingKeybind('undo')}
+                >
+                  {editingKeybind === 'undo' ? 'Press a key...' : keybindings.undo}
+                </kbd>
               </div>
 
               <div className="setting-item keybind-item">
                 <label className="setting-label keybind-label">Cancel</label>
-                <kbd className="keybind-display">Esc</kbd>
-                <small className="setting-help">Cancel adding mode</small>
+                <kbd 
+                  className={`keybind-display ${editingKeybind === 'cancel' ? 'keybind-editing' : ''}`}
+                  onClick={() => setEditingKeybind('cancel')}
+                >
+                  {editingKeybind === 'cancel' ? 'Press a key...' : keybindings.cancel}
+                </kbd>
               </div>
             </div>
           </div>

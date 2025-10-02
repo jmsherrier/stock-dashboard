@@ -158,25 +158,56 @@ const GridCanvas = forwardRef(({
   }, [stocks]);
 
   // Convert mouse coordinates to grid cell position
+  // Returns null if cursor is in the gap between cells
   const getCellFromMouse = useCallback((clientX, clientY) => {
     if (!containerRef.current || !cellDimensions) return null;
     
-    const rect = containerRef.current.getBoundingClientRect();
-    const mouseX = (clientX - rect.left - gridOffset.x) / zoom;
-    const mouseY = (clientY - rect.top - gridOffset.y) / zoom;
+    // Get the grid-canvas element (child with transform applied)
+    const gridCanvas = containerRef.current.querySelector('.grid-canvas');
+    if (!gridCanvas) return null;
     
+    const rect = gridCanvas.getBoundingClientRect();
+    
+    // Mouse position relative to the transformed grid canvas
+    // The transform has already been applied to rect, so we just need position relative to it
+    const relX = clientX - rect.left;
+    const relY = clientY - rect.top;
+    
+    // Subtract padding (which is part of the grid-canvas element)
+    const contentX = relX - gridPadding * zoom;
+    const contentY = relY - gridPadding * zoom;
+    
+    // Divide by zoom to get into unscaled cell coordinate space
+    const unscaledX = contentX / zoom;
+    const unscaledY = contentY / zoom;
+    
+    // Calculate cell position
+    // Cells are positioned at: x * (width + gap), y * (height + gap)
     const cellWidth = cellDimensions.width + cellGap;
     const cellHeight = cellDimensions.height + cellGap;
     
-    const x = Math.floor((mouseX - gridPadding) / cellWidth);
-    const y = Math.floor((mouseY - gridPadding) / cellHeight);
+    const x = Math.floor(unscaledX / cellWidth);
+    const y = Math.floor(unscaledY / cellHeight);
+    
+    // Check if we're in the actual cell or in the gap
+    const localX = unscaledX - (x * cellWidth);
+    const localY = unscaledY - (y * cellHeight);
+    
+    // Return null if in gap (beyond cell dimensions) or negative position
+    if (localX < 0 || localY < 0 || localX >= cellDimensions.width || localY >= cellDimensions.height) {
+      return null;
+    }
     
     return { x, y };
-  }, [cellDimensions, gridOffset, zoom, cellGap, gridPadding]);
+  }, [cellDimensions, zoom, cellGap, gridPadding]);
 
   // Expose getCellFromMouse to parent via ref
   useImperativeHandle(ref, () => ({
-    getCellFromMouse
+    getCellFromMouse,
+    getZoom: () => zoom,
+    getGridOffset: () => gridOffset,
+    setGridOffset: (offset) => setGridOffset(offset),
+    getCellDimensions: () => cellDimensions
   }));
 
   // Handle zoom with mousewheel - zoom around center of viewport
@@ -204,8 +235,8 @@ const GridCanvas = forwardRef(({
     const worldX = (zoomPointX - gridOffset.x) / zoom;
     const worldY = (zoomPointY - gridOffset.y) / zoom;
     
-    const delta = e.deltaY * -0.001;
-    const newZoom = Math.min(Math.max(0.5, zoom + delta), 2);
+    const delta = e.deltaY * -0.0003;
+    const newZoom = Math.min(Math.max(0.25, zoom + delta), 2);
     
     // Calculate new offset to keep zoom point at same screen position
     const newOffsetX = zoomPointX - worldX * newZoom;
@@ -254,25 +285,12 @@ const GridCanvas = forwardRef(({
       setGridOffset({ x: newX, y: newY });
       return;
     }
+  };
 
-    // Handle hover for cell outlines - only show on actual hover
-    if (!activeId && cellDimensions) {
-      const cell = getCellFromMouse(e.clientX, e.clientY);
-      if (cell && (isAddingMode || settings.clickEmptyToAdd)) {
-        const isOccupied = stocks.some(s => {
-          const pos = s.gridPosition || { x: 0, y: 0 };
-          return pos.x === cell.x && pos.y === cell.y;
-        });
-        if (!isOccupied) {
-          setHoveredCell(cell);
-        } else {
-          setHoveredCell(null);
-        }
-      } else {
-        setHoveredCell(null);
-      }
-    } else if (!activeId) {
-      setHoveredCell(null);
+  // Handle cell hover - cells will call this directly
+  const handleCellHover = (cell) => {
+    if (!activeId && (isAddingMode || settings.clickEmptyToAdd)) {
+      setHoveredCell(cell);
     } else {
       setHoveredCell(null);
     }
@@ -285,7 +303,7 @@ const GridCanvas = forwardRef(({
 
   const handleCanvasClick = (e) => {
     // Don't create stock if user was dragging (1px threshold for precise click detection)
-    if (dragDistance > 1) {
+    if (dragDistance > .1) {
       setDragDistance(0);
       setMouseDownOnEmpty(false);
       return;
@@ -431,6 +449,7 @@ const GridCanvas = forwardRef(({
             onToggleLock={onToggleLock}
             calculateScore={calculateScore}
             onHoverStock={onHoverStock}
+            onHoverCell={handleCellHover}
           />
         );
       }
@@ -466,6 +485,7 @@ const GridCanvas = forwardRef(({
             onToggleLock={onToggleLock}
             calculateScore={calculateScore}
             onHoverStock={onHoverStock}
+            onHoverCell={handleCellHover}
           />
         );
       }
@@ -535,9 +555,22 @@ const GridCanvas = forwardRef(({
           {renderGrid()}
         </div>
 
+        {/* Empty state message */}
+        {stocks.length === 0 && (
+          <div className="empty-state-message">
+            <p>Press <kbd>A</kbd> or click empty space to add a stock</p>
+          </div>
+        )}
+
         <DragOverlay>
           {activeStock ? (
-            <div className="stock-drag-overlay">
+            <div 
+              className="stock-drag-overlay"
+              style={{
+                transform: `scale(${zoom})`,
+                transformOrigin: '0 0'
+              }}
+            >
               <ModularStockPaper
                 stock={activeStock}
                 score={calculateScore(activeStock)}
