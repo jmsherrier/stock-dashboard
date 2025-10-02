@@ -1027,56 +1027,225 @@ export const STRATEGY_PRESETS = {
       recentIPO: { points: 1, description: 'Recent IPO (within 12 months)' },
       recentReverseSplit: { points: 1, description: 'Recent reverse split' },
       blueSkyBreakout: { points: 1, description: 'Breaking through resistance' }
-    }
+    },
+    customCriteria: {} // Uses default scoring ranges
   },
   valueInvesting: {
     id: 'valueInvesting',
     name: 'Value Investing',
-    description: 'Classic fundamental analysis targeting undervalued companies with strong balance sheets. Emphasizes profitability, growth, and valuation metrics.',
+    description: 'Classic fundamental analysis targeting undervalued companies with strong balance sheets. Emphasizes profitability, growth, and valuation metrics for long-term wealth building.',
     paperConfig: {
       ticker: true,
       price: true,
       marketCap: true,
-      peRatio: true,
-      pegRatio: true,
-      priceToBook: true,
-      roe: true,
-      eps: true,
-      profitMargin: true,
-      revenueGrowth: true,
-      beta: true,
       sector: true,
       industry: true,
+      // Valuation metrics (most important)
+      peRatio: true,
+      forwardPE: true,
+      pegRatio: true,
+      priceToBook: true,
+      priceToSales: true,
+      evToRevenue: true,
+      // Profitability metrics
+      roe: true,
+      roa: true,
+      profitMargin: true,
+      operatingMargin: true,
+      // Growth metrics
+      revenueGrowth: true,
+      earningsGrowth: true,
+      eps: true,
+      // Income metrics
+      dividendYield: true,
+      dividendPerShare: true,
+      // Risk metrics
+      beta: true,
+      insiderOwnership: true,
+      institutionalOwnership: true,
       bonusChecks: true,
       notes: true
     },
     bonusChecks: {
-      dividendYield: { points: 2, description: 'Consistent dividend payments (3+ years)' },
-      debtToEquity: { points: 2, description: 'Low debt-to-equity ratio (<0.5)' },
-      cashReserves: { points: 1, description: 'Strong cash reserves (>$100M)' }
+      consistentDividends: { points: 3, description: 'Consistent dividend growth (5+ years)' },
+      lowDebt: { points: 2, description: 'Low debt-to-equity ratio (<0.5)' },
+      undervaluedPE: { points: 2, description: 'P/E ratio below industry average' },
+      strongCashFlow: { points: 2, description: 'Positive free cash flow for 3+ years' }
+    },
+    customCriteria: {
+      // Value investing focuses on lower P/E ratios
+      peRatio: {
+        ranges: [
+          { min: -Infinity, max: 0, points: -2, color: 'red' },     // Negative earnings
+          { min: 0, max: 10, points: 3, color: 'green' },           // Deeply undervalued
+          { min: 10, max: 15, points: 2, color: 'green' },          // Undervalued
+          { min: 15, max: 20, points: 1, color: 'green' },          // Fair value
+          { min: 20, max: 25, points: 0, color: 'orange' },         // Neutral
+          { min: 25, max: Infinity, points: -2, color: 'red' }      // Overvalued
+        ]
+      },
+      // Dividend yield is critical for value
+      dividendYield: {
+        ranges: [
+          { min: 0, max: 1, points: -2, color: 'red' },             // No dividend (bad for value)
+          { min: 1, max: 2, points: 0, color: 'orange' },           // Low yield
+          { min: 2, max: 3, points: 1, color: 'green' },            // Moderate yield
+          { min: 3, max: 5, points: 3, color: 'green' },            // Good yield
+          { min: 5, max: 7, points: 3, color: 'green' },            // Strong yield
+          { min: 7, max: 10, points: 2, color: 'green' },           // High yield
+          { min: 10, max: Infinity, points: 0, color: 'orange' }    // Unsustainably high
+        ]
+      },
+      // ROE is key for value investing
+      roe: {
+        ranges: [
+          { min: -Infinity, max: 0, points: -3, color: 'red' },     // Negative ROE
+          { min: 0, max: 10, points: -1, color: 'orange' },         // Poor (0-10%)
+          { min: 10, max: 15, points: 1, color: 'green' },          // Average (10-15%)
+          { min: 15, max: 20, points: 2, color: 'green' },          // Good (15-20%)
+          { min: 20, max: 25, points: 3, color: 'green' },          // Excellent (20-25%)
+          { min: 25, max: Infinity, points: 3, color: 'green' }     // Outstanding (25%+)
+        ]
+      },
+      // Price-to-Book critical for value
+      priceToBook: {
+        ranges: [
+          { min: 0, max: 0.5, points: 3, color: 'green' },          // Extremely undervalued
+          { min: 0.5, max: 1, points: 3, color: 'green' },          // Deeply undervalued
+          { min: 1, max: 1.5, points: 2, color: 'green' },          // Undervalued
+          { min: 1.5, max: 2, points: 1, color: 'green' },          // Fair value
+          { min: 2, max: 3, points: 0, color: 'orange' },           // Slightly expensive
+          { min: 3, max: Infinity, points: -2, color: 'red' }       // Overvalued
+        ]
+      },
+      // Prefer stable, lower beta for value
+      beta: {
+        ranges: [
+          { min: -Infinity, max: 0.5, points: 1, color: 'green' },  // Very stable (good for value)
+          { min: 0.5, max: 1.0, points: 2, color: 'green' },        // Stable
+          { min: 1.0, max: 1.3, points: 3, color: 'green' },        // Market-like
+          { min: 1.3, max: 1.8, points: 1, color: 'orange' },       // Moderate volatility
+          { min: 1.8, max: Infinity, points: -1, color: 'red' }     // High volatility (risky)
+        ]
+      }
     }
   },
   growthMomentum: {
     id: 'growthMomentum',
     name: 'Technical Breakout',
-    description: 'Pure technical analysis strategy focusing on chart patterns and moving averages. Tracks stocks breaking 52-week highs with institutional backing.',
+    description: 'Pure technical analysis strategy focusing on chart patterns, moving averages, and momentum. Tracks stocks breaking 52-week highs with strong institutional support and volume confirmation.',
     paperConfig: {
       ticker: true,
       price: true,
+      percentRise: true,
+      relativeVolume: true,
+      // Technical indicators (core)
       week52High: true,
       week52Low: true,
       movingAverage50: true,
       movingAverage200: true,
+      // Volatility and momentum
       beta: true,
+      // Institutional backing
       institutionalOwnership: true,
+      insiderOwnership: true,
+      // Float for liquidity
       float: true,
+      sharesOutstanding: true,
+      // Market sentiment
+      analystRatings: true,
+      analystTarget: true,
       bonusChecks: true,
+      news: true,
       notes: true
     },
     bonusChecks: {
       goldenCross: { points: 3, description: '50-day MA crossed above 200-day MA (golden cross)' },
-      volumeSpike: { points: 2, description: 'Volume 200%+ above average' },
-      consolidation: { points: 2, description: 'Consolidating near 52-week high (within 5%)' }
+      aboveAllMAs: { points: 2, description: 'Price above both 50-day and 200-day MAs' },
+      volumeBreakout: { points: 3, description: 'Volume 300%+ above average on breakout' },
+      allTimeHigh: { points: 3, description: 'Making new all-time high' },
+      consolidation: { points: 2, description: 'Consolidating near 52-week high (within 3%)' }
+    },
+    customCriteria: {
+      // 52-week high is critical - bias toward extremes
+      week52High: {
+        ranges: [
+          { min: 0, max: 50, points: -3, color: 'red' },            // Far from high
+          { min: 50, max: 70, points: -2, color: 'red' },           // Below high
+          { min: 70, max: 85, points: -1, color: 'orange' },        // Approaching
+          { min: 85, max: 95, points: 1, color: 'green' },          // Near high
+          { min: 95, max: 99, points: 2, color: 'green' },          // Very close
+          { min: 99, max: 100, points: 3, color: 'green' },         // At high
+          { min: 100, max: Infinity, points: 3, color: 'green' }    // New high!
+        ]
+      },
+      // 50-day MA - must be above
+      movingAverage50: {
+        ranges: [
+          { min: -Infinity, max: 95, points: -3, color: 'red' },    // Below MA
+          { min: 95, max: 100, points: -1, color: 'orange' },       // At MA
+          { min: 100, max: 103, points: 1, color: 'green' },        // Slightly above
+          { min: 103, max: 107, points: 2, color: 'green' },        // Above
+          { min: 107, max: 115, points: 3, color: 'green' },        // Well above
+          { min: 115, max: Infinity, points: 2, color: 'green' }    // Extended (may pullback)
+        ]
+      },
+      // 200-day MA - trend confirmation
+      movingAverage200: {
+        ranges: [
+          { min: -Infinity, max: 95, points: -3, color: 'red' },    // Below MA (bearish)
+          { min: 95, max: 100, points: -1, color: 'orange' },       // At MA
+          { min: 100, max: 105, points: 1, color: 'green' },        // Above
+          { min: 105, max: 110, points: 2, color: 'green' },        // Well above
+          { min: 110, max: 120, points: 3, color: 'green' },        // Strong uptrend
+          { min: 120, max: Infinity, points: 2, color: 'green' }    // Very extended
+        ]
+      },
+      // High volume critical for breakouts
+      relativeVolume: {
+        ranges: [
+          { min: 0, max: 2, points: -3, color: 'red' },             // Very low (no interest)
+          { min: 2, max: 3, points: -2, color: 'red' },             // Low
+          { min: 3, max: 5, points: 0, color: 'orange' },           // Moderate
+          { min: 5, max: 10, points: 1, color: 'green' },           // Good
+          { min: 10, max: 15, points: 2, color: 'green' },          // Strong
+          { min: 15, max: 30, points: 3, color: 'green' },          // Explosive
+          { min: 30, max: Infinity, points: 2, color: 'green' }     // Extreme (monitor closely)
+        ]
+      },
+      // Prefer higher beta for momentum
+      beta: {
+        ranges: [
+          { min: -Infinity, max: 1.0, points: -2, color: 'red' },   // Too stable
+          { min: 1.0, max: 1.5, points: 0, color: 'orange' },       // Low volatility
+          { min: 1.5, max: 2.0, points: 1, color: 'green' },        // Moderate
+          { min: 2.0, max: 3.0, points: 2, color: 'green' },        // Good volatility
+          { min: 3.0, max: 4.5, points: 3, color: 'green' },        // High volatility (big moves)
+          { min: 4.5, max: Infinity, points: 1, color: 'orange' }   // Extreme (risky)
+        ]
+      },
+      // Institutional ownership confirms quality
+      institutionalOwnership: {
+        ranges: [
+          { min: 0, max: 0.30, points: -1, color: 'orange' },       // Low institutional
+          { min: 0.30, max: 0.50, points: 1, color: 'green' },      // Moderate
+          { min: 0.50, max: 0.70, points: 2, color: 'green' },      // Good
+          { min: 0.70, max: 0.85, points: 3, color: 'green' },      // Strong (smart money)
+          { min: 0.85, max: Infinity, points: 2, color: 'green' }   // Very high (less volatile)
+        ]
+      },
+      // Percent rise - looking for momentum
+      percentRise: {
+        ranges: [
+          { min: -Infinity, max: 0, points: -3, color: 'red' },     // Down (against trend)
+          { min: 0, max: 3, points: -1, color: 'orange' },          // Flat
+          { min: 3, max: 5, points: 0, color: 'orange' },           // Slight rise
+          { min: 5, max: 10, points: 1, color: 'green' },           // Good momentum
+          { min: 10, max: 15, points: 2, color: 'green' },          // Strong
+          { min: 15, max: 25, points: 3, color: 'green' },          // Explosive
+          { min: 25, max: Infinity, points: 2, color: 'green' }     // Extreme (may cool off)
+        ]
+      }
     }
   }
 };
