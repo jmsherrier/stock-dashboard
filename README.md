@@ -1,32 +1,40 @@
 # Volitiliraptor - Multi-Strategy Trading Analysis Platform
 
 ## Current Version
-v3.0.0 - Grid-Based Layout & Multi-Strategy Support
+v3.1.0 - Enhanced Grid Interaction & Keyboard Controls
 
 ## Overview
-Volitiliraptor is a comprehensive trading analysis platform that transforms traditional stock screening into a flexible, multi-strategy system. Built with React and Express, it provides modular components with a dynamic 2D grid layout system for organizing stocks spatially, real-time data integration, and sophisticated scoring systems.
+Volitiliraptor is a comprehensive trading analysis platform that transforms traditional stock screening into a flexible, multi-strategy system. Built with React and Express, it provides modular components with a dynamic 2D infinite grid layout system for organizing stocks spatially, real-time data integration, sophisticated scoring systems, and advanced keyboard-based controls.
 
 ## Key Features
+
+### Infinite Grid Canvas
+- **Click-Based Selection**: Click stocks to select them (highlighted border), click off to deselect
+- **Keyboard Navigation**: Use arrow keys to move selected stocks to adjacent empty cells
+- **Configurable Keybinds**: Customize keyboard shortcuts including delete key modifier support
+- **Duplicate Detection**: Visual warning when keybinds conflict
+- **Mouse Position Tracking**: Real-time hover detection on empty cells without rendering all cells
+- **Smooth Zoom**: 0.25x to 2x zoom with touchpad-optimized sensitivity (0.0003 delta)
+- **Zoom Persistence**: Zoom level saved across sessions
+- **Pan Control**: Click and drag empty space to navigate the infinite canvas
+- **Precise Drag Movement**: Zoom-compensated drag distance for accurate stock placement
 
 ### Multi-Strategy System
 - **Momentum Strategy**: Focus on price movement and volume
 - **Growth Strategy**: Emphasize fundamental growth metrics
 - **Value Strategy**: Concentrate on valuation indicators
 - **Custom Strategies**: Create your own trading criteria
+- **Preset Persistence**: Last selected preset automatically restored on load
 
 ### Modular Component Architecture
-- **2D Grid Layout**: Position stocks anywhere on an infinite, pannable grid
-- **Dynamic Sizing**: Empty grid slots automatically match the size of stock papers with current preset configuration
-- **Drag-and-Drop Interface**: Move stocks to any position with visual feedback and live preview of target cell
-- **Click-to-Add**: Click empty grid cells to instantly add new stocks (configurable)
-- **Mousewheel Zoom**: Zoom in/out (0.5x to 2x) using mousewheel for better overview or detail view
-- **Smart Sort**: Automatically arranges stocks in a grid pattern (left-to-right, top-to-bottom) based on screen width
-- **Visual Feedback**: Subtle outlines on empty cells, highlighted when hovering or dragging stocks
+- **Drag-and-Drop Interface**: Move stocks to any position with visual feedback
+- **Lock Position Feature**: Lock stocks to prevent accidental movement (checkbox only, not label text)
+- **Click-to-Add**: Click empty grid cells to instantly add new stocks
+- **Visual Feedback**: Green outlines with plus signs on empty cell hover, grey outlines when dragging
+- **Smart Sort**: Viewport-aware auto-sort arranges stocks left-to-right, top-to-bottom with zoom compensation
 - **Flexible Components**: Each metric is a standalone, configurable component
 - **Dual-Format Support**: Works with legacy and modern data structures
 - **Auto-Calculations**: Float automatically calculated from shares data
-- **Zero-Aligned Mode**: Optional constraint to keep grid anchored to origin
-- **Default Stock**: Application initializes with one stock paper for immediate use
 
 ### Advanced Scoring System
 - **Color-Coded Scoring**: Green (positive), Orange (neutral), Red (negative)
@@ -37,6 +45,8 @@ Volitiliraptor is a comprehensive trading analysis platform that transforms trad
 ### Robust Backend
 - **User Authentication**: Email and password authentication system
 - **Data Persistence**: SQLite database with comprehensive user storage
+- **Account Preservation**: "Clear All Data" preserves authentication without logout
+- **Separate Data Controls**: "Clear Stocks" vs "Clear All Data" options
 - **Real-Time Data**: Alpha Vantage API integration with fallback demo data
 - **Multi-User Support**: Individual user spaces and settings
 - **Developer Access**: Optional dev mode accessible via settings with access code
@@ -46,14 +56,17 @@ Volitiliraptor is a comprehensive trading analysis platform that transforms trad
 - **Settings Menu**: Easy access to configuration and data management
 - **Responsive Design**: Works on desktop and mobile devices
 - **Dark Theme**: Professional appearance optimized for extended use
+- **Duplicate Keybind Warning**: Red highlighting when multiple shortcuts use same key
 
 ## Technical Stack
 - **Frontend**: React 19.1.1 with @dnd-kit for drag-and-drop
+- **Grid System**: Custom infinite canvas with mouse position tracking and zoom compensation
 - **Backend**: Express.js with SQLite database
-- **Authentication**: Email/password authentication with bcrypt hashing
+- **Authentication**: Email/password authentication with bcrypt hashing (preserved on data clear)
 - **APIs**: Alpha Vantage for real-time stock data
-- **Storage**: Multi-layer persistence (database + localStorage)
-- **Styling**: CSS Grid and Flexbox with custom dark theme
+- **Storage**: Multi-layer persistence (database + localStorage) with selective clearing
+- **Keybind System**: Configurable keyboard shortcuts with modifier support and conflict detection
+- **Styling**: CSS Grid and Flexbox with custom dark theme, pointer-events management, z-index layering
 
 ## Quick Start
 
@@ -109,18 +122,39 @@ npm run server:prod
 1. **Authentication**: Create account with email and password, or login with existing credentials
 2. **Initial Setup**: Application starts with one default stock paper already on the grid
 3. **Add More Stocks**: 
-   - With "Click empty space to add stocks" enabled (default): Click any empty grid cell to add
-   - With setting disabled: Click "Add Paper" button, then click grid cell to place
+   - Click any empty grid cell to add a new stock (first click off a selected stock deselects it)
+   - Or use keyboard: Press 'A' to add stock at current mouse position
 4. **Navigate Grid**: 
    - **Pan**: Click and drag on empty space to move your view around the infinite grid
-   - **Zoom**: Use mousewheel to zoom in (2x) or out (0.5x) for different perspectives
-5. **Position Stocks**: Drag stocks to any position on the grid canvas
+   - **Zoom**: Use mousewheel to zoom in (2x) or out (0.25x) - zoom level persists across sessions
+5. **Select & Move Stocks**:
+   - **Select**: Click on a stock paper to select it (shows white border)
+   - **Deselect**: Click on empty space (first click deselects, subsequent clicks add stock)
+   - **Move with Keyboard**: Use arrow keys (Up/Down/Left/Right) to move selected stock to adjacent cells
+   - **Move with Mouse**: Drag stocks to any position - movement compensates for zoom level
+   - **Delete**: Select stock, then press configured delete key (default: Delete)
+   - **Lock Position**: Click the small checkbox (not the label text) to prevent accidental movement
 6. **Enter Data**: Click on any field to edit stock information
 7. **Update Prices**: Click "Update" button on individual stocks or "Update All" for all stocks
-8. **Sort Stocks**: Click "Sort" button to automatically arrange all unlocked stocks in a grid pattern (left-to-right, top-to-bottom) based on their scores and your screen width
+8. **Sort Stocks**: Click "Sort" button to automatically arrange all unlocked stocks in a viewport-aware grid pattern
 9. **Configure Strategy**: Use "Configure" menu to adjust strategy presets, enable/disable components, and set bonus criteria
-   - **Note**: When you change presets, all stock papers and empty grid slots resize automatically to match the new configuration
-10. **Settings**: Access grid layout options, auto-update preferences, and account management
+   - **Note**: When you change presets, all stock papers resize automatically and zoom/preset persist
+10. **Settings**: 
+    - Configure keyboard shortcuts with modifier support (Ctrl+Key, Shift+Key, Alt+Key)
+    - Duplicate keybinds show red warning
+    - Access grid layout options and account management
+    - Use "Clear Stocks" to remove all stocks and reset zoom
+    - Use "Clear All Data" to reset everything except account login
+
+### Keyboard Shortcuts
+- **Stock Selected**:
+  - Arrow Keys: Move stock to adjacent empty cell (works repeatedly without re-clicking)
+  - Delete Key: Remove stock (configurable, supports modifiers like Ctrl+D)
+- **General**:
+  - A: Add new stock at mouse position
+  - U: Update all stocks with latest data
+  - Ctrl+Z: Undo last action
+  - Mouse Wheel: Zoom in/out
 
 ### Developer Mode
 - Access developer features through Settings → Account Management
@@ -134,6 +168,7 @@ npm run server:prod
 3. Configure which components are visible
 4. Set custom bonus criteria with point values
 5. Apply to new stocks automatically
+6. Preset selection persists across sessions
 
 ### Component Types
 - **Ticker**: Stock symbol input
@@ -144,6 +179,7 @@ npm run server:prod
 - **News**: Catalyst and news management
 - **Notes**: Free-form text notes
 - **Bonus Checks**: Custom strategy-specific criteria
+- **Lock Position**: Checkbox to prevent stock movement
 
 ## Architecture
 

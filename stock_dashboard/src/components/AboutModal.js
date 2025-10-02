@@ -3,7 +3,7 @@ import React from 'react';
 function AboutModal({ isOpen, onClose }) {
   if (!isOpen) return null;
 
-  const appVersion = "3.0";
+  const appVersion = "3.1";
   const buildDate = new Date().toLocaleDateString();
 
   return (
@@ -49,14 +49,26 @@ function AboutModal({ isOpen, onClose }) {
               
               <h4>Key Features</h4>
               <ul>
+                <li>✅ Infinite 2D grid layout with smooth zoom (0.25x-2x) and pan controls</li>
+                <li>✅ Click-based stock selection with keyboard controls (arrow keys to move, delete key)</li>
+                <li>✅ Drag-and-drop positioning with precise zoom-compensated movement</li>
                 <li>✅ Real-time stock data integration with Alpha Vantage API</li>
-                <li>✅ Customizable momentum scoring criteria</li>
                 <li>✅ Multiple strategy presets (Momentum, Value, Growth, Income)</li>
-                <li>✅ Modular component system for flexible stock analysis</li>
-                <li>✅ User authentication and data persistence</li>
-                <li>✅ Drag-and-drop stock reordering</li>
-                <li>✅ News integration and sentiment analysis</li>
-                <li>✅ Bonus points system for additional criteria</li>
+                <li>✅ Modular component system with configurable keybinds</li>
+                <li>✅ Lock position feature to prevent accidental stock movement</li>
+                <li>✅ Auto-sort with viewport-aware grid arrangement</li>
+                <li>✅ User authentication with persistent account data</li>
+                <li>✅ Separate "Clear Stocks" and "Clear All Data" options</li>
+              </ul>
+
+              <h4>Keyboard Shortcuts</h4>
+              <ul>
+                <li>Click stock → Arrow Keys: Move selected stock to adjacent cells</li>
+                <li>Click stock → Delete: Remove selected stock (configurable)</li>
+                <li>A: Add new stock at mouse position</li>
+                <li>U: Update all stocks with latest data</li>
+                <li>Ctrl+Z: Undo last action</li>
+                <li>Mouse Wheel: Zoom in/out on grid</li>
               </ul>
 
               <h4>Data Sources</h4>
@@ -67,9 +79,9 @@ function AboutModal({ isOpen, onClose }) {
 
               <h4>Technical Stack</h4>
               <ul>
-                <li>Frontend: React 19.1.1 with modern hooks and context</li>
+                <li>Frontend: React 19.1.1 with @dnd-kit for drag-and-drop</li>
                 <li>Backend: Node.js with Express and SQLite</li>
-                <li>Styling: Custom CSS with responsive design</li>
+                <li>Grid: Custom infinite canvas with mouse position tracking</li>
                 <li>APIs: Alpha Vantage for stock data</li>
               </ul>
             </div>

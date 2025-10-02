@@ -11,7 +11,8 @@ function ModularStockPaper({
   perStockUpdating,
   canMakeRequest,
   dragListeners,
-  onToggleLock
+  onToggleLock,
+  onClickStock
 }) {
   const [isEditingTicker, setIsEditingTicker] = useState(false);
   const [tickerValue, setTickerValue] = useState(stock.ticker || '');
@@ -50,7 +51,19 @@ function ModularStockPaper({
 
   return (
     <div className={`stock-paper ${stock.locked ? 'locked' : ''}`}>
-      {dragListeners && <div className="drag-bg-handle" {...dragListeners} title="Drag to reorder" />}
+      {dragListeners && (
+        <div 
+          className="drag-bg-handle" 
+          {...dragListeners}
+          onClick={(e) => {
+            e.stopPropagation();
+            if (onClickStock) {
+              onClickStock(stock.id);
+            }
+          }}
+          title="Click to select, drag to reorder"
+        />
+      )}
       
       {onRemove && (
         <button

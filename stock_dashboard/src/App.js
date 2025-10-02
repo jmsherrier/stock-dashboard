@@ -382,22 +382,22 @@ function MainApp() {
         setStocks([]);
         setSelectedStock(null);
         
-        // Preserve authentication data
-        const apiKey = localStorage.getItem('api-key');
-        const userId = localStorage.getItem('user-id');
-        const userEmail = localStorage.getItem('user-email');
-        const userCreatedAt = localStorage.getItem('user-created-at');
-        const userDevAccess = localStorage.getItem('user-dev-access');
+        // Get all localStorage keys
+        const keysToRemove = [];
+        for (let i = 0; i < localStorage.length; i++) {
+          const key = localStorage.key(i);
+          // Don't remove auth-related keys
+          if (!key.startsWith('api-key') && 
+              !key.startsWith('user-id') && 
+              !key.startsWith('user-email') && 
+              !key.startsWith('user-created-at') && 
+              !key.startsWith('user-dev-access')) {
+            keysToRemove.push(key);
+          }
+        }
         
-        // Clear all localStorage
-        localStorage.clear();
-        
-        // Restore authentication data
-        if (apiKey) localStorage.setItem('api-key', apiKey);
-        if (userId) localStorage.setItem('user-id', userId);
-        if (userEmail) localStorage.setItem('user-email', userEmail);
-        if (userCreatedAt) localStorage.setItem('user-created-at', userCreatedAt);
-        if (userDevAccess) localStorage.setItem('user-dev-access', userDevAccess);
+        // Remove non-auth keys
+        keysToRemove.forEach(key => localStorage.removeItem(key));
         
         // Reset to default settings
         localStorage.setItem('app-theme', 'dark');
@@ -408,6 +408,7 @@ function MainApp() {
         localStorage.setItem('zero-aligned', 'false');
         localStorage.setItem('api-timeout', '10000');
         localStorage.setItem('refresh-interval', '300000');
+        localStorage.setItem('grid-zoom', '1');
         
         // Clear backend stock data if authenticated
         if (user) {
@@ -429,6 +430,43 @@ function MainApp() {
       } catch (error) {
         console.error('Error clearing data:', error);
         alert('There was an error clearing some data. Please try again.');
+      }
+    }
+  };
+
+  const clearStocks = async () => {
+    const confirmed = window.confirm(
+      'Are you sure you want to clear all stocks?\n\n' +
+      'This will remove all stocks and reset zoom to 1x.'
+    );
+    
+    if (confirmed) {
+      try {
+        // Clear local state
+        setStocks([]);
+        setSelectedStock(null);
+        setClickedStockId(null);
+        
+        // Reset zoom to 1x
+        localStorage.setItem('grid-zoom', '1');
+        
+        // Clear backend stock data if authenticated
+        if (user) {
+          try {
+            await apiClient.clearUserData();
+          } catch (error) {
+            console.warn('Failed to clear backend data:', error);
+          }
+        }
+        
+        // Close settings menu
+        setShowSettingsMenu(false);
+        
+        // Reload to apply zoom reset
+        window.location.reload();
+      } catch (error) {
+        console.error('Error clearing stocks:', error);
+        alert('There was an error clearing stocks. Please try again.');
       }
     }
   };
@@ -742,9 +780,14 @@ function MainApp() {
                     Settings
                   </button>
                   <button onClick={() => {
+                    clearStocks();
+                  }}>
+                    Clear Stocks
+                  </button>
+                  <button onClick={() => {
                     clearAllData();
                   }}>
-                    Clear Data
+                    Clear All Data
                   </button>
                   <button onClick={() => {
                     setShowAboutModal(true);
