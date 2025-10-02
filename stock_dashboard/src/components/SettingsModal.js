@@ -42,7 +42,7 @@ function SettingsModal({ isOpen, onClose, user: propUser }) {
     return duplicates;
   };
   
-  const hasDuplicates = () => getDuplicates().size > 0;
+  // const hasDuplicates = () => getDuplicates().size > 0; // Currently unused
   const isDuplicate = (key) => getDuplicates().has(keybindings[key]);
 
   // Keyboard listener for capturing new keybind assignments

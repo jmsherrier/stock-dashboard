@@ -1,3 +1,4 @@
+/* eslint-disable react/jsx-pascal-case */
 import React, { useState } from 'react';
 import { COMPONENT_REGISTRY } from './modular/ComponentRegistry';
 
@@ -131,149 +132,89 @@ function ModularStockPaper({
       </div>
 
       <div className="criteria-grid">
-        {stock.paperConfig?.price === true && COMPONENT_REGISTRY.price && (
-          <COMPONENT_REGISTRY.price.component
-            stock={stock}
-            onUpdate={onUpdate}
-          />
-        )}
+        {stock.paperConfig?.price === true && COMPONENT_REGISTRY.price && 
+          React.createElement(COMPONENT_REGISTRY.price.component, { stock, onUpdate })
+        }
 
-        {stock.paperConfig?.percentRise === true && COMPONENT_REGISTRY.percentRise && (
-          <COMPONENT_REGISTRY.percentRise.component
-            stock={stock}
-            onUpdate={onUpdate}
-          />
-        )}
+        {stock.paperConfig?.percentRise === true && COMPONENT_REGISTRY.percentRise && 
+          React.createElement(COMPONENT_REGISTRY.percentRise.component, { stock, onUpdate })
+        }
 
-        {stock.paperConfig?.relativeVolume === true && COMPONENT_REGISTRY.relativeVolume && (
-          <COMPONENT_REGISTRY.relativeVolume.component
-            stock={stock}
-            onUpdate={onUpdate}
-          />
-        )}
+        {stock.paperConfig?.relativeVolume === true && COMPONENT_REGISTRY.relativeVolume && 
+          React.createElement(COMPONENT_REGISTRY.relativeVolume.component, { stock, onUpdate })
+        }
 
-        {stock.paperConfig?.float === true && COMPONENT_REGISTRY.float && (
-          <COMPONENT_REGISTRY.float.component
-            stock={stock}
-            onUpdate={onUpdate}
-          />
-        )}
+        {stock.paperConfig?.float === true && COMPONENT_REGISTRY.float && 
+          React.createElement(COMPONENT_REGISTRY.float.component, { stock, onUpdate })
+        }
 
-        {stock.paperConfig?.marketCap === true && COMPONENT_REGISTRY.marketCap && (
-          <COMPONENT_REGISTRY.marketCap.component
-            stock={stock}
-            onUpdate={onUpdate}
-          />
-        )}
+        {stock.paperConfig?.marketCap === true && COMPONENT_REGISTRY.marketCap && 
+          React.createElement(COMPONENT_REGISTRY.marketCap.component, { stock, onUpdate })
+        }
 
-        {stock.paperConfig?.beta === true && COMPONENT_REGISTRY.beta && (
-          <COMPONENT_REGISTRY.beta.component
-            stock={stock}
-            onUpdate={onUpdate}
-          />
-        )}
+        {stock.paperConfig?.beta === true && COMPONENT_REGISTRY.beta && 
+          React.createElement(COMPONENT_REGISTRY.beta.component, { stock, onUpdate })
+        }
 
-        {stock.paperConfig?.week52High === true && COMPONENT_REGISTRY.week52High && (
-          <COMPONENT_REGISTRY.week52High.component
-            stock={stock}
-            onUpdate={onUpdate}
-          />
-        )}
+        {stock.paperConfig?.week52High === true && COMPONENT_REGISTRY.week52High && 
+          React.createElement(COMPONENT_REGISTRY.week52High.component, { stock, onUpdate })
+        }
 
-        {stock.paperConfig?.movingAverage50 === true && COMPONENT_REGISTRY.movingAverage50 && (
-          <COMPONENT_REGISTRY.movingAverage50.component
-            stock={stock}
-            onUpdate={onUpdate}
-          />
-        )}
+        {stock.paperConfig?.movingAverage50 === true && COMPONENT_REGISTRY.movingAverage50 && 
+          React.createElement(COMPONENT_REGISTRY.movingAverage50.component, { stock, onUpdate })
+        }
 
-        {stock.paperConfig?.movingAverage200 === true && COMPONENT_REGISTRY.movingAverage200 && (
-          <COMPONENT_REGISTRY.movingAverage200.component
-            stock={stock}
-            onUpdate={onUpdate}
-          />
-        )}
+        {stock.paperConfig?.movingAverage200 === true && COMPONENT_REGISTRY.movingAverage200 && 
+          React.createElement(COMPONENT_REGISTRY.movingAverage200.component, { stock, onUpdate })
+        }
 
-        {stock.paperConfig?.analystTarget === true && COMPONENT_REGISTRY.analystTarget && (
-          <COMPONENT_REGISTRY.analystTarget.component
-            stock={stock}
-            onUpdate={onUpdate}
-          />
-        )}
+        {stock.paperConfig?.analystTarget === true && COMPONENT_REGISTRY.analystTarget && 
+          React.createElement(COMPONENT_REGISTRY.analystTarget.component, { stock, onUpdate })
+        }
 
-        {stock.paperConfig?.sector === true && COMPONENT_REGISTRY.sector && (
-          <COMPONENT_REGISTRY.sector.component
-            stock={stock}
-            onUpdate={onUpdate}
-          />
-        )}
+        {stock.paperConfig?.sector === true && COMPONENT_REGISTRY.sector && 
+          React.createElement(COMPONENT_REGISTRY.sector.component, { stock, onUpdate })
+        }
 
-        {stock.paperConfig?.industry === true && COMPONENT_REGISTRY.industry && (
-          <COMPONENT_REGISTRY.industry.component
-            stock={stock}
-            onUpdate={onUpdate}
-          />
-        )}
+        {stock.paperConfig?.industry === true && COMPONENT_REGISTRY.industry && 
+          React.createElement(COMPONENT_REGISTRY.industry.component, { stock, onUpdate })
+        }
 
-        {stock.paperConfig?.profitMargin === true && COMPONENT_REGISTRY.profitMargin && (
-          <COMPONENT_REGISTRY.profitMargin.component
-            stock={stock}
-            onUpdate={onUpdate}
-          />
-        )}
+        {stock.paperConfig?.profitMargin === true && COMPONENT_REGISTRY.profitMargin && 
+          React.createElement(COMPONENT_REGISTRY.profitMargin.component, { stock, onUpdate })
+        }
 
-        {stock.paperConfig?.revenueGrowth === true && COMPONENT_REGISTRY.revenueGrowth && (
-          <COMPONENT_REGISTRY.revenueGrowth.component
-            stock={stock}
-            onUpdate={onUpdate}
-          />
-        )}
+        {stock.paperConfig?.revenueGrowth === true && COMPONENT_REGISTRY.revenueGrowth && 
+          React.createElement(COMPONENT_REGISTRY.revenueGrowth.component, { stock, onUpdate })
+        }
 
-        {stock.paperConfig?.peRatio === true && COMPONENT_REGISTRY.peRatio && (
-          <COMPONENT_REGISTRY.peRatio.component
-            stock={stock}
-            onUpdate={onUpdate}
-          />
-        )}
+        {stock.paperConfig?.peRatio === true && COMPONENT_REGISTRY.peRatio && 
+          React.createElement(COMPONENT_REGISTRY.peRatio.component, { stock, onUpdate })
+        }
 
-        {stock.paperConfig?.sharesOutstanding === true && COMPONENT_REGISTRY.sharesOutstanding && (
-          <COMPONENT_REGISTRY.sharesOutstanding.component
-            stock={stock}
-            onUpdate={onUpdate}
-          />
-        )}
+        {stock.paperConfig?.sharesOutstanding === true && COMPONENT_REGISTRY.sharesOutstanding && 
+          React.createElement(COMPONENT_REGISTRY.sharesOutstanding.component, { stock, onUpdate })
+        }
 
-        {stock.paperConfig?.restrictedShares === true && COMPONENT_REGISTRY.restrictedShares && (
-          <COMPONENT_REGISTRY.restrictedShares.component
-            stock={stock}
-            onUpdate={onUpdate}
-          />
-        )}
+        {stock.paperConfig?.restrictedShares === true && COMPONENT_REGISTRY.restrictedShares && 
+          React.createElement(COMPONENT_REGISTRY.restrictedShares.component, { stock, onUpdate })
+        }
       </div>
 
       {/* News Section */}
-      {stock.paperConfig?.news === true && COMPONENT_REGISTRY.news && (
-        <COMPONENT_REGISTRY.news.component
-          stock={stock}
-          onUpdate={onUpdate}
-        />
-      )}
+      {stock.paperConfig?.news === true && COMPONENT_REGISTRY.news && 
+        React.createElement(COMPONENT_REGISTRY.news.component, { stock, onUpdate })
+      }
 
       {/* Bonus Criteria Section */}
-      {stock.paperConfig?.bonusChecks === true && COMPONENT_REGISTRY.bonusChecks && (
-        <COMPONENT_REGISTRY.bonusChecks.component
-          stock={stock}
-          onUpdate={onUpdate}
-        />
-      )}
+      {stock.paperConfig?.bonusChecks === true && COMPONENT_REGISTRY.bonusChecks && 
+        React.createElement(COMPONENT_REGISTRY.bonusChecks.component, { stock, onUpdate })
+      }
 
       {/* Notes Section */}
-      {stock.paperConfig?.notes === true && COMPONENT_REGISTRY.notes && (
-        <COMPONENT_REGISTRY.notes.component
-          stock={stock}
-          onUpdate={onUpdate}
-        />
-      )}
+      {stock.paperConfig?.notes === true && COMPONENT_REGISTRY.notes && 
+        React.createElement(COMPONENT_REGISTRY.notes.component, { stock, onUpdate })
+      }
 
       {/* Lock Position Checkbox */}
       {onToggleLock && (

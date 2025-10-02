@@ -90,19 +90,7 @@ function MainApp() {
       setStocks([initialStock]);
       localStorage.setItem('has-initialized', 'true');
     }
-  }, []);
-
-  // Create initial default stock if none exist
-  useEffect(() => {
-    if (stocks.length === 0 && !localStorage.getItem('has-initialized')) {
-      const initialStock = {
-        ...createDefaultStock(currentPreset, 0),
-        gridPosition: { x: 0, y: 0 }
-      };
-      setStocks([initialStock]);
-      localStorage.setItem('has-initialized', 'true');
-    }
-  }, []);
+  }, [currentPreset, setStocks, stocks.length]);
 
   // Listen for localStorage changes to update settings in real-time
   useEffect(() => {
@@ -152,31 +140,8 @@ function MainApp() {
     return () => document.removeEventListener('click', handleDocumentClick, true);
   }, [clickedStockId]);
 
-  const addStock = (gridPosition = null) => {
-    // If no position provided, find optimal position using smart placement
-    if (!gridPosition) {
-      gridPosition = findOptimalPlacement();
-    }
-    
-    const newStock = {
-      ...createDefaultStock(currentPreset, 0),
-      gridPosition
-    };
-    
-    setStocks(prev => [...prev, newStock]);
-    
-    // Auto-focus ticker input after creation
-    setTimeout(() => {
-      const tickerInputs = document.querySelectorAll('.ticker-input');
-      if (tickerInputs.length > 0) {
-        tickerInputs[tickerInputs.length - 1].focus();
-        tickerInputs[tickerInputs.length - 1].select();
-      }
-    }, 100);
-  };
-
   // Smart placement algorithm with priority: right > left > top > bottom > corners
-  const findOptimalPlacement = () => {
+  const findOptimalPlacement = useCallback(() => {
     if (stocks.length === 0) {
       return { x: 0, y: 0 };
     }
@@ -246,7 +211,32 @@ function MainApp() {
     }
 
     return { x: 0, y: 0 };
-  };
+  }, [stocks]);
+
+  const addStock = useCallback((gridPosition = null) => {
+    // If no position provided, find optimal position using smart placement
+    if (!gridPosition) {
+      gridPosition = findOptimalPlacement();
+    }
+    
+    const newStock = {
+      ...createDefaultStock(currentPreset, 0),
+      gridPosition
+    };
+    
+    setStocks(prev => [...prev, newStock]);
+    
+    // Auto-focus ticker input after creation
+    setTimeout(() => {
+      const tickerInputs = document.querySelectorAll('.ticker-input');
+      if (tickerInputs.length > 0) {
+        tickerInputs[tickerInputs.length - 1].focus();
+        tickerInputs[tickerInputs.length - 1].select();
+      }
+    }, 100);
+  }, [currentPreset, findOptimalPlacement, setStocks]);
+
+
 
   const handleStockMove = (stockId, newGridPosition) => {
     setStocks(prev => prev.map(s => 
@@ -256,7 +246,53 @@ function MainApp() {
 
 
 
-  const updateAllStocks = async () => {
+  const reorderByScore = useCallback(() => {
+    setStocks(prev => {
+      const sorted = [...prev].sort((a, b) => calculateScore(b) - calculateScore(a));
+      
+      // Get current zoom and cell dimensions from GridCanvas
+      const zoom = gridCanvasRef.current?.getZoom() || 1;
+      const cellDimensions = gridCanvasRef.current?.getCellDimensions();
+      
+      if (!cellDimensions) {
+        console.warn('Cell dimensions not available for sorting');
+        return prev;
+      }
+      
+      // Calculate stocks per row based on viewport width and zoom
+      const viewportWidth = window.innerWidth;
+      const cellGap = 20;
+      const scaledCellWidth = (cellDimensions.width + cellGap) * zoom;
+      const stocksPerRow = Math.max(1, Math.floor(viewportWidth / scaledCellWidth));
+      
+      // Preserve locked stocks in their grid positions
+      const lockedStocks = prev.filter(s => s.locked);
+      const unlockedSorted = sorted.filter(s => !s.locked);
+      
+      // Arrange unlocked stocks in grid pattern (left-to-right, top-to-bottom)
+      const arrangedStocks = unlockedSorted.map((stock, idx) => {
+        const row = Math.floor(idx / stocksPerRow);
+        const col = idx % stocksPerRow;
+        return {
+          ...stock,
+          gridPosition: { x: col, y: row }
+        };
+      });
+      
+      // Move viewport to show top-left (position 0,0)
+      if (gridCanvasRef.current?.setGridOffset) {
+        // Center the top-left stock in view
+        const offsetX = 50; // Small offset from left edge
+        const offsetY = 50; // Small offset from top edge
+        gridCanvasRef.current.setGridOffset({ x: offsetX, y: offsetY });
+      }
+      
+      // Combine locked and arranged stocks
+      return [...lockedStocks, ...arrangedStocks];
+    });
+  }, [setStocks, gridCanvasRef]);
+
+  const updateAllStocks = useCallback(async () => {
     console.log('updateAllStocks called, stocks:', stocks);
     if (!canMakeRequest()) {
       console.log('Cannot make request - rate limit');
@@ -288,7 +324,7 @@ function MainApp() {
       setIsUpdating(false);
       refreshCounters();
     }
-  };
+  }, [stocks, canMakeRequest, user, setIsUpdating, setStocks, reorderByScore, saveStocksToBackend, refreshCounters]);
 
   const updateAllStocksWithArray = async (stocksArray) => {
     if (!canMakeRequest()) {
@@ -473,51 +509,7 @@ function MainApp() {
     }
   };
 
-  const reorderByScore = () => {
-    setStocks(prev => {
-      const sorted = [...prev].sort((a, b) => calculateScore(b) - calculateScore(a));
-      
-      // Get current zoom and cell dimensions from GridCanvas
-      const zoom = gridCanvasRef.current?.getZoom() || 1;
-      const cellDimensions = gridCanvasRef.current?.getCellDimensions();
-      
-      if (!cellDimensions) {
-        console.warn('Cell dimensions not available for sorting');
-        return prev;
-      }
-      
-      // Calculate stocks per row based on viewport width and zoom
-      const viewportWidth = window.innerWidth;
-      const cellGap = 20;
-      const scaledCellWidth = (cellDimensions.width + cellGap) * zoom;
-      const stocksPerRow = Math.max(1, Math.floor(viewportWidth / scaledCellWidth));
-      
-      // Preserve locked stocks in their grid positions
-      const lockedStocks = prev.filter(s => s.locked);
-      const unlockedSorted = sorted.filter(s => !s.locked);
-      
-      // Arrange unlocked stocks in grid pattern (left-to-right, top-to-bottom)
-      const arrangedStocks = unlockedSorted.map((stock, idx) => {
-        const row = Math.floor(idx / stocksPerRow);
-        const col = idx % stocksPerRow;
-        return {
-          ...stock,
-          gridPosition: { x: col, y: row }
-        };
-      });
-      
-      // Move viewport to show top-left (position 0,0)
-      if (gridCanvasRef.current?.setGridOffset) {
-        // Center the top-left stock in view
-        const offsetX = 50; // Small offset from left edge
-        const offsetY = 50; // Small offset from top edge
-        gridCanvasRef.current.setGridOffset({ x: offsetX, y: offsetY });
-      }
-      
-      // Combine locked and arranged stocks
-      return [...lockedStocks, ...arrangedStocks];
-    });
-  };
+
 
   const toggleLock = useCallback((stockId) => {
     setStocks(prev => {
@@ -643,6 +635,8 @@ function MainApp() {
           case 'ArrowRight':
             newPos.x += 1;
             break;
+          default:
+            return; // No-op for other keys
         }
         
         // Check if new position is empty
@@ -670,7 +664,7 @@ function MainApp() {
     };
     window.addEventListener('keydown', handler);
     return () => window.removeEventListener('keydown', handler);
-  }, [selectedStock, stocks, counters, clickedStockId]);
+  }, [selectedStock, stocks, counters, clickedStockId, addStock, removeStock, setStocks, undo, updateAllStocks]);
 
   // Auto-update effect
   useEffect(() => {
@@ -722,7 +716,7 @@ function MainApp() {
       clearInterval(updateInterval);
       clearInterval(timerInterval);
     };
-  }, [autoUpdateEnabled, autoUpdateInterval, stocks.length, counters.daily]);
+  }, [autoUpdateEnabled, autoUpdateInterval, stocks.length, counters.daily, canMakeRequest, updateAllStocks]);
 
   // Format time remaining
   const formatTimeRemaining = (seconds) => {
@@ -755,7 +749,7 @@ function MainApp() {
 
     document.addEventListener('click', handleClickOutside);
     return () => document.removeEventListener('click', handleClickOutside);
-  }, [selectedStock]);
+  }, [selectedStock, setSelectedStock]);
 
   return (
     <div className="app">

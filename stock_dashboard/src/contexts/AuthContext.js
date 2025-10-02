@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState, useEffect } from 'react';
+import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
 import apiClient from '../api/client';
 
 const AuthContext = createContext();
@@ -16,16 +16,7 @@ export function AuthProvider({ children }) {
   const [loading, setLoading] = useState(true);
   const [apiKey, setApiKey] = useState(localStorage.getItem('momentum_api_key'));
 
-  useEffect(() => {
-    if (apiKey) {
-      apiClient.setApiKey(apiKey);
-      loadUser();
-    } else {
-      setLoading(false);
-    }
-  }, [apiKey]);
-
-  const loadUser = async () => {
+  const loadUser = useCallback(async () => {
     try {
       const response = await apiClient.getUser();
       setUser(response.user);
@@ -36,7 +27,16 @@ export function AuthProvider({ children }) {
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
+
+  useEffect(() => {
+    if (apiKey) {
+      apiClient.setApiKey(apiKey);
+      loadUser();
+    } else {
+      setLoading(false);
+    }
+  }, [apiKey, loadUser]);
 
   const login = async (email, password) => {
     try {
