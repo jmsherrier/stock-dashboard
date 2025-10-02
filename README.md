@@ -183,6 +183,54 @@ npm run server:prod
 
 ## Architecture
 
+### Component Organization
+The application follows a hierarchical folder structure to organize components by type:
+
+```
+src/components/
+  modular/               # Core component system
+    ComponentRegistry.js # Single source of truth for all components
+    scoring/             # Components with scoring criteria
+      PriceComponent.js
+      PERatioComponent.js
+      DividendYieldComponent.js
+      ... (30 scoring components)
+    info/                # Information-only components (no scoring)
+      TickerComponent.js
+      CompanyNameComponent.js
+      CompanyDescriptionComponent.js
+      SectorComponent.js
+      NewsComponent.js
+      ... (9 info components)
+    technical/           # Technical indicators
+      MovingAverage50Component.js
+      MovingAverage200Component.js
+      Week52HighComponent.js
+      ChangeIndicator.js
+      ... (6 technical components)
+  
+  layout/                # Grid and paper layout components
+    GridCanvas.js        # Infinite grid canvas
+    GridCell.js          # Individual grid cells
+    ModularStockPaper.js # Modern modular stock paper
+    StockPaper.js        # Legacy stock paper
+    SortableStockPaper.js # Draggable wrapper
+  
+  modal/                 # Modal dialogs and editors
+    AboutModal.js
+    SettingsModal.js
+    ScoringEditor.js
+    NewsEditor.js
+    BonusEditor.js
+    CategoricalEditor.js
+  
+  inputs/                # Input components and controls
+    CriteriaInput.js
+    ScaleBar.js
+    PresetMenu.js
+    ApiKeyPrompt.js
+```
+
 ### Database Schema
 ```sql
 -- Users table

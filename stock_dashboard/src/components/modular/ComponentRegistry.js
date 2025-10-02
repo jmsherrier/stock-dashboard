@@ -1,40 +1,55 @@
 // Component registry for modular paper system
-import TickerComponent from './TickerComponent';
-import PriceComponent from './PriceComponent';
-import PercentRiseComponent from './PercentRiseComponent';
-import RelativeVolumeComponent from './RelativeVolumeComponent';
-import FloatComponent from './FloatComponent';
-import SharesOutstandingComponent from './SharesOutstandingComponent';
-import RestrictedSharesComponent from './RestrictedSharesComponent';
-import NewsComponent from './NewsComponent';
-import NotesComponent from './NotesComponent';
-import BonusChecksComponent from './BonusChecksComponent';
-import MarketCapComponent from './MarketCapComponent';
-import BetaComponent from './BetaComponent';
-import Week52HighComponent from './Week52HighComponent';
-import SectorComponent from './SectorComponent';
-import IndustryComponent from './IndustryComponent';
-import ProfitMarginComponent from './ProfitMarginComponent';
-import RevenueGrowthComponent from './RevenueGrowthComponent';
-import MovingAverage50Component from './MovingAverage50Component';
-import MovingAverage200Component from './MovingAverage200Component';
-import PERatioComponent from './PERatioComponent';
-import AnalystTargetComponent from './AnalystTargetComponent';
-import PEGRatioComponent from './PEGRatioComponent';
-import PriceToBookComponent from './PriceToBookComponent';
-import ROEComponent from './ROEComponent';
-import DividendYieldComponent from './DividendYieldComponent';
-import EPSComponent from './EPSComponent';
-import OperatingMarginComponent from './OperatingMarginComponent';
-import InstitutionalOwnershipComponent from './InstitutionalOwnershipComponent';
-import ForwardPEComponent from './ForwardPEComponent';
-import PriceToSalesComponent from './PriceToSalesComponent';
-import BookValueComponent from './BookValueComponent';
-import EBITDAComponent from './EBITDAComponent';
-import EarningsGrowthComponent from './EarningsGrowthComponent';
-import InsiderOwnershipComponent from './InsiderOwnershipComponent';
-import ROAComponent from './ROAComponent';
-import TrailingPEComponent from './TrailingPEComponent';
+
+// Info components
+import TickerComponent from './info/TickerComponent';
+import CompanyNameComponent from './info/CompanyNameComponent';
+import CompanyDescriptionComponent from './info/CompanyDescriptionComponent';
+import SectorComponent from './info/SectorComponent';
+import IndustryComponent from './info/IndustryComponent';
+import AssetTypeComponent from './info/AssetTypeComponent';
+import NewsComponent from './info/NewsComponent';
+import NotesComponent from './info/NotesComponent';
+import BonusChecksComponent from './info/BonusChecksComponent';
+
+// Scoring components
+import PriceComponent from './scoring/PriceComponent';
+import PercentRiseComponent from './scoring/PercentRiseComponent';
+import FloatComponent from './scoring/FloatComponent';
+import SharesOutstandingComponent from './scoring/SharesOutstandingComponent';
+import RestrictedSharesComponent from './scoring/RestrictedSharesComponent';
+import MarketCapComponent from './scoring/MarketCapComponent';
+import BetaComponent from './scoring/BetaComponent';
+import PERatioComponent from './scoring/PERatioComponent';
+import AnalystTargetComponent from './scoring/AnalystTargetComponent';
+import PEGRatioComponent from './scoring/PEGRatioComponent';
+import PriceToBookComponent from './scoring/PriceToBookComponent';
+import ROEComponent from './scoring/ROEComponent';
+import DividendYieldComponent from './scoring/DividendYieldComponent';
+import EPSComponent from './scoring/EPSComponent';
+import OperatingMarginComponent from './scoring/OperatingMarginComponent';
+import InstitutionalOwnershipComponent from './scoring/InstitutionalOwnershipComponent';
+import ForwardPEComponent from './scoring/ForwardPEComponent';
+import PriceToSalesComponent from './scoring/PriceToSalesComponent';
+import BookValueComponent from './scoring/BookValueComponent';
+import EBITDAComponent from './scoring/EBITDAComponent';
+import EarningsGrowthComponent from './scoring/EarningsGrowthComponent';
+import InsiderOwnershipComponent from './scoring/InsiderOwnershipComponent';
+import ROAComponent from './scoring/ROAComponent';
+import TrailingPEComponent from './scoring/TrailingPEComponent';
+import DividendPerShareComponent from './scoring/DividendPerShareComponent';
+import EVToRevenueComponent from './scoring/EVToRevenueComponent';
+import EVToEBITDAComponent from './scoring/EVToEBITDAComponent';
+import RevenuePerShareComponent from './scoring/RevenuePerShareComponent';
+import AnalystRatingsComponent from './scoring/AnalystRatingsComponent';
+import ProfitMarginComponent from './scoring/ProfitMarginComponent';
+import RevenueGrowthComponent from './scoring/RevenueGrowthComponent';
+
+// Technical components
+import RelativeVolumeComponent from './technical/RelativeVolumeComponent';
+import MovingAverage50Component from './technical/MovingAverage50Component';
+import MovingAverage200Component from './technical/MovingAverage200Component';
+import Week52HighComponent from './technical/Week52HighComponent';
+import Week52LowComponent from './technical/Week52LowComponent';
 
 export const COMPONENT_REGISTRY = {
   ticker: {
@@ -250,6 +265,27 @@ export const COMPONENT_REGISTRY = {
         { min: 95, max: 99, points: 2, color: 'green' },          // Very close
         { min: 99, max: 100, points: 2, color: 'green' },         // At high
         { min: 100, max: Infinity, points: 3, color: 'green' }    // New high!
+      ]
+    }
+  },
+  week52Low: {
+    id: 'week52Low',
+    name: '52-Week Low %',
+    description: 'Current price as % above 52-week low',
+    component: Week52LowComponent,
+    required: false,
+    category: 'Technical Indicators',
+    defaultSize: 'small',
+    scoring: true,
+    criteria: {
+      ranges: [
+        { min: 0, max: 10, points: -3, color: 'red' },            // At/near low
+        { min: 10, max: 25, points: -2, color: 'red' },           // Close to low
+        { min: 25, max: 50, points: -1, color: 'orange' },        // Below midpoint
+        { min: 50, max: 100, points: 0, color: 'orange' },        // Above midpoint
+        { min: 100, max: 200, points: 1, color: 'green' },        // Well above low
+        { min: 200, max: 500, points: 2, color: 'green' },        // Far above low
+        { min: 500, max: Infinity, points: 3, color: 'green' }    // Very high above low
       ]
     }
   },
@@ -602,6 +638,131 @@ export const COMPONENT_REGISTRY = {
       ]
     }
   },
+  dividendPerShare: {
+    id: 'dividendPerShare',
+    name: 'Dividend Per Share',
+    description: 'Annual dividend payment per share',
+    component: DividendPerShareComponent,
+    required: false,
+    category: 'Financial Metrics',
+    defaultSize: 'small',
+    scoring: true,
+    criteria: {
+      ranges: [
+        { min: 0, max: 0, points: -1, color: 'red' },            // No dividend
+        { min: 0.01, max: 1.00, points: 0, color: 'orange' },    // Low dividend
+        { min: 1.01, max: 2.00, points: 1, color: 'green' },     // Moderate dividend
+        { min: 2.01, max: 4.00, points: 2, color: 'green' },     // Good dividend
+        { min: 4.01, max: Infinity, points: 3, color: 'green' }  // High dividend
+      ]
+    }
+  },
+  evToRevenue: {
+    id: 'evToRevenue',
+    name: 'EV/Revenue',
+    description: 'Enterprise Value to Revenue ratio',
+    component: EVToRevenueComponent,
+    required: false,
+    category: 'Valuation Ratios',
+    defaultSize: 'small',
+    scoring: true,
+    criteria: {
+      ranges: [
+        { min: 0, max: 1, points: 3, color: 'green' },           // Very undervalued
+        { min: 1, max: 3, points: 2, color: 'green' },           // Undervalued
+        { min: 3, max: 6, points: 1, color: 'orange' },          // Fair value
+        { min: 6, max: 10, points: 0, color: 'orange' },         // Overvalued
+        { min: 10, max: Infinity, points: -2, color: 'red' }     // Very overvalued
+      ]
+    }
+  },
+  evToEbitda: {
+    id: 'evToEbitda',
+    name: 'EV/EBITDA',
+    description: 'Enterprise Value to EBITDA ratio',
+    component: EVToEBITDAComponent,
+    required: false,
+    category: 'Valuation Ratios',
+    defaultSize: 'small',
+    scoring: true,
+    criteria: {
+      ranges: [
+        { min: 0, max: 5, points: 3, color: 'green' },           // Very undervalued
+        { min: 5, max: 10, points: 2, color: 'green' },          // Undervalued
+        { min: 10, max: 15, points: 1, color: 'orange' },        // Fair value
+        { min: 15, max: 25, points: 0, color: 'orange' },        // Overvalued
+        { min: 25, max: Infinity, points: -2, color: 'red' }     // Very overvalued
+      ]
+    }
+  },
+  revenuePerShare: {
+    id: 'revenuePerShare',
+    name: 'Revenue Per Share',
+    description: 'Revenue per share TTM',
+    component: RevenuePerShareComponent,
+    required: false,
+    category: 'Financial Metrics',
+    defaultSize: 'small',
+    scoring: true,
+    criteria: {
+      ranges: [
+        { min: 0, max: 10, points: -1, color: 'red' },           // Low revenue/share
+        { min: 10, max: 25, points: 0, color: 'orange' },        // Below average
+        { min: 25, max: 50, points: 1, color: 'green' },         // Average
+        { min: 50, max: 100, points: 2, color: 'green' },        // Good
+        { min: 100, max: Infinity, points: 3, color: 'green' }   // Excellent
+      ]
+    }
+  },
+  analystRatings: {
+    id: 'analystRatings',
+    name: 'Analyst Ratings',
+    description: 'Analyst buy/sell recommendations',
+    component: AnalystRatingsComponent,
+    required: false,
+    category: 'Market Sentiment',
+    defaultSize: 'large',
+    scoring: true,
+    criteria: {
+      ranges: [
+        { min: -2, max: -1.5, points: -3, color: 'red' },        // Strong sell consensus
+        { min: -1.5, max: -0.5, points: -2, color: 'red' },      // Sell consensus
+        { min: -0.5, max: 0.5, points: 0, color: 'orange' },     // Hold consensus
+        { min: 0.5, max: 1.5, points: 2, color: 'green' },       // Buy consensus
+        { min: 1.5, max: 2, points: 3, color: 'green' }          // Strong buy consensus
+      ]
+    }
+  },
+  assetType: {
+    id: 'assetType',
+    name: 'Asset Type',
+    description: 'Type of security (Common Stock, ETF, etc.)',
+    component: AssetTypeComponent,
+    required: false,
+    category: 'Company Info',
+    defaultSize: 'small',
+    scoring: false
+  },
+  companyName: {
+    id: 'companyName',
+    name: 'Company Name',
+    description: 'Full legal company name',
+    component: CompanyNameComponent,
+    required: false,
+    category: 'Company Info',
+    defaultSize: 'medium',
+    scoring: false
+  },
+  companyDescription: {
+    id: 'companyDescription',
+    name: 'Company Description',
+    description: 'Business description and overview',
+    component: CompanyDescriptionComponent,
+    required: false,
+    category: 'Company Info',
+    defaultSize: 'large',
+    scoring: false
+  },
   priceToSales: {
     id: 'priceToSales',
     name: 'Price-to-Sales',
@@ -775,6 +936,7 @@ export const DEFAULT_COMPONENT_ORDER = [
   'marketCap',
   'beta',
   'week52High',
+  'week52Low',
   'movingAverage50',
   'movingAverage200',
   'institutionalOwnership',
@@ -787,6 +949,11 @@ export const DEFAULT_COMPONENT_ORDER = [
   'pegRatio',
   'forwardPE',
   'trailingPE',
+  'dividendPerShare',
+  'evToRevenue',
+  'evToEbitda',
+  'revenuePerShare',
+  'analystRatings',
   'priceToBook',
   'priceToSales',
   'bookValue',
@@ -796,6 +963,9 @@ export const DEFAULT_COMPONENT_ORDER = [
   'eps',
   'ebitda',
   'analystTarget',
+  'assetType',
+  'companyName',
+  'companyDescription',
   'sharesOutstanding',
   'restrictedShares',
   'news',
@@ -862,6 +1032,7 @@ export const STRATEGY_PRESETS = {
       ticker: true,
       price: true,
       week52High: true,
+      week52Low: true,
       movingAverage50: true,
       movingAverage200: true,
       beta: true,

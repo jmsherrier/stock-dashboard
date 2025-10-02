@@ -134,6 +134,18 @@ router.get('/quote/:ticker', authenticateAPIKey, async (req, res) => {
     let insiderOwnership = null;
     let roa = null;
     let trailingPE = null;
+    let dividendPerShare = null;
+    let evToRevenue = null;
+    let evToEbitda = null;
+    let revenuePerShare = null;
+    let analystRatingStrongBuy = null;
+    let analystRatingBuy = null;
+    let analystRatingHold = null;
+    let analystRatingSell = null;
+    let analystRatingStrongSell = null;
+    let assetType = null;
+    let companyName = null;
+    let companyDescription = null;
     
     if (overviewData && !overviewData['Error Message']) {
       sharesOutstanding = overviewData['SharesOutstanding'] || null;
@@ -165,6 +177,18 @@ router.get('/quote/:ticker', authenticateAPIKey, async (req, res) => {
       insiderOwnership = overviewData['PercentInsiders'] || null;
       roa = overviewData['ReturnOnAssetsTTM'] || null;
       trailingPE = overviewData['TrailingPE'] || null;
+      dividendPerShare = overviewData['DividendPerShare'] || null;
+      evToRevenue = overviewData['EVToRevenue'] || null;
+      evToEbitda = overviewData['EVToEBITDA'] || null;
+      revenuePerShare = overviewData['RevenuePerShareTTM'] || null;
+      analystRatingStrongBuy = overviewData['AnalystRatingStrongBuy'] || null;
+      analystRatingBuy = overviewData['AnalystRatingBuy'] || null;
+      analystRatingHold = overviewData['AnalystRatingHold'] || null;
+      analystRatingSell = overviewData['AnalystRatingSell'] || null;
+      analystRatingStrongSell = overviewData['AnalystRatingStrongSell'] || null;
+      assetType = overviewData['AssetType'] || null;
+      companyName = overviewData['Name'] || null;
+      companyDescription = overviewData['Description'] || null;
     }
 
     // If no valid data, return demo data
@@ -211,6 +235,18 @@ router.get('/quote/:ticker', authenticateAPIKey, async (req, res) => {
     if (insiderOwnership) response.insiderOwnership = insiderOwnership;
     if (roa) response.roa = roa;
     if (trailingPE) response.trailingPE = trailingPE;
+    if (dividendPerShare) response.dividendPerShare = dividendPerShare;
+    if (evToRevenue) response.evToRevenue = evToRevenue;
+    if (evToEbitda) response.evToEbitda = evToEbitda;
+    if (revenuePerShare) response.revenuePerShare = revenuePerShare;
+    if (analystRatingStrongBuy) response.analystRatingStrongBuy = analystRatingStrongBuy;
+    if (analystRatingBuy) response.analystRatingBuy = analystRatingBuy;
+    if (analystRatingHold) response.analystRatingHold = analystRatingHold;
+    if (analystRatingSell) response.analystRatingSell = analystRatingSell;
+    if (analystRatingStrongSell) response.analystRatingStrongSell = analystRatingStrongSell;
+    if (assetType) response.assetType = assetType;
+    if (companyName) response.companyName = companyName;
+    if (companyDescription) response.companyDescription = companyDescription;
 
     res.json(response);
     

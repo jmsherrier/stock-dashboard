@@ -2,11 +2,11 @@ import React, { useEffect, useState, useCallback } from 'react';
 import './App.css';
 
 import { AuthProvider, useAuth } from './contexts/AuthContext';
-import ApiKeyPrompt from './components/ApiKeyPrompt';
-import PresetMenu from './components/PresetMenu';
-import SettingsModal from './components/SettingsModal';
-import AboutModal from './components/AboutModal';
-import GridCanvas from './components/GridCanvas';
+import ApiKeyPrompt from './components/inputs/ApiKeyPrompt';
+import PresetMenu from './components/inputs/PresetMenu';
+import SettingsModal from './components/modal/SettingsModal';
+import AboutModal from './components/modal/AboutModal';
+import GridCanvas from './components/layout/GridCanvas';
 
 import { useStocks } from './hooks/useStocks';
 import { useApiCounters } from './hooks/useApiCounters';

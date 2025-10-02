@@ -120,7 +120,19 @@ export class StockService {
       ebitda: 'ebitda',
       earningsGrowth: 'earningsGrowth',
       insiderOwnership: 'insiderOwnership',
-      roa: 'roa'
+      roa: 'roa',
+      dividendPerShare: 'dividendPerShare',
+      evToRevenue: 'evToRevenue',
+      evToEbitda: 'evToEbitda',
+      revenuePerShare: 'revenuePerShare',
+      analystRatingStrongBuy: 'analystRatingStrongBuy',
+      analystRatingBuy: 'analystRatingBuy',
+      analystRatingHold: 'analystRatingHold',
+      analystRatingSell: 'analystRatingSell',
+      analystRatingStrongSell: 'analystRatingStrongSell',
+      assetType: 'assetType',
+      companyName: 'companyName',
+      companyDescription: 'companyDescription'
     };
     
     Object.entries(fieldMappings).forEach(([apiField, componentId]) => {
