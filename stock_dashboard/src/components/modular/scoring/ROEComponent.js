@@ -1,6 +1,7 @@
 import React from 'react';
 import { calculateComponentScore, getComponentScoreColor } from '../ComponentRegistry';
 import ChangeIndicator from '../technical/ChangeIndicator';
+import CriteriaInput from '../../inputs/CriteriaInput';
 
 function ROEComponent({ stock, onUpdate, config, onOpenScoringEditor }) {
   const getValue = () => stock.components?.roe?.value || stock.roe || '';
@@ -15,6 +16,31 @@ function ROEComponent({ stock, onUpdate, config, onOpenScoringEditor }) {
   // Convert decimal to percentage for display
   const displayValue = value ? (parseFloat(value) * 100).toFixed(2) : '';
   const displayPreviousValue = previousValue ? (parseFloat(previousValue) * 100).toFixed(2) : '';
+
+  // Check if we're in criteria grid mode
+  const isCriteriaMode = config && config.criteriaMode === true;
+
+  if (isCriteriaMode) {
+    return (
+      <CriteriaInput
+        label="ROE"
+        value={displayValue}
+        onChange={(val) => onUpdate(stock.id, 'roe', { value: parseFloat(val) / 100 })}
+        type="number"
+        step="0.1"
+        suffix="%"
+        currentPoints={score}
+        scale={[
+          { range: '<0', points: -3 },
+          { range: '0-5', points: -2 },
+          { range: '5-10', points: -1 },
+          { range: '10-15', points: 1 },
+          { range: '15-20', points: 2 },
+          { range: '>20', points: 3 }
+        ]}
+      />
+    );
+  }
 
   return (
     <div className="modular-component roe-component">

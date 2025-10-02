@@ -1,5 +1,6 @@
 import React from 'react';
 import { calculateComponentScore, getComponentScoreColor } from '../ComponentRegistry';
+import CriteriaInput from '../../inputs/CriteriaInput';
 
 function ROAComponent({ stock, onUpdate, config, onOpenScoringEditor }) {
   const getValue = () => stock.components?.roa?.value || stock.roa || '';
@@ -11,6 +12,30 @@ function ROAComponent({ stock, onUpdate, config, onOpenScoringEditor }) {
 
   // Convert decimal to percentage for display
   const displayValue = value ? (parseFloat(value) * 100).toFixed(2) : '';
+
+  const isCriteriaMode = config && config.criteriaMode === true;
+
+  if (isCriteriaMode) {
+    return (
+      <CriteriaInput
+        label="ROA"
+        value={displayValue}
+        onChange={(val) => onUpdate(stock.id, 'roa', { value: parseFloat(val) / 100 })}
+        type="number"
+        step="0.1"
+        suffix="%"
+        currentPoints={score}
+        scale={[
+          { range: '<0', points: -3 },
+          { range: '0-2', points: -2 },
+          { range: '2-5', points: -1 },
+          { range: '5-8', points: 1 },
+          { range: '8-12', points: 2 },
+          { range: '>12', points: 3 }
+        ]}
+      />
+    );
+  }
 
   return (
     <div className="modular-component roa-component">

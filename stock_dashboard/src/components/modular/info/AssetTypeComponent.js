@@ -1,47 +1,30 @@
 import React from 'react';
-import CriteriaInput from '../../inputs/CriteriaInput';
-import ChangeIndicator from '../technical/ChangeIndicator';
 
-const AssetTypeComponent = ({ stock, onUpdate, config }) => {
+function AssetTypeComponent({ stock, onUpdate, config }) {
+  // Get value from modular format
   const value = stock.components?.assetType?.value || '';
-  const previousValue = stock.components?.assetType?.previousValue;
-
-  // Check if we're being used in criteria grid mode
-  const isCriteriaMode = !config || config.criteriaMode !== false;
-
-  if (isCriteriaMode) {
-    return (
-      <CriteriaInput
-        label="Asset Type"
-        value={value}
-        onChange={(val) => onUpdate(stock.id, 'assetType', { value: val })}
-        type="text"
-        currentPoints={0} // No scoring for informational field
-        readOnly={true}
-      />
-    );
-  }
+  
+  // Get points for this asset type if configured (categorical scoring)
+  const points = config?.criteria?.categories?.[value] || 0;
+  const showPoints = points !== 0;
 
   return (
-    <div className="modular-component asset-type-component">
-      <div className="component-header">
-        <label>Asset Type</label>
+    <div className="criteria-input categorical-criteria">
+      <div className="criteria-header">
+        <label>
+          Asset Type
+          {showPoints && (
+            <span className={`component-points ${points > 0 ? 'positive' : 'negative'}`}>
+              {points > 0 ? '+' : ''}{points} pts
+            </span>
+          )}
+        </label>
       </div>
-      <div className="component-content">
-        <div className="input-wrapper">
-          <input
-            type="text"
-            value={value}
-            onChange={(e) => onUpdate(stock.id, 'assetType', { value: e.target.value })}
-            placeholder="Common Stock"
-            readOnly={true}
-            title="Asset type from Alpha Vantage"
-          />
-          <ChangeIndicator currentValue={value} previousValue={previousValue} />
-        </div>
+      <div className="component-value">
+        {value || 'N/A'}
       </div>
     </div>
   );
-};
+}
 
 export default AssetTypeComponent;

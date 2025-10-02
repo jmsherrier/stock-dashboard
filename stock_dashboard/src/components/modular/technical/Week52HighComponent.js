@@ -1,9 +1,13 @@
 import React from 'react';
-import { getComponentScoreColor } from '../ComponentRegistry';
+import { calculateComponentScore, getComponentScoreColor } from '../ComponentRegistry';
+import CriteriaInput from '../../inputs/CriteriaInput';
 
-function Week52HighComponent({ value, onChange, config, stock }) {
+function Week52HighComponent({ stock, onUpdate, config }) {
+  const getValue = () => stock.components?.week52High?.value || stock.week52High || '';
+  const value = getValue();
+
   // Calculate % of 52-week high
-  const currentPrice = stock?.components?.price?.value;
+  const currentPrice = stock?.components?.price?.value || stock?.price;
   const week52High = value;
   
   let percentOfHigh = 0;
@@ -11,7 +15,32 @@ function Week52HighComponent({ value, onChange, config, stock }) {
     percentOfHigh = (parseFloat(currentPrice) / parseFloat(week52High)) * 100;
   }
   
-  const scoreColor = getComponentScoreColor('week52High', percentOfHigh);
+  const score = percentOfHigh ? calculateComponentScore('week52High', percentOfHigh) : 0;
+  const scoreColor = percentOfHigh ? getComponentScoreColor('week52High', percentOfHigh) : 'neutral';
+
+  const isCriteriaMode = config && config.criteriaMode === true;
+
+  if (isCriteriaMode) {
+    return (
+      <CriteriaInput
+        label="52-Wk High"
+        value={value}
+        onChange={(val) => onUpdate(stock.id, 'week52High', { value: val })}
+        type="number"
+        step="0.01"
+        suffix="$"
+        currentPoints={score}
+        scale={[
+          { range: '<70%', points: -2 },
+          { range: '70-80%', points: -1 },
+          { range: '80-90%', points: 0 },
+          { range: '90-95%', points: 1 },
+          { range: '95-100%', points: 2 },
+          { range: '100%+', points: 3 }
+        ]}
+      />
+    );
+  }
   
   const displayValue = week52High && !isNaN(parseFloat(week52High))
     ? `$${parseFloat(week52High).toFixed(2)}`

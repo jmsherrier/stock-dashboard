@@ -1,5 +1,6 @@
 import React from 'react';
 import { calculateComponentScore, getComponentScoreColor } from '../ComponentRegistry';
+import CriteriaInput from '../../inputs/CriteriaInput';
 
 function InstitutionalOwnershipComponent({ stock, onUpdate, config, onOpenScoringEditor }) {
   const getValue = () => stock.components?.institutionalOwnership?.value || stock.institutionalOwnership || '';
@@ -11,6 +12,29 @@ function InstitutionalOwnershipComponent({ stock, onUpdate, config, onOpenScorin
 
   // Convert decimal to percentage for display
   const displayValue = value ? (parseFloat(value) * 100).toFixed(2) : '';
+
+  const isCriteriaMode = config && config.criteriaMode === true;
+
+  if (isCriteriaMode) {
+    return (
+      <CriteriaInput
+        label="Institutional %"
+        value={displayValue}
+        onChange={(val) => onUpdate(stock.id, 'institutionalOwnership', { value: parseFloat(val) / 100 })}
+        type="number"
+        step="1"
+        suffix="%"
+        currentPoints={score}
+        scale={[
+          { range: '0-20', points: -1 },
+          { range: '20-40', points: 0 },
+          { range: '40-60', points: 1 },
+          { range: '60-80', points: 2 },
+          { range: '>80', points: 1 }
+        ]}
+      />
+    );
+  }
 
   return (
     <div className="modular-component institutional-ownership-component">

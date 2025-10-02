@@ -1,20 +1,28 @@
 import React from 'react';
-import { getComponentScoreColor } from '../ComponentRegistry';
+import CriteriaInput from '../../inputs/CriteriaInput';
+import { calculateComponentScore } from '../ComponentRegistry';
 
-function BetaComponent({ value, onChange, config }) {
-  const scoreColor = getComponentScoreColor('beta', value);
-  
-  const displayValue = value && !isNaN(parseFloat(value)) 
-    ? parseFloat(value).toFixed(2) 
-    : 'N/A';
+function BetaComponent({ stock, onUpdate, config }) {
+  const value = stock.components?.beta?.value || '';
+  const score = calculateComponentScore('beta', value);
 
   return (
-    <div className={`component-wrapper beta-component score-${scoreColor}`}>
-      <label className="component-label">Beta</label>
-      <div className="component-value">
-        {displayValue}
-      </div>
-    </div>
+    <CriteriaInput
+      label="Beta"
+      value={value}
+      onChange={(val) => onUpdate(stock.id, 'beta', { value: val })}
+      type="number"
+      step="0.01"
+      currentPoints={score}
+      scale={[
+        { range: '<0.5', points: -3 },
+        { range: '0.5-1.0', points: -1 },
+        { range: '1.0-1.5', points: 1 },
+        { range: '1.5-2.5', points: 2 },
+        { range: '2.5-4.0', points: 3 },
+        { range: '>4.0', points: 1 }
+      ]}
+    />
   );
 }
 

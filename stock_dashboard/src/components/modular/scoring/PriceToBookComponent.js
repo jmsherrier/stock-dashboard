@@ -1,5 +1,6 @@
 import React from 'react';
 import { calculateComponentScore, getComponentScoreColor } from '../ComponentRegistry';
+import CriteriaInput from '../../inputs/CriteriaInput';
 
 function PriceToBookComponent({ stock, onUpdate, config, onOpenScoringEditor }) {
   const getValue = () => stock.components?.priceToBook?.value || stock.priceToBook || '';
@@ -8,6 +9,28 @@ function PriceToBookComponent({ stock, onUpdate, config, onOpenScoringEditor }) 
   const criteria = stock.components?.priceToBook?.criteria;
   const score = value ? calculateComponentScore('priceToBook', value, criteria) : 0;
   const scoreColor = value ? getComponentScoreColor('priceToBook', value, criteria) : 'neutral';
+
+  const isCriteriaMode = config && config.criteriaMode === true;
+
+  if (isCriteriaMode) {
+    return (
+      <CriteriaInput
+        label="Price-to-Book"
+        value={value}
+        onChange={(val) => onUpdate(stock.id, 'priceToBook', { value: val })}
+        type="number"
+        step="0.1"
+        currentPoints={score}
+        scale={[
+          { range: '<1', points: 3 },
+          { range: '1-2', points: 2 },
+          { range: '2-3', points: 1 },
+          { range: '3-5', points: -1 },
+          { range: '>5', points: -2 }
+        ]}
+      />
+    );
+  }
 
   return (
     <div className="modular-component price-to-book-component">

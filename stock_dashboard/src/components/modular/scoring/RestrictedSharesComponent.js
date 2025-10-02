@@ -1,5 +1,6 @@
 import React from 'react';
 import { calculateComponentScore, getComponentScoreColor } from '../ComponentRegistry';
+import CriteriaInput from '../../inputs/CriteriaInput';
 
 function RestrictedSharesComponent({ stock, onUpdate, config, onOpenScoringEditor }) {
   // Get value from modular or legacy format
@@ -9,6 +10,35 @@ function RestrictedSharesComponent({ stock, onUpdate, config, onOpenScoringEdito
   const criteria = stock.components?.restrictedShares?.criteria;
   const score = value ? calculateComponentScore('restrictedShares', value, criteria) : 0;
   const scoreColor = value ? getComponentScoreColor('restrictedShares', value, criteria) : 'neutral';
+
+  const formatShares = (val) => {
+    if (!val) return '';
+    const num = parseFloat(val);
+    if (num >= 1e6) return (num / 1e6).toFixed(2);
+    return num.toFixed(0);
+  };
+
+  const isCriteriaMode = config && config.criteriaMode === true;
+
+  if (isCriteriaMode) {
+    return (
+      <CriteriaInput
+        label="Restricted"
+        value={formatShares(value)}
+        onChange={(val) => onUpdate(stock.id, 'restrictedShares', { value: parseFloat(val) * 1e6 })}
+        type="number"
+        step="0.1"
+        suffix="M"
+        currentPoints={score}
+        scale={[
+          { range: '<1M', points: 3 },
+          { range: '1-5M', points: 2 },
+          { range: '5-20M', points: 1 },
+          { range: '>20M', points: 0 }
+        ]}
+      />
+    );
+  }
 
   return (
     <div className="modular-component restricted-shares-component">

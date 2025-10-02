@@ -749,9 +749,22 @@ export const COMPONENT_REGISTRY = {
     description: 'Type of security (Common Stock, ETF, etc.)',
     component: AssetTypeComponent,
     required: false,
-    category: 'Company Info',
+    category: 'Classification',
     defaultSize: 'small',
-    scoring: false
+    scoring: 'categorical',
+    categories: [
+      'Common Stock',
+      'Preferred Stock',
+      'ETF',
+      'REIT',
+      'ADR',
+      'Mutual Fund',
+      'Index',
+      'Other'
+    ],
+    criteria: {
+      categories: {}
+    }
   },
   companyName: {
     id: 'companyName',

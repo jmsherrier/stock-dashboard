@@ -1,5 +1,6 @@
 import React from 'react';
 import { calculateComponentScore, getComponentScoreColor } from '../ComponentRegistry';
+import CriteriaInput from '../../inputs/CriteriaInput';
 
 function PriceToSalesComponent({ stock, onUpdate, config, onOpenScoringEditor }) {
   const getValue = () => stock.components?.priceToSales?.value || stock.priceToSales || '';
@@ -8,6 +9,28 @@ function PriceToSalesComponent({ stock, onUpdate, config, onOpenScoringEditor })
   const criteria = stock.components?.priceToSales?.criteria;
   const score = value ? calculateComponentScore('priceToSales', value, criteria) : 0;
   const scoreColor = value ? getComponentScoreColor('priceToSales', value, criteria) : 'neutral';
+
+  const isCriteriaMode = config && config.criteriaMode === true;
+
+  if (isCriteriaMode) {
+    return (
+      <CriteriaInput
+        label="Price-to-Sales"
+        value={value}
+        onChange={(val) => onUpdate(stock.id, 'priceToSales', { value: val })}
+        type="number"
+        step="0.1"
+        currentPoints={score}
+        scale={[
+          { range: '<1', points: 3 },
+          { range: '1-2', points: 2 },
+          { range: '2-4', points: 1 },
+          { range: '4-7', points: -1 },
+          { range: '>7', points: -2 }
+        ]}
+      />
+    );
+  }
 
   return (
     <div className="modular-component price-to-sales-component">

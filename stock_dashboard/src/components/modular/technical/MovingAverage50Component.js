@@ -1,9 +1,13 @@
 import React from 'react';
-import { getComponentScoreColor } from '../ComponentRegistry';
+import { calculateComponentScore, getComponentScoreColor } from '../ComponentRegistry';
+import CriteriaInput from '../../inputs/CriteriaInput';
 
-function MovingAverage50Component({ value, onChange, config, stock }) {
+function MovingAverage50Component({ stock, onUpdate, config }) {
+  const getValue = () => stock.components?.movingAverage50?.value || stock.movingAverage50 || '';
+  const value = getValue();
+
   // Calculate % above/below MA
-  const currentPrice = stock?.components?.price?.value;
+  const currentPrice = stock?.components?.price?.value || stock?.price;
   const ma50 = value;
   
   let percentDiff = 0;
@@ -11,7 +15,33 @@ function MovingAverage50Component({ value, onChange, config, stock }) {
     percentDiff = ((parseFloat(currentPrice) - parseFloat(ma50)) / parseFloat(ma50)) * 100;
   }
   
-  const scoreColor = getComponentScoreColor('movingAverage50', percentDiff);
+  const score = percentDiff ? calculateComponentScore('movingAverage50', percentDiff) : 0;
+  const scoreColor = percentDiff ? getComponentScoreColor('movingAverage50', percentDiff) : 'neutral';
+
+  const isCriteriaMode = config && config.criteriaMode === true;
+
+  if (isCriteriaMode) {
+    return (
+      <CriteriaInput
+        label="50-Day MA"
+        value={value}
+        onChange={(val) => onUpdate(stock.id, 'movingAverage50', { value: val })}
+        type="number"
+        step="0.01"
+        suffix="$"
+        currentPoints={score}
+        scale={[
+          { range: '<-10%', points: -3 },
+          { range: '-10 to -5%', points: -2 },
+          { range: '-5 to 0%', points: -1 },
+          { range: '0-2%', points: 0 },
+          { range: '2-5%', points: 1 },
+          { range: '5-10%', points: 2 },
+          { range: '>10%', points: 3 }
+        ]}
+      />
+    );
+  }
   
   const displayValue = ma50 && !isNaN(parseFloat(ma50))
     ? `$${parseFloat(ma50).toFixed(2)}`

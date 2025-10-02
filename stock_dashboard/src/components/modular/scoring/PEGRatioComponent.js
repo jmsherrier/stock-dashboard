@@ -1,6 +1,7 @@
 import React from 'react';
 import { calculateComponentScore, getComponentScoreColor } from '../ComponentRegistry';
 import ChangeIndicator from '../technical/ChangeIndicator';
+import CriteriaInput from '../../inputs/CriteriaInput';
 
 function PEGRatioComponent({ stock, onUpdate, config, onOpenScoringEditor }) {
   const getValue = () => stock.components?.pegRatio?.value || stock.pegRatio || '';
@@ -11,6 +12,28 @@ function PEGRatioComponent({ stock, onUpdate, config, onOpenScoringEditor }) {
   const criteria = stock.components?.pegRatio?.criteria;
   const score = value ? calculateComponentScore('pegRatio', value, criteria) : 0;
   const scoreColor = value ? getComponentScoreColor('pegRatio', value, criteria) : 'neutral';
+
+  const isCriteriaMode = config && config.criteriaMode === true;
+
+  if (isCriteriaMode) {
+    return (
+      <CriteriaInput
+        label="PEG Ratio"
+        value={value}
+        onChange={(val) => onUpdate(stock.id, 'pegRatio', { value: val })}
+        type="number"
+        step="0.1"
+        currentPoints={score}
+        scale={[
+          { range: '<1', points: 3 },
+          { range: '1-1.5', points: 2 },
+          { range: '1.5-2', points: 1 },
+          { range: '2-3', points: -1 },
+          { range: '>3', points: -2 }
+        ]}
+      />
+    );
+  }
 
   return (
     <div className="modular-component peg-ratio-component">

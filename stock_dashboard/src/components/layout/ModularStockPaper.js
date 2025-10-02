@@ -132,73 +132,27 @@ function ModularStockPaper({
       </div>
 
       <div className="criteria-grid">
-        {stock.paperConfig?.price === true && COMPONENT_REGISTRY.price && 
-          React.createElement(COMPONENT_REGISTRY.price.component, { stock, onUpdate })
-        }
-
-        {stock.paperConfig?.percentRise === true && COMPONENT_REGISTRY.percentRise && 
-          React.createElement(COMPONENT_REGISTRY.percentRise.component, { stock, onUpdate })
-        }
-
-        {stock.paperConfig?.relativeVolume === true && COMPONENT_REGISTRY.relativeVolume && 
-          React.createElement(COMPONENT_REGISTRY.relativeVolume.component, { stock, onUpdate })
-        }
-
-        {stock.paperConfig?.float === true && COMPONENT_REGISTRY.float && 
-          React.createElement(COMPONENT_REGISTRY.float.component, { stock, onUpdate })
-        }
-
-        {stock.paperConfig?.marketCap === true && COMPONENT_REGISTRY.marketCap && 
-          React.createElement(COMPONENT_REGISTRY.marketCap.component, { stock, onUpdate })
-        }
-
-        {stock.paperConfig?.beta === true && COMPONENT_REGISTRY.beta && 
-          React.createElement(COMPONENT_REGISTRY.beta.component, { stock, onUpdate })
-        }
-
-        {stock.paperConfig?.week52High === true && COMPONENT_REGISTRY.week52High && 
-          React.createElement(COMPONENT_REGISTRY.week52High.component, { stock, onUpdate })
-        }
-
-        {stock.paperConfig?.movingAverage50 === true && COMPONENT_REGISTRY.movingAverage50 && 
-          React.createElement(COMPONENT_REGISTRY.movingAverage50.component, { stock, onUpdate })
-        }
-
-        {stock.paperConfig?.movingAverage200 === true && COMPONENT_REGISTRY.movingAverage200 && 
-          React.createElement(COMPONENT_REGISTRY.movingAverage200.component, { stock, onUpdate })
-        }
-
-        {stock.paperConfig?.analystTarget === true && COMPONENT_REGISTRY.analystTarget && 
-          React.createElement(COMPONENT_REGISTRY.analystTarget.component, { stock, onUpdate })
-        }
-
-        {stock.paperConfig?.sector === true && COMPONENT_REGISTRY.sector && 
-          React.createElement(COMPONENT_REGISTRY.sector.component, { stock, onUpdate })
-        }
-
-        {stock.paperConfig?.industry === true && COMPONENT_REGISTRY.industry && 
-          React.createElement(COMPONENT_REGISTRY.industry.component, { stock, onUpdate })
-        }
-
-        {stock.paperConfig?.profitMargin === true && COMPONENT_REGISTRY.profitMargin && 
-          React.createElement(COMPONENT_REGISTRY.profitMargin.component, { stock, onUpdate })
-        }
-
-        {stock.paperConfig?.revenueGrowth === true && COMPONENT_REGISTRY.revenueGrowth && 
-          React.createElement(COMPONENT_REGISTRY.revenueGrowth.component, { stock, onUpdate })
-        }
-
-        {stock.paperConfig?.peRatio === true && COMPONENT_REGISTRY.peRatio && 
-          React.createElement(COMPONENT_REGISTRY.peRatio.component, { stock, onUpdate })
-        }
-
-        {stock.paperConfig?.sharesOutstanding === true && COMPONENT_REGISTRY.sharesOutstanding && 
-          React.createElement(COMPONENT_REGISTRY.sharesOutstanding.component, { stock, onUpdate })
-        }
-
-        {stock.paperConfig?.restrictedShares === true && COMPONENT_REGISTRY.restrictedShares && 
-          React.createElement(COMPONENT_REGISTRY.restrictedShares.component, { stock, onUpdate })
-        }
+        {/* Dynamically render all components enabled in paperConfig */}
+        {stock.paperConfig && Object.keys(stock.paperConfig).map(componentId => {
+          // Skip special components that have their own sections or are in header
+          if (['ticker', 'news', 'notes', 'bonusChecks'].includes(componentId)) {
+            return null;
+          }
+          
+          // Only render if enabled and exists in registry
+          if (stock.paperConfig[componentId] === true && COMPONENT_REGISTRY[componentId]) {
+            return (
+              <React.Fragment key={componentId}>
+                {React.createElement(COMPONENT_REGISTRY[componentId].component, { 
+                  stock, 
+                  onUpdate,
+                  config: { criteriaMode: true } // Enable criteria mode for all components
+                })}
+              </React.Fragment>
+            );
+          }
+          return null;
+        })}
       </div>
 
       {/* News Section */}
