@@ -1,16 +1,12 @@
 import React, { useEffect, useState, useCallback } from 'react';
 import './App.css';
-import { DndContext, closestCenter } from '@dnd-kit/core';
-import { SortableContext, verticalListSortingStrategy } from '@dnd-kit/sortable';
-import { useSortable } from '@dnd-kit/sortable';
-import { CSS } from '@dnd-kit/utilities';
 
 import { AuthProvider, useAuth } from './contexts/AuthContext';
 import ApiKeyPrompt from './components/ApiKeyPrompt';
 import PresetMenu from './components/PresetMenu';
 import SettingsModal from './components/SettingsModal';
 import AboutModal from './components/AboutModal';
-import SortableStockPaper from './components/SortableStockPaper';
+import GridCanvas from './components/GridCanvas';
 
 import { useStocks } from './hooks/useStocks';
 import { useApiCounters } from './hooks/useApiCounters';
@@ -21,39 +17,6 @@ import apiClient from './api/client';
 import { storage } from './services';
 import { APP_CONFIG } from './config';
 
-// Sortable wrapper for empty slots
-function SortableEmptySlot({ id, position, onAddStock }) {
-  const {
-    attributes,
-    listeners,
-    setNodeRef,
-    transform,
-    transition,
-    isDragging,
-    isOver
-  } = useSortable({ id });
-
-  const style = {
-    transform: CSS.Transform.toString(transform),
-    transition,
-    opacity: isDragging ? 0.5 : 1,
-  };
-
-  return (
-    <div
-      ref={setNodeRef}
-      style={style}
-      {...attributes}
-      {...listeners}
-      className={`empty-slot ${isOver ? 'drag-over' : ''}`}
-      onClick={() => onAddStock(position)}
-    >
-      <div className="empty-slot-content">
-        <span className="empty-slot-text">+ Add stock here</span>
-      </div>
-    </div>
-  );
-}
 
 function MainApp() {
   const { user } = useAuth();
@@ -69,52 +32,7 @@ function MainApp() {
     saveStocksToBackend
   } = useStocks();
 
-  // Handle drag end for reordering stocks
-  const handleDragEnd = (event) => {
-    const { active, over } = event;
-
-    if (!over || active.id === over.id) return;
-
-    setStocks((items) => {
-      // Check if dragging a stock
-      const activeStock = items.find(item => item.id === active.id);
-      if (!activeStock || activeStock.locked) return items;
-
-      const currentPosition = activeStock.position ?? 0;
-
-      // Check if dropping on another stock or empty slot
-      let targetPosition;
-      if (over.id.toString().startsWith('empty-')) {
-        // Dropping on empty slot
-        targetPosition = parseInt(over.id.toString().replace('empty-', ''));
-      } else {
-        // Dropping on another stock - swap positions
-        const overStock = items.find(item => item.id === over.id);
-        if (overStock) {
-          targetPosition = overStock.position ?? 0;
-          
-          // If dropping on another stock, swap their positions
-          return items.map(stock => {
-            if (stock.id === active.id) {
-              return { ...stock, position: targetPosition };
-            } else if (stock.id === over.id) {
-              return { ...stock, position: currentPosition };
-            }
-            return stock;
-          });
-        } else {
-          return items;
-        }
-      }
-
-      // Dropping on empty slot - just move there
-      return items.map(stock => 
-        stock.id === active.id 
-          ? { ...stock, position: targetPosition }
-          : stock
-      );
-    });
-  };  const { 
+  const { 
     counters, 
     isUpdating, 
     setIsUpdating, 
@@ -124,7 +42,15 @@ function MainApp() {
     refreshCounters 
   } = useApiCounters();
   
-  const [currentPreset, setCurrentPreset] = useState('momentum');
+  const [currentPreset, setCurrentPreset] = useState(() => {
+    return localStorage.getItem('current-preset') || 'momentum';
+  });
+  
+  // Save current preset to localStorage when it changes
+  useEffect(() => {
+    localStorage.setItem('current-preset', currentPreset);
+  }, [currentPreset]);
+  
   const [showPresetMenu, setShowPresetMenu] = useState(false);
   const [showSettingsMenu, setShowSettingsMenu] = useState(false);
   const [showSettingsModal, setShowSettingsModal] = useState(false);
@@ -132,6 +58,57 @@ function MainApp() {
   const [autoUpdateEnabled, setAutoUpdateEnabled] = useState(false);
   const [autoUpdateInterval, setAutoUpdateInterval] = useState(15); // seconds
   const [timeUntilLimitReached, setTimeUntilLimitReached] = useState(null);
+  const [isAddingMode, setIsAddingMode] = useState(false);
+
+  // Track clicked stock for delete functionality and arrow key movement
+  const [clickedStockId, setClickedStockId] = useState(null);
+
+  // Track last mouse position for context-aware 'A' key
+  const lastMousePosition = React.useRef({ x: 0, y: 0 });
+  const gridCanvasRef = React.useRef(null);
+
+  React.useEffect(() => {
+    const handleMouseMove = (e) => {
+      lastMousePosition.current = { x: e.clientX, y: e.clientY };
+    };
+    window.addEventListener('mousemove', handleMouseMove);
+    return () => window.removeEventListener('mousemove', handleMouseMove);
+  }, []);
+
+  // Grid settings from localStorage
+  const [gridSettings, setGridSettings] = useState({
+    zeroAligned: localStorage.getItem('zero-aligned') === 'true'
+  });
+
+  // Create initial default stock if none exist
+  useEffect(() => {
+    if (stocks.length === 0 && !localStorage.getItem('has-initialized')) {
+      const initialStock = {
+        ...createDefaultStock(currentPreset, 0),
+        gridPosition: { x: 0, y: 0 }
+      };
+      setStocks([initialStock]);
+      localStorage.setItem('has-initialized', 'true');
+    }
+  }, [currentPreset, setStocks, stocks.length]);
+
+  // Listen for localStorage changes to update settings in real-time
+  useEffect(() => {
+    const handleStorageChange = () => {
+      setGridSettings({
+        zeroAligned: localStorage.getItem('zero-aligned') === 'true'
+      });
+    };
+
+    window.addEventListener('storage', handleStorageChange);
+    // Also check on focus in case settings changed in same tab
+    const interval = setInterval(handleStorageChange, 500);
+    
+    return () => {
+      window.removeEventListener('storage', handleStorageChange);
+      clearInterval(interval);
+    };
+  }, []);
 
   // Close settings menu when clicking outside
   useEffect(() => {
@@ -145,38 +122,177 @@ function MainApp() {
     return () => document.removeEventListener('click', handleClickOutside);
   }, [showSettingsMenu]);
 
-  const addStock = () => {
-    // Find first empty position
-    const maxPosition = stocks.length > 0 
-      ? Math.max(...stocks.map(s => s.position ?? 0))
-      : -1;
-    
-    // Find first gap in positions
-    let firstEmptyPosition = null;
-    for (let i = 0; i <= maxPosition; i++) {
-      if (!stocks.some(s => (s.position ?? 0) === i)) {
-        firstEmptyPosition = i;
-        break;
+  // Clear clicked stock when clicking outside any stock paper
+  useEffect(() => {
+    const handleDocumentClick = (event) => {
+      // Check if click is outside any stock paper
+      if (!event.target.closest('.stock-paper') && !event.target.closest('.stock-wrapper')) {
+        // If a stock was clicked, this first click off clears it
+        if (clickedStockId) {
+          // Mark this event as a deselect click so GridCanvas doesn't create a stock
+          event._wasDeselectClick = true;
+          setClickedStockId(null);
+        }
+      }
+    };
+
+    document.addEventListener('click', handleDocumentClick, true); // Use capture phase
+    return () => document.removeEventListener('click', handleDocumentClick, true);
+  }, [clickedStockId]);
+
+  // Smart placement algorithm with priority: right > left > top > bottom > corners
+  const findOptimalPlacement = useCallback(() => {
+    if (stocks.length === 0) {
+      return { x: 0, y: 0 };
+    }
+
+    // Get all occupied positions
+    const occupied = new Set(stocks.map(s => {
+      const pos = s.gridPosition || { x: 0, y: 0 };
+      return `${pos.x},${pos.y}`;
+    }));
+
+    // Helper to check if position is occupied
+    const isOccupied = (x, y) => occupied.has(`${x},${y}`);
+
+    // Calculate center of mass of all stocks
+    const centerX = stocks.reduce((sum, s) => sum + (s.gridPosition?.x || 0), 0) / stocks.length;
+    const centerY = stocks.reduce((sum, s) => sum + (s.gridPosition?.y || 0), 0) / stocks.length;
+
+    // Priority offsets: right, left, top, bottom, then diagonals
+    const priorityOffsets = [
+      { dx: 1, dy: 0 },   // right
+      { dx: -1, dy: 0 },  // left
+      { dx: 0, dy: -1 },  // top
+      { dx: 0, dy: 1 },   // bottom
+      { dx: 1, dy: -1 },  // top-right
+      { dx: 1, dy: 1 },   // bottom-right
+      { dx: -1, dy: -1 }, // top-left
+      { dx: -1, dy: 1 }   // bottom-left
+    ];
+
+    // Search in expanding rings from center
+    for (let distance = 1; distance <= 50; distance++) {
+      // For each distance, try all positions at that Manhattan distance
+      for (let dx = -distance; dx <= distance; dx++) {
+        for (let dy = -distance; dy <= distance; dy++) {
+          if (Math.abs(dx) + Math.abs(dy) !== distance) continue;
+          
+          const x = Math.round(centerX) + dx;
+          const y = Math.round(centerY) + dy;
+          
+          if (!isOccupied(x, y)) {
+            // Check if this position has an adjacent stock (prefer connected placements)
+            let hasAdjacent = false;
+            for (const offset of priorityOffsets) {
+              if (isOccupied(x + offset.dx, y + offset.dy)) {
+                hasAdjacent = true;
+                break;
+              }
+            }
+            
+            if (hasAdjacent) {
+              return { x, y };
+            }
+          }
+        }
       }
     }
+
+    // Fallback: find any empty position near origin
+    for (let d = 0; d < 100; d++) {
+      for (const offset of priorityOffsets) {
+        const x = offset.dx * d;
+        const y = offset.dy * d;
+        if (!isOccupied(x, y)) {
+          return { x, y };
+        }
+      }
+    }
+
+    return { x: 0, y: 0 };
+  }, [stocks]);
+
+  const addStock = useCallback((gridPosition = null) => {
+    // If no position provided, find optimal position using smart placement
+    if (!gridPosition) {
+      gridPosition = findOptimalPlacement();
+    }
     
-    // If no gaps, add to end
-    const position = firstEmptyPosition !== null ? firstEmptyPosition : maxPosition + 1;
-    const newStock = createDefaultStock(currentPreset, position);
+    const newStock = {
+      ...createDefaultStock(currentPreset, 0),
+      gridPosition
+    };
+    
     setStocks(prev => [...prev, newStock]);
     
     // Auto-focus ticker input after creation
     setTimeout(() => {
-      const tickerInputs = document.querySelectorAll('.component-wrapper input');
+      const tickerInputs = document.querySelectorAll('.ticker-input');
       if (tickerInputs.length > 0) {
         tickerInputs[tickerInputs.length - 1].focus();
+        tickerInputs[tickerInputs.length - 1].select();
       }
     }, 100);
+  }, [currentPreset, findOptimalPlacement, setStocks]);
+
+
+
+  const handleStockMove = (stockId, newGridPosition) => {
+    setStocks(prev => prev.map(s => 
+      s.id === stockId ? { ...s, gridPosition: newGridPosition } : s
+    ));
   };
 
 
 
-  const updateAllStocks = async () => {
+  const reorderByScore = useCallback(() => {
+    setStocks(prev => {
+      const sorted = [...prev].sort((a, b) => calculateScore(b) - calculateScore(a));
+      
+      // Get current zoom and cell dimensions from GridCanvas
+      const zoom = gridCanvasRef.current?.getZoom() || 1;
+      const cellDimensions = gridCanvasRef.current?.getCellDimensions();
+      
+      if (!cellDimensions) {
+        console.warn('Cell dimensions not available for sorting');
+        return prev;
+      }
+      
+      // Calculate stocks per row based on viewport width and zoom
+      const viewportWidth = window.innerWidth;
+      const cellGap = 20;
+      const scaledCellWidth = (cellDimensions.width + cellGap) * zoom;
+      const stocksPerRow = Math.max(1, Math.floor(viewportWidth / scaledCellWidth));
+      
+      // Preserve locked stocks in their grid positions
+      const lockedStocks = prev.filter(s => s.locked);
+      const unlockedSorted = sorted.filter(s => !s.locked);
+      
+      // Arrange unlocked stocks in grid pattern (left-to-right, top-to-bottom)
+      const arrangedStocks = unlockedSorted.map((stock, idx) => {
+        const row = Math.floor(idx / stocksPerRow);
+        const col = idx % stocksPerRow;
+        return {
+          ...stock,
+          gridPosition: { x: col, y: row }
+        };
+      });
+      
+      // Move viewport to show top-left (position 0,0)
+      if (gridCanvasRef.current?.setGridOffset) {
+        // Center the top-left stock in view
+        const offsetX = 50; // Small offset from left edge
+        const offsetY = 50; // Small offset from top edge
+        gridCanvasRef.current.setGridOffset({ x: offsetX, y: offsetY });
+      }
+      
+      // Combine locked and arranged stocks
+      return [...lockedStocks, ...arrangedStocks];
+    });
+  }, [setStocks, gridCanvasRef]);
+
+  const updateAllStocks = useCallback(async () => {
     console.log('updateAllStocks called, stocks:', stocks);
     if (!canMakeRequest()) {
       console.log('Cannot make request - rate limit');
@@ -208,7 +324,7 @@ function MainApp() {
       setIsUpdating(false);
       refreshCounters();
     }
-  };
+  }, [stocks, canMakeRequest, user, setIsUpdating, setStocks, reorderByScore, saveStocksToBackend, refreshCounters]);
 
   const updateAllStocksWithArray = async (stocksArray) => {
     if (!canMakeRequest()) {
@@ -233,7 +349,7 @@ function MainApp() {
       setStocks(merged);
       
       // Auto-sort if enabled
-      const autoSort = localStorage.getItem('auto-sort-on-update') !== 'false';
+      const autoSort = localStorage.getItem('auto-sort-on-update') === 'true';
       if (autoSort) {
         setTimeout(() => reorderByScore(), 100);
       }
@@ -291,11 +407,11 @@ function MainApp() {
 
   const clearAllData = async () => {
     const confirmed = window.confirm(
-      'Are you sure you want to clear all data? This action cannot be undone.\\n\\n' +
-      'This will remove:\\n' +
-      '• All saved stocks and their data\\n' +
-      '• All custom settings and preferences\\n' +
-      '• All user authentication data'
+      'Are you sure you want to clear all data and reset to defaults? This action cannot be undone.\n\n' +
+      'This will remove:\n' +
+      '• All saved stocks and their data\n' +
+      '• All custom settings and preferences\n\n' +
+      'Your account login will be preserved.'
     );
     
     if (confirmed) {
@@ -304,10 +420,35 @@ function MainApp() {
         setStocks([]);
         setSelectedStock(null);
         
-        // Clear localStorage
-        localStorage.clear();
+        // Get all localStorage keys
+        const keysToRemove = [];
+        for (let i = 0; i < localStorage.length; i++) {
+          const key = localStorage.key(i);
+          // Don't remove auth-related keys
+          if (!key.startsWith('api-key') && 
+              !key.startsWith('user-id') && 
+              !key.startsWith('user-email') && 
+              !key.startsWith('user-created-at') && 
+              !key.startsWith('user-dev-access')) {
+            keysToRemove.push(key);
+          }
+        }
         
-        // Clear backend data if authenticated
+        // Remove non-auth keys
+        keysToRemove.forEach(key => localStorage.removeItem(key));
+        
+        // Reset to default settings
+        localStorage.setItem('app-theme', 'dark');
+        localStorage.setItem('auto-save', 'true');
+        localStorage.setItem('show-scores', 'true');
+        localStorage.setItem('auto-update-on-preset', 'true');
+        localStorage.setItem('auto-sort-on-update', 'false');
+        localStorage.setItem('zero-aligned', 'false');
+        localStorage.setItem('api-timeout', '10000');
+        localStorage.setItem('refresh-interval', '300000');
+        localStorage.setItem('grid-zoom', '1');
+        
+        // Clear backend stock data if authenticated
         if (user) {
           try {
             await apiClient.clearUserData();
@@ -320,7 +461,7 @@ function MainApp() {
         setShowSettingsMenu(false);
         
         // Show success message
-        alert('All data has been cleared successfully.');
+        alert('All data has been cleared and settings reset to defaults. Your account login has been preserved.');
         
         // Reload the page to reset the application state
         window.location.reload();
@@ -331,49 +472,44 @@ function MainApp() {
     }
   };
 
-  const reorderByScore = () => {
-    setStocks(prev => {
-      const sorted = [...prev].sort((a, b) => calculateScore(b) - calculateScore(a));
-      
-      // Preserve locked stocks in their original positions
-      const lockedPositions = new Map();
-      prev.forEach((stock, idx) => {
-        if (stock.locked) {
-          lockedPositions.set(stock.id, stock.position ?? idx);
-        }
-      });
-      
-      if (lockedPositions.size === 0) {
-        // No locked stocks, just reassign positions sequentially
-        return sorted.map((stock, idx) => ({ ...stock, position: idx }));
-      }
-      
-      // Remove locked stocks from sorted array
-      const unlockedSorted = sorted.filter(s => !s.locked);
-      
-      // Create final array with locked stocks in original positions
-      const finalArray = [];
-      let unlockedIdx = 0;
-      
-      // Get max position to iterate through all slots
-      const maxPos = Math.max(...prev.map(s => s.position ?? 0));
-      
-      for (let i = 0; i <= maxPos; i++) {
-        const lockedStock = prev.find(s => s.locked && (s.position ?? 0) === i);
-        if (lockedStock) {
-          finalArray.push({ ...lockedStock, position: i });
-        } else {
-          // Fill with next unlocked sorted stock
-          if (unlockedIdx < unlockedSorted.length) {
-            finalArray.push({ ...unlockedSorted[unlockedIdx], position: i });
-            unlockedIdx++;
+  const clearStocks = async () => {
+    const confirmed = window.confirm(
+      'Are you sure you want to clear all stocks?\n\n' +
+      'This will remove all stocks and reset zoom to 1x.'
+    );
+    
+    if (confirmed) {
+      try {
+        // Clear local state
+        setStocks([]);
+        setSelectedStock(null);
+        setClickedStockId(null);
+        
+        // Reset zoom to 1x
+        localStorage.setItem('grid-zoom', '1');
+        
+        // Clear backend stock data if authenticated
+        if (user) {
+          try {
+            await apiClient.clearUserData();
+          } catch (error) {
+            console.warn('Failed to clear backend data:', error);
           }
         }
+        
+        // Close settings menu
+        setShowSettingsMenu(false);
+        
+        // Reload to apply zoom reset
+        window.location.reload();
+      } catch (error) {
+        console.error('Error clearing stocks:', error);
+        alert('There was an error clearing stocks. Please try again.');
       }
-      
-      return finalArray;
-    });
+    }
   };
+
+
 
   const toggleLock = useCallback((stockId) => {
     setStocks(prev => {
@@ -426,13 +562,109 @@ function MainApp() {
       
       if (isEditingText) return;
       
-      if (e.key === 'a' || e.key === 'A') addStock();
-      if (e.key === 'u' || e.key === 'U') updateAllStocks();
-      if (e.key === 'Delete' && selectedStock) removeStock(selectedStock);
+      // A - Add stock (context-aware)
+      if (e.key === 'a' || e.key === 'A') {
+        e.preventDefault();
+        // Context-aware: try to add at cursor position
+        if (gridCanvasRef.current) {
+          const cellPos = gridCanvasRef.current.getCellFromMouse(
+            lastMousePosition.current.x,
+            lastMousePosition.current.y
+          );
+          if (cellPos) {
+            // Check if this cell is occupied
+            const isOccupied = stocks.some(s => {
+              const pos = s.gridPosition || { x: 0, y: 0 };
+              return pos.x === cellPos.x && pos.y === cellPos.y;
+            });
+            if (!isOccupied) {
+              addStock(cellPos);
+            } else {
+              // Cell occupied, use smart placement from this position
+              addStock();
+            }
+          } else {
+            // No cell detected (outside grid), use smart placement
+            addStock();
+          }
+        } else {
+          addStock();
+        }
+      }
+      
+      // Escape - Cancel adding mode
+      if (e.key === 'Escape') {
+        setIsAddingMode(false);
+      }
+      
+      // U - Update all stocks
+      if (e.key === 'u' || e.key === 'U') {
+        e.preventDefault();
+        updateAllStocks();
+      }
+      
+      // Delete - Remove clicked stock only
+      const deleteKey = localStorage.getItem('keybind-delete-stock') || 'Delete';
+      if (e.key === deleteKey || (deleteKey.includes('+') && deleteKey.split('+').pop() === e.key && deleteKey.includes('Control') && e.ctrlKey)) {
+        e.preventDefault();
+        if (clickedStockId) {
+          removeStock(clickedStockId);
+          setClickedStockId(null);
+        }
+      }
+      
+      // Arrow keys - Move clicked stock to adjacent empty cell (not for locked stocks)
+      if (['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight'].includes(e.key) && clickedStockId) {
+        e.preventDefault();
+        const stock = stocks.find(s => s.id === clickedStockId);
+        if (!stock || stock.locked) return;
+        
+        const currentPos = stock.gridPosition || { x: 0, y: 0 };
+        let newPos = { ...currentPos };
+        
+        switch(e.key) {
+          case 'ArrowUp':
+            newPos.y -= 1;
+            break;
+          case 'ArrowDown':
+            newPos.y += 1;
+            break;
+          case 'ArrowLeft':
+            newPos.x -= 1;
+            break;
+          case 'ArrowRight':
+            newPos.x += 1;
+            break;
+          default:
+            return; // No-op for other keys
+        }
+        
+        // Check if new position is empty
+        const isOccupied = stocks.some(s => {
+          if (s.id === clickedStockId) return false; // Don't count the stock being moved
+          const pos = s.gridPosition || { x: 0, y: 0 };
+          return pos.x === newPos.x && pos.y === newPos.y;
+        });
+        
+        if (!isOccupied) {
+          // Move the stock - clickedStockId stays active for multiple moves
+          setStocks(prev => prev.map(s => 
+            s.id === clickedStockId 
+              ? { ...s, gridPosition: newPos }
+              : s
+          ));
+        }
+      }
+      
+      // Ctrl+Z - Undo
+      if (e.ctrlKey && e.key === 'z') {
+        e.preventDefault();
+        undo();
+      }
     };
     window.addEventListener('keydown', handler);
     return () => window.removeEventListener('keydown', handler);
-  }, [selectedStock, stocks, counters]);
+  }, [selectedStock, stocks, counters, clickedStockId, addStock, removeStock, setStocks, undo, updateAllStocks]);
 
   // Auto-update effect
   useEffect(() => {
@@ -484,7 +716,7 @@ function MainApp() {
       clearInterval(updateInterval);
       clearInterval(timerInterval);
     };
-  }, [autoUpdateEnabled, autoUpdateInterval, stocks.length, counters.daily]);
+  }, [autoUpdateEnabled, autoUpdateInterval, stocks.length, counters.daily, canMakeRequest, updateAllStocks]);
 
   // Format time remaining
   const formatTimeRemaining = (seconds) => {
@@ -517,7 +749,7 @@ function MainApp() {
 
     document.addEventListener('click', handleClickOutside);
     return () => document.removeEventListener('click', handleClickOutside);
-  }, [selectedStock]);
+  }, [selectedStock, setSelectedStock]);
 
   return (
     <div className="app">
@@ -544,9 +776,14 @@ function MainApp() {
                     Settings
                   </button>
                   <button onClick={() => {
+                    clearStocks();
+                  }}>
+                    Clear Stocks
+                  </button>
+                  <button onClick={() => {
                     clearAllData();
                   }}>
-                    Clear Data
+                    Clear All Data
                   </button>
                   <button onClick={() => {
                     setShowAboutModal(true);
@@ -581,9 +818,6 @@ function MainApp() {
             >
               Configure
             </button>
-            <button onClick={addStock} className="add-btn" title="Add new stock ticker (A)">
-              Add Paper
-            </button>
             <button 
               onClick={updateAllStocks} 
               disabled={!canMakeRequest()}
@@ -604,20 +838,35 @@ function MainApp() {
                 />
                 <span>Auto</span>
               </label>
-              <select
-                value={autoUpdateInterval}
-                onChange={(e) => setAutoUpdateInterval(Number(e.target.value))}
-                className="auto-update-interval"
-                disabled={!autoUpdateEnabled}
-              >
-                <option value={10}>10s</option>
-                <option value={15}>15s</option>
-                <option value={20}>20s</option>
-                <option value={30}>30s</option>
-                <option value={60}>1min</option>
-                <option value={120}>2min</option>
-                <option value={300}>5min</option>
-              </select>
+              <div className="auto-update-interval-input">
+                <input
+                  type="number"
+                  value={Math.round(60 / autoUpdateInterval * 10) / 10}
+                  onChange={(e) => {
+                    const updatesPerMin = parseFloat(e.target.value);
+                    if (updatesPerMin > 0 && updatesPerMin <= 60) {
+                      const seconds = Math.round(60 / updatesPerMin);
+                      setAutoUpdateInterval(Math.max(1, seconds));
+                    }
+                  }}
+                  onBlur={(e) => {
+                    // Ensure valid value on blur
+                    const updatesPerMin = parseFloat(e.target.value);
+                    if (!updatesPerMin || updatesPerMin <= 0) {
+                      setAutoUpdateInterval(15); // Reset to default (4 updates/min)
+                    }
+                  }}
+                  className="auto-update-interval"
+                  min="0.1"
+                  max="60"
+                  step="0.1"
+                  placeholder="4"
+                  title="Updates per minute"
+                  onClick={(e) => e.stopPropagation()}
+                  onPointerDown={(e) => e.stopPropagation()}
+                />
+                <span className="interval-unit">/min</span>
+              </div>
             </div>
             {autoUpdateEnabled && timeUntilLimitReached !== null && (
               <span className="auto-update-timer" title="Time until daily limit reached">
@@ -638,75 +887,27 @@ function MainApp() {
         </div>
       </header>
 
-      <DndContext collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
-        <div className="stocks-container">
-          {(() => {
-            // Find max position to render all slots
-            const maxPosition = stocks.length > 0
-              ? Math.max(...stocks.map(s => s.position ?? 0))
-              : -1;
-            
-            // Add extra empty slots beyond the last stock to allow dragging further
-            const extraSlots = 5; // Always show 5 extra empty slots
-            const renderUpTo = maxPosition + extraSlots;
-            
-            // Create array of all positions from 0 to renderUpTo
-            const positions = [];
-            const sortableIds = [];
-            for (let i = 0; i <= renderUpTo; i++) {
-              const stock = stocks.find(s => (s.position ?? 0) === i);
-              positions.push({ position: i, stock });
-              sortableIds.push(stock ? stock.id : `empty-${i}`);
-            }
-            
-            return (
-              <SortableContext items={sortableIds} strategy={verticalListSortingStrategy}>
-                {positions.map(({ position, stock }, index) => {
-                  if (stock) {
-                    // Render actual stock
-                    return (
-                      <SortableStockPaper
-                        key={stock.id}
-                        stock={stock}
-                        score={calculateScore(stock)}
-                        rank={index + 1}
-                        isSelected={selectedStock === stock.id}
-                        onSelect={() => setSelectedStock(stock.id)}
-                        onUpdate={updateStock}
-                        onRemove={removeStock}
-                        perStockUpdating={perStockUpdating}
-                        onUpdateSingle={updateSingle}
-                        canMakeRequest={canMakeRequest}
-                        onToggleLock={toggleLock}
-                        useModular={true}
-                      />
-                    );
-                  } else {
-                    // Render empty slot with sortable wrapper
-                    return (
-                      <SortableEmptySlot
-                        key={`empty-${position}`}
-                        id={`empty-${position}`}
-                        position={position}
-                        onAddStock={(pos) => {
-                          const newStock = createDefaultStock(currentPreset, pos);
-                          setStocks(prev => [...prev, newStock]);
-                        }}
-                      />
-                    );
-                  }
-                })}
-              </SortableContext>
-            );
-          })()}
-          {stocks.length === 0 && (
-            <div className="empty-state">
-              <h3>No stocks added yet</h3>
-              <p>Press 'A' or click 'Add Paper' to get started</p>
-            </div>
-          )}
-        </div>
-      </DndContext>
+      <GridCanvas
+        ref={gridCanvasRef}
+        stocks={stocks}
+        onStockMove={handleStockMove}
+        onStockUpdate={updateStock}
+        onStockRemove={removeStock}
+        onStockAdd={addStock}
+        selectedStock={selectedStock}
+        onStockSelect={setSelectedStock}
+        perStockUpdating={perStockUpdating}
+        onUpdateSingle={updateSingle}
+        canMakeRequest={canMakeRequest}
+        onToggleLock={toggleLock}
+        calculateScore={calculateScore}
+        isAddingMode={isAddingMode}
+        setIsAddingMode={setIsAddingMode}
+        settings={gridSettings}
+        currentPreset={currentPreset}
+        onClickStock={setClickedStockId}
+        clickedStockId={clickedStockId}
+      />
 
       <PresetMenu
         isOpen={showPresetMenu}
@@ -722,13 +923,18 @@ function MainApp() {
               paperConfig: { ...preset.paperConfig }
             }));
             
+            // Trigger a re-render event for GridCanvas to remeasure
+            setTimeout(() => {
+              window.dispatchEvent(new CustomEvent('preset-changed'));
+            }, 100);
+            
             // Check if auto-update is enabled in settings
             const autoUpdate = localStorage.getItem('auto-update-on-preset') !== 'false';
             if (autoUpdate) {
               // Use the updated stocks array for updating
               setTimeout(() => {
                 updateAllStocksWithArray(updated);
-              }, 100);
+              }, 200);
             }
             
             return updated;

@@ -38,12 +38,13 @@ describe('StockService', () => {
 
   describe('updateStockQuote', () => {
     it('should update stock quote successfully', async () => {
-      const mockQuoteData = {
-        price: 155.50,
-        change: 5.50,
-        changePercent: 3.67,
-        volume: 1000000
-      };
+      // Mock quote data for reference (currently unused)
+      // const mockQuoteData = {
+      //   price: 155.50,
+      //   change: 5.50,
+      //   changePercent: 3.67,
+      //   volume: 1000000
+      // };
 
       const updatedStock = {
         ...mockStock,

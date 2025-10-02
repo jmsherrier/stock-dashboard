@@ -1,10 +1,10 @@
 import { renderHook, act, waitFor } from '@testing-library/react';
 import React from 'react';
+import useStocks from './useStocks';
+import { StockService } from '../services/stockService';
 
 // Mock AuthContext
 const AuthContext = React.createContext();
-import useStocks from './useStocks';
-import { StockService } from '../services/stockService';
 
 // Mock the StockService
 jest.mock('../services/stockService');
