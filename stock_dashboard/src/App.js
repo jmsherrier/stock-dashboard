@@ -139,11 +139,9 @@ function MainApp() {
     const handleDocumentClick = (event) => {
       // Check if click is outside any stock paper
       if (!event.target.closest('.stock-paper') && !event.target.closest('.stock-wrapper')) {
-        // If a stock was clicked, this first click off clears it but doesn't add a new stock
+        // If a stock was clicked, this first click off clears it
         if (clickedStockId) {
           setClickedStockId(null);
-          // Prevent the canvas click handler from adding a stock
-          event.stopPropagation();
         }
       }
     };
