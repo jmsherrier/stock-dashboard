@@ -1,5 +1,6 @@
 import React from 'react';
 import { calculateComponentScore, getComponentScoreColor } from '../ComponentRegistry';
+import CriteriaInput from '../../inputs/CriteriaInput';
 
 function SharesOutstandingComponent({ stock, onUpdate, config, onOpenScoringEditor }) {
   // Get value from modular or legacy format
@@ -9,6 +10,35 @@ function SharesOutstandingComponent({ stock, onUpdate, config, onOpenScoringEdit
   const criteria = stock.components?.sharesOutstanding?.criteria;
   const score = value ? calculateComponentScore('sharesOutstanding', value, criteria) : 0;
   const scoreColor = value ? getComponentScoreColor('sharesOutstanding', value, criteria) : 'neutral';
+
+  const formatShares = (val) => {
+    if (!val) return '';
+    const num = parseFloat(val);
+    if (num >= 1e6) return (num / 1e6).toFixed(2);
+    return num.toFixed(0);
+  };
+
+  const isCriteriaMode = config && config.criteriaMode === true;
+
+  if (isCriteriaMode) {
+    return (
+      <CriteriaInput
+        label="Shares Out"
+        value={formatShares(value)}
+        onChange={(val) => onUpdate(stock.id, 'sharesOutstanding', { value: parseFloat(val) * 1e6 })}
+        type="number"
+        step="0.1"
+        suffix="M"
+        currentPoints={score}
+        scale={[
+          { range: '<10M', points: 3 },
+          { range: '10-50M', points: 2 },
+          { range: '50-200M', points: 1 },
+          { range: '>200M', points: 0 }
+        ]}
+      />
+    );
+  }
 
   return (
     <div className="modular-component shares-outstanding-component">

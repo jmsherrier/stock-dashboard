@@ -1,5 +1,6 @@
 import React from 'react';
 import { calculateComponentScore, getComponentScoreColor } from '../ComponentRegistry';
+import CriteriaInput from '../../inputs/CriteriaInput';
 
 function TrailingPEComponent({ stock, onUpdate, config, onOpenScoringEditor }) {
   const getValue = () => stock.components?.trailingPE?.value || stock.trailingPE || '';
@@ -8,6 +9,28 @@ function TrailingPEComponent({ stock, onUpdate, config, onOpenScoringEditor }) {
   const criteria = stock.components?.trailingPE?.criteria;
   const score = value ? calculateComponentScore('trailingPE', value, criteria) : 0;
   const scoreColor = value ? getComponentScoreColor('trailingPE', value, criteria) : 'neutral';
+
+  const isCriteriaMode = config && config.criteriaMode === true;
+
+  if (isCriteriaMode) {
+    return (
+      <CriteriaInput
+        label="Trailing P/E"
+        value={value}
+        onChange={(val) => onUpdate(stock.id, 'trailingPE', { value: val })}
+        type="number"
+        step="0.1"
+        currentPoints={score}
+        scale={[
+          { range: '<12', points: 3 },
+          { range: '12-18', points: 2 },
+          { range: '18-25', points: 1 },
+          { range: '25-35', points: -1 },
+          { range: '>35', points: -2 }
+        ]}
+      />
+    );
+  }
 
   return (
     <div className="modular-component trailing-pe-component">

@@ -1,17 +1,26 @@
 import React from 'react';
+import CriteriaInput from '../../inputs/CriteriaInput';
+import { calculateComponentScore } from '../ComponentRegistry';
 
-function PERatioComponent({ value, onChange, config }) {
-  const displayValue = value && !isNaN(parseFloat(value))
-    ? parseFloat(value).toFixed(2)
-    : 'N/A';
+function PERatioComponent({ stock, onUpdate, config }) {
+  const value = stock.components?.peRatio?.value || '';
+  const score = calculateComponentScore('peRatio', value);
 
   return (
-    <div className="component-wrapper pe-ratio-component">
-      <label className="component-label">P/E Ratio</label>
-      <div className="component-value">
-        {displayValue}
-      </div>
-    </div>
+    <CriteriaInput
+      label="P/E Ratio"
+      value={value}
+      onChange={(val) => onUpdate(stock.id, 'peRatio', { value: val })}
+      type="number"
+      step="0.1"
+      currentPoints={score}
+      scale={[
+        { range: '<0', points: 0 },
+        { range: '0-15', points: 1 },
+        { range: '15-30', points: 0 },
+        { range: '>30', points: -1 }
+      ]}
+    />
   );
 }
 

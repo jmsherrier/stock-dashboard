@@ -1,5 +1,6 @@
 import React from 'react';
 import { calculateComponentScore, getComponentScoreColor } from '../ComponentRegistry';
+import CriteriaInput from '../../inputs/CriteriaInput';
 
 function DividendYieldComponent({ stock, onUpdate, config, onOpenScoringEditor }) {
   const getValue = () => stock.components?.dividendYield?.value || stock.dividendYield || '';
@@ -11,6 +12,32 @@ function DividendYieldComponent({ stock, onUpdate, config, onOpenScoringEditor }
 
   // Convert decimal to percentage for display
   const displayValue = value ? (parseFloat(value) * 100).toFixed(2) : '';
+
+  // Check if we're in criteria grid mode
+  const isCriteriaMode = config && config.criteriaMode === true;
+
+  if (isCriteriaMode) {
+    return (
+      <CriteriaInput
+        label="Dividend Yield"
+        value={displayValue}
+        onChange={(val) => onUpdate(stock.id, 'dividendYield', { value: parseFloat(val) / 100 })}
+        type="number"
+        step="0.1"
+        suffix="%"
+        currentPoints={score}
+        scale={[
+          { range: '0-1', points: -1 },
+          { range: '1-2', points: 0 },
+          { range: '2-3', points: 1 },
+          { range: '3-5', points: 2 },
+          { range: '5-7', points: 3 },
+          { range: '7-10', points: 2 },
+          { range: '>10', points: 0 }
+        ]}
+      />
+    );
+  }
 
   return (
     <div className="modular-component dividend-yield-component">

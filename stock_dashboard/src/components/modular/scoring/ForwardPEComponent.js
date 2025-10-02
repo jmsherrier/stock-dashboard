@@ -1,5 +1,6 @@
 import React from 'react';
 import { calculateComponentScore, getComponentScoreColor } from '../ComponentRegistry';
+import CriteriaInput from '../../inputs/CriteriaInput';
 
 function ForwardPEComponent({ stock, onUpdate, config, onOpenScoringEditor }) {
   const getValue = () => stock.components?.forwardPE?.value || stock.forwardPE || '';
@@ -8,6 +9,28 @@ function ForwardPEComponent({ stock, onUpdate, config, onOpenScoringEditor }) {
   const criteria = stock.components?.forwardPE?.criteria;
   const score = value ? calculateComponentScore('forwardPE', value, criteria) : 0;
   const scoreColor = value ? getComponentScoreColor('forwardPE', value, criteria) : 'neutral';
+
+  const isCriteriaMode = config && config.criteriaMode === true;
+
+  if (isCriteriaMode) {
+    return (
+      <CriteriaInput
+        label="Forward P/E"
+        value={value}
+        onChange={(val) => onUpdate(stock.id, 'forwardPE', { value: val })}
+        type="number"
+        step="0.1"
+        currentPoints={score}
+        scale={[
+          { range: '<10', points: 3 },
+          { range: '10-15', points: 2 },
+          { range: '15-20', points: 1 },
+          { range: '20-30', points: -1 },
+          { range: '>30', points: -2 }
+        ]}
+      />
+    );
+  }
 
   return (
     <div className="modular-component forward-pe-component">

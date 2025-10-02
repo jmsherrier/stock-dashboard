@@ -1,5 +1,6 @@
 import React from 'react';
 import { calculateComponentScore, getComponentScoreColor } from '../ComponentRegistry';
+import CriteriaInput from '../../inputs/CriteriaInput';
 
 function EPSComponent({ stock, onUpdate, config, onOpenScoringEditor }) {
   const getValue = () => stock.components?.eps?.value || stock.eps || '';
@@ -8,6 +9,31 @@ function EPSComponent({ stock, onUpdate, config, onOpenScoringEditor }) {
   const criteria = stock.components?.eps?.criteria;
   const score = value ? calculateComponentScore('eps', value, criteria) : 0;
   const scoreColor = value ? getComponentScoreColor('eps', value, criteria) : 'neutral';
+
+  // Check if we're in criteria grid mode
+  const isCriteriaMode = config && config.criteriaMode === true;
+
+  if (isCriteriaMode) {
+    return (
+      <CriteriaInput
+        label="EPS"
+        value={value}
+        onChange={(val) => onUpdate(stock.id, 'eps', { value: val })}
+        type="number"
+        step="0.01"
+        suffix="$"
+        currentPoints={score}
+        scale={[
+          { range: '<-1', points: -3 },
+          { range: '-1-0', points: -1 },
+          { range: '0-0.5', points: 0 },
+          { range: '0.5-1.5', points: 1 },
+          { range: '1.5-3', points: 2 },
+          { range: '>3', points: 3 }
+        ]}
+      />
+    );
+  }
 
   return (
     <div className="modular-component eps-component">

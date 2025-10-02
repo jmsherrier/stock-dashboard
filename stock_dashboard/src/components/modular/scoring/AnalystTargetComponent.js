@@ -1,9 +1,13 @@
 import React from 'react';
-import { getComponentScoreColor } from '../ComponentRegistry';
+import { calculateComponentScore, getComponentScoreColor } from '../ComponentRegistry';
+import CriteriaInput from '../../inputs/CriteriaInput';
 
-function AnalystTargetComponent({ value, onChange, config, stock }) {
+function AnalystTargetComponent({ stock, onUpdate, config }) {
+  const getValue = () => stock.components?.analystTarget?.value || stock.analystTarget || '';
+  const value = getValue();
+
   // Calculate upside potential
-  const currentPrice = stock?.components?.price?.value;
+  const currentPrice = stock?.components?.price?.value || stock?.price;
   const targetPrice = value;
   
   let upsidePotential = 0;
@@ -11,7 +15,32 @@ function AnalystTargetComponent({ value, onChange, config, stock }) {
     upsidePotential = ((parseFloat(targetPrice) - parseFloat(currentPrice)) / parseFloat(currentPrice)) * 100;
   }
   
-  const scoreColor = getComponentScoreColor('analystTarget', upsidePotential);
+  const score = upsidePotential ? calculateComponentScore('analystTarget', upsidePotential) : 0;
+  const scoreColor = upsidePotential ? getComponentScoreColor('analystTarget', upsidePotential) : 'neutral';
+
+  const isCriteriaMode = config && config.criteriaMode === true;
+
+  if (isCriteriaMode) {
+    return (
+      <CriteriaInput
+        label="Analyst Target"
+        value={value}
+        onChange={(val) => onUpdate(stock.id, 'analystTarget', { value: val })}
+        type="number"
+        step="0.01"
+        suffix="$"
+        currentPoints={score}
+        scale={[
+          { range: '<90%', points: -2 },
+          { range: '90-100%', points: -1 },
+          { range: '100-110%', points: 0 },
+          { range: '110-125%', points: 1 },
+          { range: '125-150%', points: 2 },
+          { range: '>150%', points: 3 }
+        ]}
+      />
+    );
+  }
   
   const displayValue = targetPrice && !isNaN(parseFloat(targetPrice))
     ? `$${parseFloat(targetPrice).toFixed(2)}`

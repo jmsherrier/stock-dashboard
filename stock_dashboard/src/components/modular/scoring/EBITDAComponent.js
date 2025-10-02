@@ -1,5 +1,6 @@
 import React from 'react';
 import { calculateComponentScore, getComponentScoreColor } from '../ComponentRegistry';
+import CriteriaInput from '../../inputs/CriteriaInput';
 
 function EBITDAComponent({ stock, onUpdate, config, onOpenScoringEditor }) {
   const getValue = () => stock.components?.ebitda?.value || stock.ebitda || '';
@@ -17,6 +18,29 @@ function EBITDAComponent({ stock, onUpdate, config, onOpenScoringEditor }) {
     if (num >= 1e6) return (num / 1e6).toFixed(2) + 'M';
     return num.toFixed(0);
   };
+
+  const isCriteriaMode = config && config.criteriaMode === true;
+
+  if (isCriteriaMode) {
+    return (
+      <CriteriaInput
+        label="EBITDA"
+        value={formatEBITDA(value)}
+        onChange={(val) => onUpdate(stock.id, 'ebitda', { value: parseFloat(val) * 1e6 })}
+        type="number"
+        step="1"
+        suffix="M"
+        currentPoints={score}
+        scale={[
+          { range: '<0', points: -3 },
+          { range: '0-50M', points: -1 },
+          { range: '50-200M', points: 1 },
+          { range: '200M-1B', points: 2 },
+          { range: '>1B', points: 3 }
+        ]}
+      />
+    );
+  }
 
   return (
     <div className="modular-component ebitda-component">
