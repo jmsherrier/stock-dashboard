@@ -578,6 +578,7 @@ const GridCanvas = forwardRef(({
             <div 
               className="stock-drag-overlay"
               style={{
+                width: `${cellDimensions?.width}px`,
                 transform: `scale(${zoom})`,
                 transformOrigin: '0 0'
               }}

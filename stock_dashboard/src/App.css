@@ -163,7 +163,6 @@ body {
 
 .stock-drag-overlay .stock-paper {
   box-shadow: 0 8px 16px rgba(0, 0, 0, 0.3);
-  min-width: 420px;
 }
 
 /* Auto-update controls */
@@ -1541,7 +1540,7 @@ body {
   display: flex;
   align-items: center;
   gap: 0.5rem;
-  cursor: pointer;
+  cursor: default;
   user-select: none;
   font-size: 0.8rem;
   color: rgba(255, 255, 255, 0.5);
@@ -1554,6 +1553,11 @@ body {
   height: 16px;
   margin: 0;
   flex-shrink: 0;
+}
+
+.lock-checkbox-label span {
+  pointer-events: none;
+  cursor: default;
 }
 
 .lock-checkbox-label:hover {

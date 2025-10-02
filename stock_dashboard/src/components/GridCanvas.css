@@ -26,14 +26,6 @@
   transition: opacity 0.2s;
 }
 
-.grid-cell.empty {
-  pointer-events: none;
-}
-
-.grid-cell.occupied {
-  pointer-events: auto;
-}
-
 /* Cell outline for empty cells */
 .cell-outline {
   width: 100%;
@@ -120,10 +112,16 @@
 
 /* Cursor styles for different modes */
 .grid-cell.empty {
-  pointer-events: none;
+  pointer-events: auto;
+  z-index: 1;
 }
 
 /* Make sure stock papers don't interfere with grid dragging */
+.grid-cell.occupied {
+  pointer-events: auto;
+  z-index: 2;
+}
+
 .grid-cell.occupied .stock-paper {
   pointer-events: auto;
 }
