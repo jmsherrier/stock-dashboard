@@ -42,7 +42,15 @@ function MainApp() {
     refreshCounters 
   } = useApiCounters();
   
-  const [currentPreset, setCurrentPreset] = useState('momentum');
+  const [currentPreset, setCurrentPreset] = useState(() => {
+    return localStorage.getItem('current-preset') || 'momentum';
+  });
+  
+  // Save current preset to localStorage when it changes
+  useEffect(() => {
+    localStorage.setItem('current-preset', currentPreset);
+  }, [currentPreset]);
+  
   const [showPresetMenu, setShowPresetMenu] = useState(false);
   const [showSettingsMenu, setShowSettingsMenu] = useState(false);
   const [showSettingsModal, setShowSettingsModal] = useState(false);
@@ -287,7 +295,7 @@ function MainApp() {
       setStocks(merged);
       
       // Auto-sort if enabled
-      const autoSort = localStorage.getItem('auto-sort-on-update') !== 'false';
+      const autoSort = localStorage.getItem('auto-sort-on-update') === 'true';
       if (autoSort) {
         setTimeout(() => reorderByScore(), 100);
       }
