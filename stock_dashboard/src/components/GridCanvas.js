@@ -633,10 +633,10 @@ const GridCanvas = forwardRef(({
                 onUpdate={onStockUpdate}
                 onRemove={null}
                 perStockUpdating={perStockUpdating}
-                onUpdateSingle={null}
+                onUpdateSingle={onUpdateSingle}
                 canMakeRequest={canMakeRequest}
                 dragListeners={null}
-                onToggleLock={null}
+                onToggleLock={onToggleLock}
               />
             </div>
           ) : null}
