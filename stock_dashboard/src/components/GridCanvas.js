@@ -33,6 +33,7 @@ const GridCanvas = forwardRef(({
   const [hoveredCell, setHoveredCell] = useState(null);
   const [activeId, setActiveId] = useState(null);
   const [cellDimensions, setCellDimensions] = useState(null);
+  const [mousePosition, setMousePosition] = useState(null);
   const [zoom, setZoom] = useState(() => {
     const savedZoom = localStorage.getItem('grid-zoom');
     return savedZoom ? parseFloat(savedZoom) : 1;
@@ -276,6 +277,9 @@ const GridCanvas = forwardRef(({
   };
 
   const handleCanvasMouseMove = (e) => {
+    // Update mouse position for hover detection
+    setMousePosition({ x: e.clientX, y: e.clientY });
+    
     // Handle canvas drag first
     if (isDraggingCanvas) {
       let newX = e.clientX - dragStart.x;
@@ -295,6 +299,31 @@ const GridCanvas = forwardRef(({
       return;
     }
   };
+
+  // Update hovered cell based on mouse position
+  useEffect(() => {
+    if (!mousePosition || !cellDimensions || activeId) {
+      setHoveredCell(null);
+      return;
+    }
+
+    const cell = getCellFromMouse(mousePosition.x, mousePosition.y);
+    if (cell) {
+      // Check if this cell is occupied
+      const isOccupied = stocks.some(s => {
+        const pos = s.gridPosition || { x: 0, y: 0 };
+        return pos.x === cell.x && pos.y === cell.y;
+      });
+      
+      if (!isOccupied) {
+        setHoveredCell(cell);
+      } else {
+        setHoveredCell(null);
+      }
+    } else {
+      setHoveredCell(null);
+    }
+  }, [mousePosition, cellDimensions, stocks, activeId, getCellFromMouse]);
 
   // Handle cell hover - cells will call this directly
   const handleCellHover = (cell) => {
@@ -334,7 +363,11 @@ const GridCanvas = forwardRef(({
 
     if (isOccupied) return;
 
-    // Always add stock when clicking empty cell
+    // Don't add stock if we just clicked off a selected stock
+    // (clickedStockId gets cleared in capture phase, so it will be null here after first click)
+    // This check is redundant but kept for clarity
+    
+    // Always add stock when clicking empty cell (unless we're deselecting)
     onStockAdd(cell);
     setIsAddingMode(false);
     setHoveredCell(null);
@@ -354,11 +387,12 @@ const GridCanvas = forwardRef(({
     if (!activeStock) return;
 
     const currentPos = activeStock.gridPosition || { x: 0, y: 0 };
-    const cellWidth = (cellDimensions.width + cellGap) * zoom;
-    const cellHeight = (cellDimensions.height + cellGap) * zoom;
+    const cellWidth = cellDimensions.width + cellGap;
+    const cellHeight = cellDimensions.height + cellGap;
 
-    const deltaX = Math.round(delta.x / cellWidth);
-    const deltaY = Math.round(delta.y / cellHeight);
+    // Divide delta by zoom to compensate for scaled movement
+    const deltaX = Math.round((delta.x / zoom) / cellWidth);
+    const deltaY = Math.round((delta.y / zoom) / cellHeight);
 
     const newCell = {
       x: currentPos.x + deltaX,
@@ -385,11 +419,12 @@ const GridCanvas = forwardRef(({
     }
 
     const currentPos = stock.gridPosition || { x: 0, y: 0 };
-    const cellWidth = (cellDimensions.width + cellGap) * zoom;
-    const cellHeight = (cellDimensions.height + cellGap) * zoom;
+    const cellWidth = cellDimensions.width + cellGap;
+    const cellHeight = cellDimensions.height + cellGap;
 
-    const deltaX = Math.round(delta.x / cellWidth);
-    const deltaY = Math.round(delta.y / cellHeight);
+    // Divide delta by zoom to compensate for scaled movement
+    const deltaX = Math.round((delta.x / zoom) / cellWidth);
+    const deltaY = Math.round((delta.y / zoom) / cellHeight);
 
     const newPos = {
       x: currentPos.x + deltaX,
@@ -464,7 +499,7 @@ const GridCanvas = forwardRef(({
       }
     });
 
-    // Render empty cell being hovered/dragged over
+    // Render only the hovered empty cell
     if (hoveredCell) {
       const key = `${hoveredCell.x}-${hoveredCell.y}`;
       const isOccupied = stocks.some(s => {
