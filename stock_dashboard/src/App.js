@@ -69,7 +69,6 @@ function MainApp() {
 
   // Grid settings from localStorage
   const [gridSettings, setGridSettings] = useState({
-    clickEmptyToAdd: localStorage.getItem('click-empty-to-add') !== 'false',
     zeroAligned: localStorage.getItem('zero-aligned') === 'true'
   });
 
@@ -101,7 +100,6 @@ function MainApp() {
   useEffect(() => {
     const handleStorageChange = () => {
       setGridSettings({
-        clickEmptyToAdd: localStorage.getItem('click-empty-to-add') !== 'false',
         zeroAligned: localStorage.getItem('zero-aligned') === 'true'
       });
     };
@@ -347,11 +345,11 @@ function MainApp() {
 
   const clearAllData = async () => {
     const confirmed = window.confirm(
-      'Are you sure you want to clear all data? This action cannot be undone.\\n\\n' +
-      'This will remove:\\n' +
-      '• All saved stocks and their data\\n' +
-      '• All custom settings and preferences\\n' +
-      '• All user authentication data'
+      'Are you sure you want to clear all data and reset to defaults? This action cannot be undone.\n\n' +
+      'This will remove:\n' +
+      '• All saved stocks and their data\n' +
+      '• All custom settings and preferences\n\n' +
+      'Your account login will be preserved.'
     );
     
     if (confirmed) {
@@ -360,10 +358,34 @@ function MainApp() {
         setStocks([]);
         setSelectedStock(null);
         
-        // Clear localStorage
+        // Preserve authentication data
+        const apiKey = localStorage.getItem('api-key');
+        const userId = localStorage.getItem('user-id');
+        const userEmail = localStorage.getItem('user-email');
+        const userCreatedAt = localStorage.getItem('user-created-at');
+        const userDevAccess = localStorage.getItem('user-dev-access');
+        
+        // Clear all localStorage
         localStorage.clear();
         
-        // Clear backend data if authenticated
+        // Restore authentication data
+        if (apiKey) localStorage.setItem('api-key', apiKey);
+        if (userId) localStorage.setItem('user-id', userId);
+        if (userEmail) localStorage.setItem('user-email', userEmail);
+        if (userCreatedAt) localStorage.setItem('user-created-at', userCreatedAt);
+        if (userDevAccess) localStorage.setItem('user-dev-access', userDevAccess);
+        
+        // Reset to default settings
+        localStorage.setItem('app-theme', 'dark');
+        localStorage.setItem('auto-save', 'true');
+        localStorage.setItem('show-scores', 'true');
+        localStorage.setItem('auto-update-on-preset', 'true');
+        localStorage.setItem('auto-sort-on-update', 'false');
+        localStorage.setItem('zero-aligned', 'false');
+        localStorage.setItem('api-timeout', '10000');
+        localStorage.setItem('refresh-interval', '300000');
+        
+        // Clear backend stock data if authenticated
         if (user) {
           try {
             await apiClient.clearUserData();
@@ -376,7 +398,7 @@ function MainApp() {
         setShowSettingsMenu(false);
         
         // Show success message
-        alert('All data has been cleared successfully.');
+        alert('All data has been cleared and settings reset to defaults. Your account login has been preserved.');
         
         // Reload the page to reset the application state
         window.location.reload();
@@ -391,27 +413,26 @@ function MainApp() {
     setStocks(prev => {
       const sorted = [...prev].sort((a, b) => calculateScore(b) - calculateScore(a));
       
-      // Calculate stocks per row based on viewport and zoom
-      const getStocksPerRow = () => {
-        // Get viewport width
-        const viewportWidth = window.innerWidth;
-        
-        // Estimate stock paper width (420px min + some margin)
-        const estimatedStockWidth = 440;
-        
-        // Calculate how many fit per row (minimum 1)
-        const stocksPerRow = Math.max(1, Math.floor(viewportWidth / estimatedStockWidth));
-        
-        return stocksPerRow;
-      };
+      // Get current zoom and cell dimensions from GridCanvas
+      const zoom = gridCanvasRef.current?.getZoom() || 1;
+      const cellDimensions = gridCanvasRef.current?.getCellDimensions();
       
-      const stocksPerRow = getStocksPerRow();
+      if (!cellDimensions) {
+        console.warn('Cell dimensions not available for sorting');
+        return prev;
+      }
+      
+      // Calculate stocks per row based on viewport width and zoom
+      const viewportWidth = window.innerWidth;
+      const cellGap = 20;
+      const scaledCellWidth = (cellDimensions.width + cellGap) * zoom;
+      const stocksPerRow = Math.max(1, Math.floor(viewportWidth / scaledCellWidth));
       
       // Preserve locked stocks in their grid positions
       const lockedStocks = prev.filter(s => s.locked);
       const unlockedSorted = sorted.filter(s => !s.locked);
       
-      // Arrange unlocked stocks in grid pattern
+      // Arrange unlocked stocks in grid pattern (left-to-right, top-to-bottom)
       const arrangedStocks = unlockedSorted.map((stock, idx) => {
         const row = Math.floor(idx / stocksPerRow);
         const col = idx % stocksPerRow;
@@ -420,6 +441,14 @@ function MainApp() {
           gridPosition: { x: col, y: row }
         };
       });
+      
+      // Move viewport to show top-left (position 0,0)
+      if (gridCanvasRef.current?.setGridOffset) {
+        // Center the top-left stock in view
+        const offsetX = 50; // Small offset from left edge
+        const offsetY = 50; // Small offset from top edge
+        gridCanvasRef.current.setGridOffset({ x: offsetX, y: offsetY });
+      }
       
       // Combine locked and arranged stocks
       return [...lockedStocks, ...arrangedStocks];
@@ -480,35 +509,30 @@ function MainApp() {
       // A - Add stock (context-aware)
       if (e.key === 'a' || e.key === 'A') {
         e.preventDefault();
-        if (gridSettings.clickEmptyToAdd) {
-          // Context-aware: try to add at cursor position
-          if (gridCanvasRef.current) {
-            const cellPos = gridCanvasRef.current.getCellFromMouse(
-              lastMousePosition.current.x,
-              lastMousePosition.current.y
-            );
-            if (cellPos) {
-              // Check if this cell is occupied
-              const isOccupied = stocks.some(s => {
-                const pos = s.gridPosition || { x: 0, y: 0 };
-                return pos.x === cellPos.x && pos.y === cellPos.y;
-              });
-              if (!isOccupied) {
-                addStock(cellPos);
-              } else {
-                // Cell occupied, use smart placement from this position
-                addStock();
-              }
+        // Context-aware: try to add at cursor position
+        if (gridCanvasRef.current) {
+          const cellPos = gridCanvasRef.current.getCellFromMouse(
+            lastMousePosition.current.x,
+            lastMousePosition.current.y
+          );
+          if (cellPos) {
+            // Check if this cell is occupied
+            const isOccupied = stocks.some(s => {
+              const pos = s.gridPosition || { x: 0, y: 0 };
+              return pos.x === cellPos.x && pos.y === cellPos.y;
+            });
+            if (!isOccupied) {
+              addStock(cellPos);
             } else {
-              // No cell detected (outside grid), use smart placement
+              // Cell occupied, use smart placement from this position
               addStock();
             }
           } else {
+            // No cell detected (outside grid), use smart placement
             addStock();
           }
         } else {
-          // When clickEmptyToAdd is off, 'A' enters adding mode
-          setIsAddingMode(true);
+          addStock();
         }
       }
       
@@ -541,7 +565,7 @@ function MainApp() {
     };
     window.addEventListener('keydown', handler);
     return () => window.removeEventListener('keydown', handler);
-  }, [selectedStock, stocks, counters, gridSettings.clickEmptyToAdd, hoveredStockId]);
+  }, [selectedStock, stocks, counters, hoveredStockId]);
 
   // Auto-update effect
   useEffect(() => {
@@ -690,15 +714,6 @@ function MainApp() {
             >
               Configure
             </button>
-            {!gridSettings.clickEmptyToAdd && (
-              <button 
-                onClick={() => setIsAddingMode(true)} 
-                className={`add-btn ${isAddingMode ? 'active' : ''}`}
-                title="Click to enter placement mode (A)"
-              >
-                {isAddingMode ? 'Click Grid to Place' : 'Add Paper'}
-              </button>
-            )}
             <button 
               onClick={updateAllStocks} 
               disabled={!canMakeRequest()}

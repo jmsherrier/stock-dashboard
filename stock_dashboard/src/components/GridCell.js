@@ -19,7 +19,8 @@ function GridCell({
   canMakeRequest,
   onToggleLock,
   calculateScore,
-  onHoverStock
+  onHoverStock,
+  onHoverCell
 }) {
   const { attributes, listeners, setNodeRef, isDragging } = useDraggable({
     id: stock ? stock.id : `empty-${x}-${y}`,
@@ -43,6 +44,8 @@ function GridCell({
       ref={setNodeRef}
       className={`grid-cell ${stock ? 'occupied' : 'empty'} ${isHovered ? 'hovered' : ''} ${isDragOver ? 'drag-over' : ''}`}
       style={cellStyle}
+      onMouseEnter={() => !stock && onHoverCell && onHoverCell({ x, y })}
+      onMouseLeave={() => !stock && onHoverCell && onHoverCell(null)}
       {...attributes}
       {...listeners}
     >
