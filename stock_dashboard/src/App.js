@@ -139,13 +139,18 @@ function MainApp() {
     const handleDocumentClick = (event) => {
       // Check if click is outside any stock paper
       if (!event.target.closest('.stock-paper') && !event.target.closest('.stock-wrapper')) {
-        setClickedStockId(null);
+        // If a stock was clicked, this first click off clears it but doesn't add a new stock
+        if (clickedStockId) {
+          setClickedStockId(null);
+          // Prevent the canvas click handler from adding a stock
+          event.stopPropagation();
+        }
       }
     };
 
-    document.addEventListener('click', handleDocumentClick);
-    return () => document.removeEventListener('click', handleDocumentClick);
-  }, []);
+    document.addEventListener('click', handleDocumentClick, true); // Use capture phase
+    return () => document.removeEventListener('click', handleDocumentClick, true);
+  }, [clickedStockId]);
 
   const addStock = (gridPosition = null) => {
     // If no position provided, find optimal position using smart placement
@@ -610,7 +615,7 @@ function MainApp() {
         });
         
         if (!isOccupied) {
-          // Move the stock
+          // Move the stock - clickedStockId stays active for multiple moves
           setStocks(prev => prev.map(s => 
             s.id === clickedStockId 
               ? { ...s, gridPosition: newPos }
