@@ -186,11 +186,41 @@ function PresetMenu({ isOpen, onClose, onPresetApply, onUpdateStocks }) {
   };
 
   // Group components by category, with non-editable ones last in each group
+  // Order components within each category by importance
   const getGroupedComponents = () => {
     const grouped = {};
-    const categories = ['Price & Momentum', 'Volume & Float', 'Company Size', 'Technical Indicators', 'Fundamentals', 'Classification', 'analysis'];
     
-    categories.forEach(category => {
+    // Define category order and component importance order within each category
+    const categoryOrder = [
+      'Price & Momentum',
+      'Volume & Float', 
+      'Technical Indicators',
+      'Fundamentals',
+      'Valuation Ratios',
+      'Financial Metrics',
+      'Market Sentiment',
+      'Company Size',
+      'Classification',
+      'Company Info',
+      'analysis'
+    ];
+    
+    // Define component order within each category (most important first)
+    const componentImportanceOrder = {
+      'Price & Momentum': ['price', 'percentRise'],
+      'Volume & Float': ['relativeVolume', 'float'],
+      'Technical Indicators': ['week52High', 'movingAverage50', 'movingAverage200', 'week52Low', 'beta', 'institutionalOwnership'],
+      'Fundamentals': ['revenueGrowth', 'earningsGrowth', 'eps', 'profitMargin', 'operatingMargin', 'roe', 'roa', 'ebitda', 'peRatio', 'forwardPE', 'trailingPE', 'pegRatio', 'priceToBook', 'priceToSales', 'bookValue', 'dividendYield'],
+      'Valuation Ratios': ['evToRevenue', 'evToEbitda'],
+      'Financial Metrics': ['dividendPerShare', 'revenuePerShare'],
+      'Market Sentiment': ['analystRatings', 'analystTarget'],
+      'Company Size': ['marketCap', 'sharesOutstanding', 'restrictedShares', 'insiderOwnership'],
+      'Classification': ['sector', 'industry'],
+      'Company Info': ['companyName', 'assetType', 'companyDescription'],
+      'analysis': ['news']
+    };
+    
+    categoryOrder.forEach(category => {
       const components = Object.entries(COMPONENT_REGISTRY)
         .filter(([id, config]) => 
           !config.required && 
@@ -199,13 +229,29 @@ function PresetMenu({ isOpen, onClose, onPresetApply, onUpdateStocks }) {
           config.category === category
         );
       
-      // Sort: editable components first, then non-editable
+      if (components.length === 0) return;
+      
+      // Sort by importance order, then by whether they have editors
+      const importanceList = componentImportanceOrder[category] || [];
       const sorted = components.sort((a, b) => {
+        const aIndex = importanceList.indexOf(a[0]);
+        const bIndex = importanceList.indexOf(b[0]);
         const aHasEditor = a[1].scoring === true || a[1].scoring === 'simpleToggle' || a[1].scoring === 'categorical';
         const bHasEditor = b[1].scoring === true || b[1].scoring === 'simpleToggle' || b[1].scoring === 'categorical';
+        
+        // First, sort by importance order if specified
+        if (aIndex !== -1 && bIndex !== -1) {
+          return aIndex - bIndex;
+        }
+        if (aIndex !== -1) return -1;
+        if (bIndex !== -1) return 1;
+        
+        // Then by whether they have editors (editable first)
         if (aHasEditor && !bHasEditor) return -1;
         if (!aHasEditor && bHasEditor) return 1;
-        return 0;
+        
+        // Finally by name
+        return a[1].name.localeCompare(b[1].name);
       });
       
       if (sorted.length > 0) {
