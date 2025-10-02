@@ -60,8 +60,8 @@ function MainApp() {
   const [timeUntilLimitReached, setTimeUntilLimitReached] = useState(null);
   const [isAddingMode, setIsAddingMode] = useState(false);
 
-  // Track hovered stock for delete functionality
-  const [hoveredStockId, setHoveredStockId] = useState(null);
+  // Track clicked stock for delete functionality and arrow key movement
+  const [clickedStockId, setClickedStockId] = useState(null);
 
   // Track last mouse position for context-aware 'A' key
   const lastMousePosition = React.useRef({ x: 0, y: 0 });
@@ -133,6 +133,19 @@ function MainApp() {
     document.addEventListener('click', handleClickOutside);
     return () => document.removeEventListener('click', handleClickOutside);
   }, [showSettingsMenu]);
+
+  // Clear clicked stock when clicking outside any stock paper
+  useEffect(() => {
+    const handleDocumentClick = (event) => {
+      // Check if click is outside any stock paper
+      if (!event.target.closest('.stock-paper') && !event.target.closest('.stock-wrapper')) {
+        setClickedStockId(null);
+      }
+    };
+
+    document.addEventListener('click', handleDocumentClick);
+    return () => document.removeEventListener('click', handleDocumentClick);
+  }, []);
 
   const addStock = (gridPosition = null) => {
     // If no position provided, find optimal position using smart placement
@@ -555,13 +568,54 @@ function MainApp() {
         updateAllStocks();
       }
       
-      // Delete - Remove hovered or selected stock
-      if (e.key === 'Delete') {
+      // Delete - Remove clicked stock only
+      const deleteKey = localStorage.getItem('keybind-delete-stock') || 'Delete';
+      if (e.key === deleteKey || (deleteKey.includes('+') && deleteKey.split('+').pop() === e.key && deleteKey.includes('Control') && e.ctrlKey)) {
         e.preventDefault();
-        if (hoveredStockId) {
-          removeStock(hoveredStockId);
-        } else if (selectedStock) {
-          removeStock(selectedStock);
+        if (clickedStockId) {
+          removeStock(clickedStockId);
+          setClickedStockId(null);
+        }
+      }
+      
+      // Arrow keys - Move clicked stock to adjacent empty cell (not for locked stocks)
+      if (['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight'].includes(e.key) && clickedStockId) {
+        e.preventDefault();
+        const stock = stocks.find(s => s.id === clickedStockId);
+        if (!stock || stock.locked) return;
+        
+        const currentPos = stock.gridPosition || { x: 0, y: 0 };
+        let newPos = { ...currentPos };
+        
+        switch(e.key) {
+          case 'ArrowUp':
+            newPos.y -= 1;
+            break;
+          case 'ArrowDown':
+            newPos.y += 1;
+            break;
+          case 'ArrowLeft':
+            newPos.x -= 1;
+            break;
+          case 'ArrowRight':
+            newPos.x += 1;
+            break;
+        }
+        
+        // Check if new position is empty
+        const isOccupied = stocks.some(s => {
+          if (s.id === clickedStockId) return false; // Don't count the stock being moved
+          const pos = s.gridPosition || { x: 0, y: 0 };
+          return pos.x === newPos.x && pos.y === newPos.y;
+        });
+        
+        if (!isOccupied) {
+          // Move the stock
+          setStocks(prev => prev.map(s => 
+            s.id === clickedStockId 
+              ? { ...s, gridPosition: newPos }
+              : s
+          ));
         }
       }
       
@@ -573,7 +627,7 @@ function MainApp() {
     };
     window.addEventListener('keydown', handler);
     return () => window.removeEventListener('keydown', handler);
-  }, [selectedStock, stocks, counters, hoveredStockId]);
+  }, [selectedStock, stocks, counters, clickedStockId]);
 
   // Auto-update effect
   useEffect(() => {
@@ -794,7 +848,8 @@ function MainApp() {
         setIsAddingMode={setIsAddingMode}
         settings={gridSettings}
         currentPreset={currentPreset}
-        onHoverStock={setHoveredStockId}
+        onClickStock={setClickedStockId}
+        clickedStockId={clickedStockId}
       />
 
       <PresetMenu

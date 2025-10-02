@@ -26,6 +26,25 @@ function SettingsModal({ isOpen, onClose, user: propUser }) {
   const [devCode, setDevCode] = useState('');
   const [devCodeError, setDevCodeError] = useState('');
 
+  // Check for duplicate keybindings
+  const getDuplicates = () => {
+    const duplicates = new Set();
+    const values = Object.values(keybindings);
+    const seen = new Set();
+    
+    values.forEach(value => {
+      if (seen.has(value)) {
+        duplicates.add(value);
+      }
+      seen.add(value);
+    });
+    
+    return duplicates;
+  };
+  
+  const hasDuplicates = () => getDuplicates().size > 0;
+  const isDuplicate = (key) => getDuplicates().has(keybindings[key]);
+
   // Keyboard listener for capturing new keybind assignments
   useEffect(() => {
     if (!editingKeybind) return;
@@ -213,7 +232,7 @@ function SettingsModal({ isOpen, onClose, user: propUser }) {
               <div className="setting-item keybind-item">
                 <label className="setting-label keybind-label">Add Stock</label>
                 <kbd 
-                  className={`keybind-display ${editingKeybind === 'addStock' ? 'keybind-editing' : ''}`}
+                  className={`keybind-display ${editingKeybind === 'addStock' ? 'keybind-editing' : ''} ${isDuplicate('addStock') ? 'keybind-duplicate' : ''}`}
                   onClick={() => setEditingKeybind('addStock')}
                 >
                   {editingKeybind === 'addStock' ? 'Press a key...' : keybindings.addStock}
@@ -223,7 +242,7 @@ function SettingsModal({ isOpen, onClose, user: propUser }) {
               <div className="setting-item keybind-item">
                 <label className="setting-label keybind-label">Update All</label>
                 <kbd 
-                  className={`keybind-display ${editingKeybind === 'updateAll' ? 'keybind-editing' : ''}`}
+                  className={`keybind-display ${editingKeybind === 'updateAll' ? 'keybind-editing' : ''} ${isDuplicate('updateAll') ? 'keybind-duplicate' : ''}`}
                   onClick={() => setEditingKeybind('updateAll')}
                 >
                   {editingKeybind === 'updateAll' ? 'Press a key...' : keybindings.updateAll}
@@ -233,7 +252,7 @@ function SettingsModal({ isOpen, onClose, user: propUser }) {
               <div className="setting-item keybind-item">
                 <label className="setting-label keybind-label">Delete Stock</label>
                 <kbd 
-                  className={`keybind-display ${editingKeybind === 'deleteStock' ? 'keybind-editing' : ''}`}
+                  className={`keybind-display ${editingKeybind === 'deleteStock' ? 'keybind-editing' : ''} ${isDuplicate('deleteStock') ? 'keybind-duplicate' : ''}`}
                   onClick={() => setEditingKeybind('deleteStock')}
                 >
                   {editingKeybind === 'deleteStock' ? 'Press a key...' : keybindings.deleteStock}
@@ -243,7 +262,7 @@ function SettingsModal({ isOpen, onClose, user: propUser }) {
               <div className="setting-item keybind-item">
                 <label className="setting-label keybind-label">Undo</label>
                 <kbd 
-                  className={`keybind-display ${editingKeybind === 'undo' ? 'keybind-editing' : ''}`}
+                  className={`keybind-display ${editingKeybind === 'undo' ? 'keybind-editing' : ''} ${isDuplicate('undo') ? 'keybind-duplicate' : ''}`}
                   onClick={() => setEditingKeybind('undo')}
                 >
                   {editingKeybind === 'undo' ? 'Press a key...' : keybindings.undo}
@@ -253,7 +272,7 @@ function SettingsModal({ isOpen, onClose, user: propUser }) {
               <div className="setting-item keybind-item">
                 <label className="setting-label keybind-label">Cancel</label>
                 <kbd 
-                  className={`keybind-display ${editingKeybind === 'cancel' ? 'keybind-editing' : ''}`}
+                  className={`keybind-display ${editingKeybind === 'cancel' ? 'keybind-editing' : ''} ${isDuplicate('cancel') ? 'keybind-duplicate' : ''}`}
                   onClick={() => setEditingKeybind('cancel')}
                 >
                   {editingKeybind === 'cancel' ? 'Press a key...' : keybindings.cancel}

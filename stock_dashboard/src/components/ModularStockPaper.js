@@ -276,7 +276,7 @@ function ModularStockPaper({
               onClick={(e) => e.stopPropagation()}
               className="lock-checkbox"
             />
-            <span>Lock position</span>
+            <span onClick={(e) => e.stopPropagation()}>Lock position</span>
           </label>
         </div>
       )}
