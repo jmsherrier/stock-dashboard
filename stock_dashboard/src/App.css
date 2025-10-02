@@ -1555,17 +1555,9 @@ body {
   margin-top: 0; /* No extra margin - spacing handled by sections above */
   padding: 0;
   background: transparent;
-}
-
-.lock-checkbox-label {
   display: flex;
   align-items: center;
   gap: 0.5rem;
-  cursor: default;
-  user-select: none;
-  font-size: 0.8rem;
-  color: rgba(255, 255, 255, 0.5);
-  transition: color 0.2s;
 }
 
 .lock-checkbox {
@@ -1576,12 +1568,16 @@ body {
   flex-shrink: 0;
 }
 
-.lock-checkbox-label span {
+.lock-checkbox-text {
   pointer-events: none;
   cursor: default;
+  user-select: none;
+  font-size: 0.8rem;
+  color: rgba(255, 255, 255, 0.5);
+  transition: color 0.2s;
 }
 
-.lock-checkbox-label:hover {
+.lock-position-control:hover .lock-checkbox-text {
   color: rgba(255, 255, 255, 0.7);
 }
 
