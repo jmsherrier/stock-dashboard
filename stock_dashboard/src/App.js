@@ -141,6 +141,8 @@ function MainApp() {
       if (!event.target.closest('.stock-paper') && !event.target.closest('.stock-wrapper')) {
         // If a stock was clicked, this first click off clears it
         if (clickedStockId) {
+          // Mark this event as a deselect click so GridCanvas doesn't create a stock
+          event._wasDeselectClick = true;
           setClickedStockId(null);
         }
       }
@@ -842,20 +844,35 @@ function MainApp() {
                 />
                 <span>Auto</span>
               </label>
-              <select
-                value={autoUpdateInterval}
-                onChange={(e) => setAutoUpdateInterval(Number(e.target.value))}
-                className="auto-update-interval"
-                disabled={!autoUpdateEnabled}
-              >
-                <option value={10}>10s</option>
-                <option value={15}>15s</option>
-                <option value={20}>20s</option>
-                <option value={30}>30s</option>
-                <option value={60}>1min</option>
-                <option value={120}>2min</option>
-                <option value={300}>5min</option>
-              </select>
+              <div className="auto-update-interval-input">
+                <input
+                  type="number"
+                  value={Math.round(60 / autoUpdateInterval * 10) / 10}
+                  onChange={(e) => {
+                    const updatesPerMin = parseFloat(e.target.value);
+                    if (updatesPerMin > 0 && updatesPerMin <= 60) {
+                      const seconds = Math.round(60 / updatesPerMin);
+                      setAutoUpdateInterval(Math.max(1, seconds));
+                    }
+                  }}
+                  onBlur={(e) => {
+                    // Ensure valid value on blur
+                    const updatesPerMin = parseFloat(e.target.value);
+                    if (!updatesPerMin || updatesPerMin <= 0) {
+                      setAutoUpdateInterval(15); // Reset to default (4 updates/min)
+                    }
+                  }}
+                  className="auto-update-interval"
+                  min="0.1"
+                  max="60"
+                  step="0.1"
+                  placeholder="4"
+                  title="Updates per minute"
+                  onClick={(e) => e.stopPropagation()}
+                  onPointerDown={(e) => e.stopPropagation()}
+                />
+                <span className="interval-unit">/min</span>
+              </div>
             </div>
             {autoUpdateEnabled && timeUntilLimitReached !== null && (
               <span className="auto-update-timer" title="Time until daily limit reached">

@@ -38,13 +38,6 @@ const GridCanvas = forwardRef(({
     const savedZoom = localStorage.getItem('grid-zoom');
     return savedZoom ? parseFloat(savedZoom) : 1;
   });
-  
-  // Track if there was a clicked stock before it gets cleared by capture phase
-  const hadClickedStockRef = useRef(false);
-  
-  useEffect(() => {
-    hadClickedStockRef.current = clickedStockId !== null;
-  }, [clickedStockId]);
 
   // Save zoom to localStorage when it changes
   useEffect(() => {
@@ -344,6 +337,12 @@ const GridCanvas = forwardRef(({
     // Don't clear mouseDownOnEmpty here - wait for click handler
   };
 
+  const handleCanvasMouseLeave = () => {
+    setIsDraggingCanvas(false);
+    setMousePosition(null);
+    setHoveredCell(null);
+  };
+
   const handleCanvasClick = (e) => {
     // Don't create stock if user was dragging (.1px threshold for precise click detection)
     if (dragDistance > .1) {
@@ -360,12 +359,8 @@ const GridCanvas = forwardRef(({
     const clickedOnStock = e.target.closest('.stock-paper');
     if (clickedOnStock) return;
 
-    // Don't add stock if we just deselected a stock (first click off)
-    // The capture phase listener in App.js already cleared clickedStockId,
-    // but we tracked it in the ref before it was cleared
-    if (hadClickedStockRef.current) {
-      // Don't reset the ref here - let the useEffect handle it
-      // This prevents the stock from being created on the deselect click
+    // Don't add stock if this click was marked as a deselect click by App.js
+    if (e._wasDeselectClick) {
       return;
     }
 
@@ -561,7 +556,7 @@ const GridCanvas = forwardRef(({
       onMouseDown={handleCanvasMouseDown}
       onMouseMove={handleCanvasMouseMove}
       onMouseUp={handleCanvasMouseUp}
-      onMouseLeave={handleCanvasMouseUp}
+      onMouseLeave={handleCanvasMouseLeave}
       onClick={handleCanvasClick}
     >
       <DndContext
