@@ -137,6 +137,12 @@ Generally, working folder is volatiliraptor/stock_dashboard/
 - Clean up legacy styles that are no longer referenced in the codebase
 - Maintain consistent styling architecture aligned with current component structure
 
+### Code Quality & ESLint
+- Fix ESLint errors when prudent and when they improve code quality
+- Do not run ESLint after corrections unless explicitly requested by the user
+- Prioritize functional fixes over cosmetic ESLint rule compliance
+- Address ESLint warnings that indicate potential bugs or performance issues
+
 ### Documentation Maintenance
 - Only expand existing .md files; do not create new documentation files
 - Document all major changes in README.md or relevant existing documentation
