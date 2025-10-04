@@ -4,14 +4,34 @@ function BonusChecksComponent({ stock, onUpdate, config }) {
   // Handle both data formats properly
   const bonusChecks = stock.components ? (stock.components.bonusChecks?.checks || {}) : (stock.bonusChecks || {});
   
-  const totalBonus = (bonusChecks.recentIPO ? 1 : 0) + 
-                    (bonusChecks.recentReverseSplit ? 1 : 0) + 
-                    (bonusChecks.blueSkyBreakout ? 1 : 0);
+  // Get available bonus criteria from stock's configuration (set by preset)
+  const availableCriteria = stock.bonusChecksConfig || {};
+  
+  // Calculate total bonus based on checked items and their point values
+  const totalBonus = Object.entries(availableCriteria).reduce((sum, [key, criteria]) => {
+    return sum + (bonusChecks[key] ? criteria.points : 0);
+  }, 0);
 
   // Check if we should use original format (default behavior)
   const useOriginalFormat = !config || config.originalFormat !== false;
 
   if (useOriginalFormat) {
+    // If no criteria configured, show message
+    if (Object.keys(availableCriteria).length === 0) {
+      return (
+        <div className="bonus-criteria">
+          <div className="bonus-header">
+            <h4>Bonus Criteria</h4>
+          </div>
+          <div className="bonus-criteria-items">
+            <p style={{ color: 'rgba(255, 255, 255, 0.5)', fontSize: '0.9rem' }}>
+              No bonus criteria configured for this strategy.
+            </p>
+          </div>
+        </div>
+      );
+    }
+
     return (
       <div className="bonus-criteria">
         <div className="bonus-header">
@@ -25,51 +45,23 @@ function BonusChecksComponent({ stock, onUpdate, config }) {
           </div>
         </div>
         <div className="bonus-criteria-items">
-          <label>
-            <input
-              type="checkbox"
-              checked={bonusChecks.recentIPO || false}
-              onChange={(e) => {
-                const updatedChecks = { ...bonusChecks, recentIPO: e.target.checked };
-                if (stock.components) {
-                  onUpdate(stock.id, 'bonusChecks', { checks: updatedChecks });
-                } else {
-                  onUpdate(stock.id, 'bonusChecks', updatedChecks);
-                }
-              }}
-            />
-            Recent IPO
-          </label>
-          <label>
-            <input
-              type="checkbox"
-              checked={bonusChecks.recentReverseSplit || false}
-              onChange={(e) => {
-                const updatedChecks = { ...bonusChecks, recentReverseSplit: e.target.checked };
-                if (stock.components) {
-                  onUpdate(stock.id, 'bonusChecks', { checks: updatedChecks });
-                } else {
-                  onUpdate(stock.id, 'bonusChecks', updatedChecks);
-                }
-              }}
-            />
-            Recent Reverse Split
-          </label>
-          <label>
-            <input
-              type="checkbox"
-              checked={bonusChecks.blueSkyBreakout || false}
-              onChange={(e) => {
-                const updatedChecks = { ...bonusChecks, blueSkyBreakout: e.target.checked };
-                if (stock.components) {
-                  onUpdate(stock.id, 'bonusChecks', { checks: updatedChecks });
-                } else {
-                  onUpdate(stock.id, 'bonusChecks', updatedChecks);
-                }
-              }}
-            />
-            Blue Sky Breakout
-          </label>
+          {Object.entries(availableCriteria).map(([key, criteria]) => (
+            <label key={key}>
+              <input
+                type="checkbox"
+                checked={bonusChecks[key] || false}
+                onChange={(e) => {
+                  const updatedChecks = { ...bonusChecks, [key]: e.target.checked };
+                  if (stock.components) {
+                    onUpdate(stock.id, 'bonusChecks', { checks: updatedChecks });
+                  } else {
+                    onUpdate(stock.id, 'bonusChecks', updatedChecks);
+                  }
+                }}
+              />
+              {criteria.description}
+            </label>
+          ))}
         </div>
       </div>
     );
@@ -84,23 +76,30 @@ function BonusChecksComponent({ stock, onUpdate, config }) {
     onUpdate(stock.id, 'bonusChecks', updatedChecks);
   };
 
-  const checkboxes = [
-    {
-      id: 'recentIPO',
-      label: 'Recent IPO',
-      description: 'Recently went public'
-    },
-    {
-      id: 'recentReverseSplit',
-      label: 'Recent Reverse Split',
-      description: 'Had a recent reverse split'
-    },
-    {
-      id: 'blueSkyBreakout',
-      label: 'Blue Sky Breakout',
-      description: 'Breaking out to new highs'
-    }
-  ];
+  // Build checkboxes from available criteria or use defaults
+  const checkboxes = Object.keys(availableCriteria).length > 0 
+    ? Object.entries(availableCriteria).map(([key, criteria]) => ({
+        id: key,
+        label: criteria.description,
+        description: ''
+      }))
+    : [
+        {
+          id: 'recentIPO',
+          label: 'Recent IPO',
+          description: 'Recently went public'
+        },
+        {
+          id: 'recentReverseSplit',
+          label: 'Recent Reverse Split',
+          description: 'Had a recent reverse split'
+        },
+        {
+          id: 'blueSkyBreakout',
+          label: 'Blue Sky Breakout',
+          description: 'Breaking out to new highs'
+        }
+      ];
 
   return (
     <div className="modular-component bonus-checks-component medium-component">
@@ -111,21 +110,27 @@ function BonusChecksComponent({ stock, onUpdate, config }) {
         </div>
       </div>
       <div className="component-content">
-        <div className="bonus-checkboxes">
-          {checkboxes.map(checkbox => (
-            <label key={checkbox.id} className="bonus-checkbox">
-              <input
-                type="checkbox"
-                checked={bonusChecks[checkbox.id] || false}
-                onChange={(e) => handleCheckboxChange(checkbox.id, e.target.checked)}
-              />
-              <span className="checkbox-label">
-                {checkbox.label}
-                <small className="checkbox-description">{checkbox.description}</small>
-              </span>
-            </label>
-          ))}
-        </div>
+        {checkboxes.length > 0 ? (
+          <div className="bonus-checkboxes">
+            {checkboxes.map(checkbox => (
+              <label key={checkbox.id} className="bonus-checkbox">
+                <input
+                  type="checkbox"
+                  checked={bonusChecks[checkbox.id] || false}
+                  onChange={(e) => handleCheckboxChange(checkbox.id, e.target.checked)}
+                />
+                <span className="checkbox-label">
+                  {checkbox.label}
+                  <small className="checkbox-description">{checkbox.description}</small>
+                </span>
+              </label>
+            ))}
+          </div>
+        ) : (
+          <p style={{ color: 'rgba(255, 255, 255, 0.5)', fontSize: '0.9rem' }}>
+            No bonus criteria configured.
+          </p>
+        )}
       </div>
     </div>
   );

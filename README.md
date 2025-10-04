@@ -1,9 +1,18 @@
 # Volitiliraptor - Multi-Strategy Trading Analysis Platform
 
 ## Current Version
-v3.2.0 - Component Refactoring & Improved Scoring Criteria
+v3.3.0 - Enhanced Strategy Presets & Dynamic Bonus Criteria
 
-### Latest Changes (v3.2.0)
+### Latest Changes (v3.3.0)
+- **Dynamic Bonus Criteria**: Bonus checks now automatically match the selected strategy preset
+- **Preset-Specific Criteria**: Each preset displays only its relevant bonus criteria (3-4 checks per preset)
+- **Simplified Bonus Checks**: Streamlined criteria with concise descriptions focused on most relevant factors
+- **Value Investing**: 4 key checks (dividends, debt, cash flow, insider buying)
+- **Technical Breakout**: 4 key checks (golden cross, volume breakout, new highs, consolidation)
+- **Improved Border Visibility**: Increased stock paper border width from 2px to 3px for better visibility at all zoom levels
+- **Better Zoom Experience**: Borders remain visible even when zoomed out to minimum (0.25x)
+
+### Previous Changes (v3.2.0)
 - **Component Organization**: Refactored all components into logical folders (scoring/, info/, technical/)
 - **Enhanced Configuration Menu**: All 47+ components now properly organized in 11 categories
 - **Improved Scoring Criteria**: Updated 8+ components with more accurate trading-based scoring
@@ -216,6 +225,22 @@ npm run server:prod
 4. Set custom bonus criteria with point values
 5. Apply to new stocks automatically
 6. Preset selection persists across sessions
+
+#### Built-in Strategy Presets
+**Momentum Trading**
+- Focus: Low-float stocks under $5 with strong volume
+- Key Metrics: Price, Percent Rise, Relative Volume, Float
+- Bonus Criteria: Recent IPO, reverse splits, blue sky breakouts (3 criteria)
+
+**Value Investing**  
+- Focus: Undervalued companies with strong fundamentals
+- Key Metrics: P/E Ratio, Price-to-Book, Dividend Yield, ROE
+- Bonus Criteria: Consistent dividends, low debt, strong cash flow, insider buying (4 criteria)
+
+**Technical Breakout**
+- Focus: Pure technical analysis with chart patterns and moving averages
+- Key Metrics: 52-Week High, Moving Averages (50/200), Relative Volume, Beta, Institutional Ownership
+- Bonus Criteria: Golden cross, volume breakouts, all-time highs, consolidation patterns (4 criteria)
 
 ### Component Types
 - **Ticker**: Stock symbol input

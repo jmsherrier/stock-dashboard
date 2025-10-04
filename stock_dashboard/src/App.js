@@ -916,11 +916,12 @@ function MainApp() {
           // Track current preset
           setCurrentPreset(preset.name);
           
-          // Apply paperConfig to all stocks (create completely new objects to force re-render)
+          // Apply paperConfig and bonusChecksConfig to all stocks (create completely new objects to force re-render)
           setStocks(prev => {
             const updated = prev.map(stock => ({
               ...stock,
-              paperConfig: { ...preset.paperConfig }
+              paperConfig: { ...preset.paperConfig },
+              bonusChecksConfig: preset.bonusChecks || {}
             }));
             
             // Trigger a re-render event for GridCanvas to remeasure

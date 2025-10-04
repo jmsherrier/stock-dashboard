@@ -9,6 +9,7 @@ export const createDefaultStock = (presetName = 'momentum', position = null) => 
     id,
     position, // Position in the grid (null means append to end)
     paperConfig: preset.paperConfig, // Use specified preset's layout
+    bonusChecksConfig: preset.bonusChecks || {}, // Include bonus checks configuration from preset
     components: {
       ticker: { value: '' },
       price: { value: '' },
@@ -18,11 +19,7 @@ export const createDefaultStock = (presetName = 'momentum', position = null) => 
       notes: { value: '' },
       news: { items: [] },
       bonusChecks: { 
-        checks: {
-          recentIPO: false,
-          recentReverseSplit: false,
-          blueSkyBreakout: false
-        }
+        checks: {}  // Start with empty checks - user will select based on bonusChecksConfig
       }
     }
   };
