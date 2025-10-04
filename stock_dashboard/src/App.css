@@ -336,6 +336,10 @@ body {
   overflow: hidden;
 }
 
+.stock-paper > *:last-child {
+  margin-bottom: 0 !important;
+}
+
 .stock-paper:active {
   cursor: grabbing;
 }
@@ -383,11 +387,14 @@ body {
   background: transparent;
   border-radius: 8px;
   padding: 20px;
-  margin-bottom: 16px;
+  margin-bottom: 0;
   border: 4px dashed rgba(255, 255, 255, 0.2);
   transition: all 0.2s ease;
   cursor: pointer;
+  min-width: 420px;
   min-height: 100px;
+  max-width: 100%;
+  box-sizing: border-box;
   display: flex;
   align-items: center;
   justify-content: center;
