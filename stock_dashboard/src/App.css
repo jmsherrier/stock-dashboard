@@ -325,12 +325,15 @@ body {
   border-radius: 8px;
   padding: 20px; /* Equal padding on all sides */
   margin-bottom: 0; /* No margin in grid - spacing handled by cellGap */
-  border: 2px solid rgba(255, 255, 255, 0.3);
+  border: 3px solid rgba(255, 255, 255, 0.3);
   transition: all 0.2s ease;
   color: white;
   cursor: default;
   position: relative;
   min-width: 420px;
+  max-width: 100%;
+  box-sizing: border-box;
+  overflow: hidden;
 }
 
 .stock-paper:active {
@@ -381,7 +384,7 @@ body {
   border-radius: 8px;
   padding: 20px;
   margin-bottom: 16px;
-  border: 2px dashed rgba(255, 255, 255, 0.2);
+  border: 3px dashed rgba(255, 255, 255, 0.2);
   transition: all 0.2s ease;
   cursor: pointer;
   min-height: 100px;
@@ -434,12 +437,15 @@ body {
 .stock-header {
   display: flex;
   align-items: center;
-  justify-content: stretch;
+  justify-content: center;
   padding: 8px 0;
   margin-bottom: 4px;
   gap: 12px;
   position: relative;
   width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
+  overflow: hidden;
 }
 
 .stock-header:focus,
@@ -462,7 +468,7 @@ body {
   justify-content: center;
   height: auto;
   min-height: 44px;
-  flex: 1;
+  flex: 1 1 auto;
   position: relative;
 }
 
@@ -495,6 +501,9 @@ body {
   grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
   gap: 12px;
   margin-bottom: 12px;
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
 }
 
 .criteria-input {
@@ -506,6 +515,10 @@ body {
   flex-direction: column;
   gap: 8px;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
+  overflow: hidden;
 }
 
 .criteria-label {
@@ -698,6 +711,10 @@ body {
   padding: 12px;
   margin-bottom: 12px;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
+  overflow: hidden;
 }
 
 .news-criteria {
@@ -707,6 +724,10 @@ body {
   padding: 12px;
   margin-bottom: 12px;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
+  overflow: hidden;
 }
 
 .news-header {
@@ -1261,6 +1282,10 @@ body {
   padding: 12px;
   margin-bottom: 12px;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
+  overflow: hidden;
 }
 
 .bonus-header {
@@ -1268,6 +1293,9 @@ body {
   justify-content: space-between;
   align-items: center;
   margin-bottom: 16px;
+  width: 100%;
+  max-width: 100%;
+  overflow: hidden;
 }
 
 .bonus-criteria h4 {
@@ -1301,6 +1329,9 @@ body {
   display: flex;
   flex-wrap: wrap;
   gap: 16px;
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
 }
 
 .bonus-criteria label {
@@ -1313,6 +1344,9 @@ body {
   cursor: pointer;
   flex: 1 1 calc(50% - 8px);
   min-width: 0;
+  max-width: 100%;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
 }
 
 .bonus-criteria input[type="checkbox"] {
@@ -1328,6 +1362,10 @@ body {
   padding: 12px;
   margin-bottom: 12px;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
+  overflow: hidden;
 }
 
 .notes-section h4 {
@@ -1359,10 +1397,8 @@ body {
 /* Ticker Styles */
 /* Ticker Box Styles */
 .ticker-box {
-  width: 200px;
-  min-width: 200px;
-  max-width: 200px;
-  flex: 0 0 200px;
+  flex: 3 1 0;
+  min-width: 120px;
 }
 
 .ticker-display {
@@ -1371,8 +1407,8 @@ body {
   color: inherit;
   font-size: inherit;
   font-weight: inherit;
-  width: 170px;
-  max-width: 170px;
+  width: 100%;
+  max-width: 100%;
   text-align: center;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -1554,7 +1590,8 @@ body {
 }
 
 .update-btn {
-  min-width: 90px;
+  flex: 1 1 0;
+  min-width: 80px;
 }
 
 .update-btn:has(.update-btn-inner:disabled) {
@@ -1563,7 +1600,7 @@ body {
   border-color: rgba(255, 255, 255, 0.1);
   cursor: not-allowed;
   box-shadow: none;
-  min-width: 90px;
+  min-width: 80px;
 }
 
 .remove-btn {

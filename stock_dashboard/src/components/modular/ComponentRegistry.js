@@ -1017,9 +1017,9 @@ export const STRATEGY_PRESETS = {
       notes: true
     },
     bonusChecks: {
-      recentIPO: { points: 1, description: 'Recent IPO (within 12 months)' },
-      recentReverseSplit: { points: 1, description: 'Recent reverse split' },
-      blueSkyBreakout: { points: 1, description: 'Breaking through resistance' }
+      recentIPO: { points: 2, description: 'Recent IPO' },
+      recentReverseSplit: { points: 2, description: 'Recent reverse split' },
+      blueSkyBreakout: { points: 3, description: 'Breaking through resistance' }
     },
     customCriteria: {} // Uses default scoring ranges
   },
@@ -1040,10 +1040,10 @@ export const STRATEGY_PRESETS = {
       notes: true
     },
     bonusChecks: {
-      consistentDividends: { points: 3, description: 'Consistent dividend growth (5+ years)' },
-      lowDebt: { points: 2, description: 'Low debt-to-equity ratio (<0.5)' },
-      undervaluedPE: { points: 2, description: 'P/E ratio below industry average' },
-      strongCashFlow: { points: 2, description: 'Positive free cash flow for 3+ years' }
+      consistentDividends: { points: 3, description: 'Consistent dividend growth' },
+      lowDebt: { points: 2, description: 'Low debt-to-equity ratio' },
+      strongCashFlow: { points: 3, description: 'Strong free cash flow' },
+      insiderBuying: { points: 2, description: 'Recent insider buying' }
     },
     customCriteria: {
       // Value investing focuses on lower P/E ratios
@@ -1112,11 +1112,10 @@ export const STRATEGY_PRESETS = {
       notes: true
     },
     bonusChecks: {
-      goldenCross: { points: 3, description: '50-day MA crossed above 200-day MA (golden cross)' },
-      aboveAllMAs: { points: 2, description: 'Price above both 50-day and 200-day MAs' },
-      volumeBreakout: { points: 3, description: 'Volume 300%+ above average on breakout' },
-      allTimeHigh: { points: 3, description: 'Making new all-time high' },
-      consolidation: { points: 2, description: 'Consolidating near 52-week high (within 3%)' }
+      goldenCross: { points: 3, description: 'Golden cross signal' },
+      volumeBreakout: { points: 3, description: 'High volume breakout' },
+      allTimeHigh: { points: 4, description: 'New all-time high' },
+      consolidation: { points: 2, description: 'Consolidating near highs' }
     },
     customCriteria: {
       // 52-week high is critical - bias toward extremes
