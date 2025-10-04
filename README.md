@@ -9,8 +9,9 @@ v3.3.0 - Enhanced Strategy Presets & Dynamic Bonus Criteria
 - **Simplified Bonus Checks**: Streamlined criteria with concise descriptions focused on most relevant factors
 - **Value Investing**: 4 key checks (dividends, debt, cash flow, insider buying)
 - **Technical Breakout**: 4 key checks (golden cross, volume breakout, new highs, consolidation)
-- **Improved Border Visibility**: Increased stock paper border width from 2px to 3px for better visibility at all zoom levels
-- **Better Zoom Experience**: Borders remain visible even when zoomed out to minimum (0.25x)
+- **Enhanced Border Visibility**: Increased border widths (4px for stock papers, 2px for components) for visibility at all zoom levels (0.25x to 2x)
+- **Flexible Header Sizing**: Ticker uses proportional flex sizing (3:1:1 ratio) instead of hardcoded widths
+- **Improved Layout**: All components properly contained within stock paper boundaries with center-aligned headers
 
 ### Previous Changes (v3.2.0)
 - **Component Organization**: Refactored all components into logical folders (scoring/, info/, technical/)
