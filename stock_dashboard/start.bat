@@ -1,9 +1,0 @@
-@echo off
-echo Starting Volatiliraptor Stock Dashboard...
-echo.
-echo Starting backend server...
-start cmd /k "cd /d c:\Users\jmshe\Documents\GitHub\volatiliraptor\stock_dashboard\server && npm start"
-timeout /t 3 /nobreak >nul
-echo Starting frontend...
-cd /d c:\Users\jmshe\Documents\GitHub\volatiliraptor\stock_dashboard
-npm start
