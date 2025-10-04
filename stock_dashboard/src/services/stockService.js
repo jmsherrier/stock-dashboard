@@ -2,6 +2,7 @@
 import apiClient from '../api/client';
 import { preserveFormatting } from '../utils/stockUtils';
 import { apiService } from '../services';
+import { applyAutoBonusCriteria } from '../utils/bonusCalculator';
 
 export class StockService {
   static async updateStockQuote(stock) {
@@ -143,15 +144,17 @@ export class StockService {
           // Store previous value before updating
           updatedComponents[componentId].previousValue = updatedComponents[componentId].value;
           updatedComponents[componentId].value = quote[apiField].toString();
-        }
-        console.log(`Updated ${componentId} to:`, quote[apiField]);
       }
-    });
-    
-    return { ...stock, components: updatedComponents };
-  }
-
-  static async updateMultipleStocks(stocks) {
+      console.log(`Updated ${componentId} to:`, quote[apiField]);
+    }
+  });
+  
+  // Apply auto-calculated bonus criteria
+  const updatedStock = { ...stock, components: updatedComponents };
+  const stockWithAutoBonus = applyAutoBonusCriteria(updatedStock, quote);
+  
+  return stockWithAutoBonus;
+}  static async updateMultipleStocks(stocks) {
     const updatePromises = stocks.map(async (stock) => {
       try {
         if (!stock.components?.ticker?.value?.trim()) {
