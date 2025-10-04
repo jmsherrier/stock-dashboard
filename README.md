@@ -1,9 +1,36 @@
 # Volitiliraptor - Multi-Strategy Trading Analysis Platform
 
 ## Current Version
-v3.3.0 - Enhanced Strategy Presets & Dynamic Bonus Criteria
+v3.4.0 - Automatic Bonus Criteria Calculation
 
-### Latest Changes (v3.3.0)
+### Latest Changes (v3.4.0)
+- **Automatic Bonus Calculation**: Bonus criteria that can be calculated from stock data are now automatically checked on update
+- **Smart Auto-Detection**: System automatically detects blue sky breakouts, golden crosses, volume breakouts, dividend consistency, and more
+- **Preset-Aware Calculation**: Only auto-calculates criteria that exist in the current strategy preset
+- **User Control Preserved**: Manual checks/unchecks are preserved; auto-calculation only sets criteria to true when conditions are met
+- **Real-Time Application**: Auto-calculation runs every time stock data is updated via "Update" button
+
+#### Auto-Calculated Bonus Criteria by Preset:
+**Momentum Trading:**
+- `blueSkyBreakout` - Automatically checked when price ≥ 52-week high
+
+**Value Investing:**
+- `consistentDividends` - Automatically checked when both dividend yield > 0 and dividend per share > 0
+- `insiderBuying` - Automatically checked when insider ownership ≥ 10%
+
+**Technical Breakout:**
+- `goldenCross` - Automatically checked when 50-day MA > 200-day MA
+- `volumeBreakout` - Automatically checked when relative volume ≥ 3.0x
+- `allTimeHigh` - Automatically checked when price is at/above 52-week high (within 0.1%)
+- `consolidation` - Automatically checked when price is 95-99% of 52-week high
+
+**Manual-Only Criteria** (cannot be auto-calculated from API data):
+- Recent IPO
+- Recent reverse split
+- Low debt-to-equity ratio
+- Strong free cash flow
+
+### Previous Changes (v3.3.0)
 - **Dynamic Bonus Criteria**: Bonus checks now automatically match the selected strategy preset
 - **Preset-Specific Criteria**: Each preset displays only its relevant bonus criteria (3-4 checks per preset)
 - **Simplified Bonus Checks**: Streamlined criteria with concise descriptions focused on most relevant factors
@@ -96,8 +123,10 @@ Volitiliraptor is a comprehensive trading analysis platform that transforms trad
 ### Advanced Scoring System
 - **Color-Coded Scoring**: Green (positive), Orange (neutral), Red (negative)
 - **Custom Ranges**: Define your own scoring criteria
-- **Bonus Checks**: Additional strategy-specific criteria
-- **Real-Time Updates**: Live score recalculation
+- **Bonus Checks**: Additional strategy-specific criteria with automatic calculation
+- **Auto-Calculated Criteria**: System automatically checks bonus criteria based on real stock data
+- **Smart Detection**: Detects blue sky breakouts, golden crosses, volume breakouts, dividend consistency, and more
+- **Real-Time Updates**: Live score recalculation with automatic bonus criteria updates
 
 ### Robust Backend
 - **User Authentication**: Email and password authentication system
@@ -232,16 +261,45 @@ npm run server:prod
 - Focus: Low-float stocks under $5 with strong volume
 - Key Metrics: Price, Percent Rise, Relative Volume, Float
 - Bonus Criteria: Recent IPO, reverse splits, blue sky breakouts (3 criteria)
+- Auto-Calculated: Blue sky breakout (price ≥ 52-week high)
 
 **Value Investing**  
 - Focus: Undervalued companies with strong fundamentals
 - Key Metrics: P/E Ratio, Price-to-Book, Dividend Yield, ROE
 - Bonus Criteria: Consistent dividends, low debt, strong cash flow, insider buying (4 criteria)
+- Auto-Calculated: Consistent dividends (dividend yield & per share > 0), insider buying (ownership ≥ 10%)
 
 **Technical Breakout**
 - Focus: Pure technical analysis with chart patterns and moving averages
 - Key Metrics: 52-Week High, Moving Averages (50/200), Relative Volume, Beta, Institutional Ownership
 - Bonus Criteria: Golden cross, volume breakouts, all-time highs, consolidation patterns (4 criteria)
+- Auto-Calculated: Golden cross (MA50 > MA200), volume breakout (RV ≥ 3x), all-time high, consolidation
+
+### Automatic Bonus Criteria Calculation
+The system automatically calculates and checks bonus criteria that can be determined from stock data:
+
+#### How It Works
+1. **On Update**: When you click "Update" on a stock, the system fetches latest data from Alpha Vantage API
+2. **Auto-Detection**: System analyzes the data and automatically checks applicable bonus criteria
+3. **Preset-Aware**: Only auto-calculates criteria that exist in the current strategy preset
+4. **Smart Logic**: Uses specific thresholds and technical analysis to determine if criteria are met
+5. **User Control**: Manual checks are preserved; auto-calculation only sets to true, never false
+
+#### Auto-Calculated Criteria Details
+- **Blue Sky Breakout**: Price equals or exceeds 52-week high
+- **Consistent Dividends**: Both dividend yield > 0 AND dividend per share > 0
+- **Insider Buying**: Insider ownership ≥ 10%
+- **Golden Cross**: 50-day moving average > 200-day moving average (bullish signal)
+- **Volume Breakout**: Relative volume ≥ 3.0x average (significant interest)
+- **All-Time High**: Price within 0.1% of 52-week high (technical breakout)
+- **Consolidation**: Price at 95-99% of 52-week high (building energy)
+
+#### Manual-Only Criteria
+Some criteria cannot be automatically calculated from API data and require manual checking:
+- Recent IPO (requires IPO date knowledge)
+- Recent reverse split (requires corporate action history)
+- Low debt-to-equity ratio (debt data not available in current API)
+- Strong free cash flow (cash flow data not available in current API)
 
 ### Component Types
 - **Ticker**: Stock symbol input
