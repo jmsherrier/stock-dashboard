@@ -2,7 +2,7 @@ import React from 'react';
 import { calculateComponentScore, getComponentScoreColor } from '../ComponentRegistry';
 import CriteriaInput from '../../inputs/CriteriaInput';
 
-function InsiderOwnershipComponent({ stock, onUpdate, config, onOpenScoringEditor }) {
+function InsiderOwnershipComponent({ stock, onUpdate, config, onOpenScoringEditor , settings = {} }) {
   const getValue = () => stock.components?.insiderOwnership?.value || stock.insiderOwnership || '';
   const value = getValue();
 
@@ -25,6 +25,7 @@ function InsiderOwnershipComponent({ stock, onUpdate, config, onOpenScoringEdito
         step="1"
         suffix="%"
         currentPoints={score}
+        hidePointsLabel={settings.hidePointsLabel}
         scale={[
           { range: '0-5', points: -1 },
           { range: '5-10', points: 1 },
@@ -79,3 +80,4 @@ function InsiderOwnershipComponent({ stock, onUpdate, config, onOpenScoringEdito
 }
 
 export default InsiderOwnershipComponent;
+

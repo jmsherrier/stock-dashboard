@@ -2,7 +2,7 @@ import React from 'react';
 import { calculateComponentScore, getComponentScoreColor } from '../ComponentRegistry';
 import CriteriaInput from '../../inputs/CriteriaInput';
 
-function ROAComponent({ stock, onUpdate, config, onOpenScoringEditor }) {
+function ROAComponent({ stock, onUpdate, config, onOpenScoringEditor , settings = {} }) {
   const getValue = () => stock.components?.roa?.value || stock.roa || '';
   const value = getValue();
 
@@ -25,6 +25,7 @@ function ROAComponent({ stock, onUpdate, config, onOpenScoringEditor }) {
         step="0.1"
         suffix="%"
         currentPoints={score}
+        hidePointsLabel={settings.hidePointsLabel}
         scale={[
           { range: '<0', points: -3 },
           { range: '0-2', points: -2 },
@@ -80,3 +81,4 @@ function ROAComponent({ stock, onUpdate, config, onOpenScoringEditor }) {
 }
 
 export default ROAComponent;
+

@@ -3,7 +3,7 @@ import CriteriaInput from '../../inputs/CriteriaInput';
 import ChangeIndicator from '../technical/ChangeIndicator';
 import { calculateComponentScore, getComponentScoreColor } from '../ComponentRegistry';
 
-const EVToRevenueComponent = ({ stock, onUpdate, config, onOpenScoringEditor }) => {
+const EVToRevenueComponent = ({ stock, onUpdate, config, onOpenScoringEditor, settings = {} }) => {
   const value = stock.components?.evToRevenue?.value || '';
   const previousValue = stock.components?.evToRevenue?.previousValue;
   
@@ -22,6 +22,7 @@ const EVToRevenueComponent = ({ stock, onUpdate, config, onOpenScoringEditor }) 
         type="number"
         step="0.01"
         currentPoints={score}
+        hidePointsLabel={settings.hidePointsLabel}
         scale={[
           { range: '<1', points: 3 },
           { range: '1-3', points: 2 },

@@ -2,7 +2,7 @@ import React from 'react';
 import { calculateComponentScore, getComponentScoreColor } from '../ComponentRegistry';
 import CriteriaInput from '../../inputs/CriteriaInput';
 
-function Week52HighComponent({ stock, onUpdate, config }) {
+function Week52HighComponent({ stock, onUpdate, config , settings = {} }) {
   const getValue = () => stock.components?.week52High?.value || stock.week52High || '';
   const value = getValue();
 
@@ -30,6 +30,7 @@ function Week52HighComponent({ stock, onUpdate, config }) {
         step="0.01"
         suffix="$"
         currentPoints={score}
+        hidePointsLabel={settings.hidePointsLabel}
         scale={[
           { range: '<70%', points: -2 },
           { range: '70-80%', points: -1 },
@@ -60,3 +61,4 @@ function Week52HighComponent({ stock, onUpdate, config }) {
 }
 
 export default Week52HighComponent;
+

@@ -2,7 +2,7 @@ import React from 'react';
 import CriteriaInput from '../../inputs/CriteriaInput';
 import { calculateComponentScore } from '../ComponentRegistry';
 
-function MarketCapComponent({ stock, onUpdate, config }) {
+function MarketCapComponent({ stock, onUpdate, config , settings = {} }) {
   const value = stock.components?.marketCap?.value || '';
   const score = calculateComponentScore('marketCap', value);
   
@@ -25,6 +25,7 @@ function MarketCapComponent({ stock, onUpdate, config }) {
       step="1"
       suffix="M"
       currentPoints={score}
+        hidePointsLabel={settings.hidePointsLabel}
       scale={[
         { range: '<50M', points: 2 },
         { range: '50-300M', points: 1 },
@@ -37,3 +38,4 @@ function MarketCapComponent({ stock, onUpdate, config }) {
 }
 
 export default MarketCapComponent;
+

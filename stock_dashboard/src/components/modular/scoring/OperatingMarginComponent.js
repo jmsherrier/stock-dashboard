@@ -2,7 +2,7 @@ import React from 'react';
 import { calculateComponentScore, getComponentScoreColor } from '../ComponentRegistry';
 import CriteriaInput from '../../inputs/CriteriaInput';
 
-function OperatingMarginComponent({ stock, onUpdate, config, onOpenScoringEditor }) {
+function OperatingMarginComponent({ stock, onUpdate, config, onOpenScoringEditor , settings = {} }) {
   const getValue = () => stock.components?.operatingMargin?.value || stock.operatingMargin || '';
   const value = getValue();
 
@@ -25,6 +25,7 @@ function OperatingMarginComponent({ stock, onUpdate, config, onOpenScoringEditor
         step="0.1"
         suffix="%"
         currentPoints={score}
+        hidePointsLabel={settings.hidePointsLabel}
         scale={[
           { range: '0-5', points: -2 },
           { range: '5-10', points: -1 },
@@ -79,3 +80,4 @@ function OperatingMarginComponent({ stock, onUpdate, config, onOpenScoringEditor
 }
 
 export default OperatingMarginComponent;
+

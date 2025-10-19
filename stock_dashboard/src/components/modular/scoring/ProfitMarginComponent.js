@@ -2,7 +2,7 @@ import React from 'react';
 import { calculateComponentScore, getComponentScoreColor } from '../ComponentRegistry';
 import CriteriaInput from '../../inputs/CriteriaInput';
 
-function ProfitMarginComponent({ stock, onUpdate, config }) {
+function ProfitMarginComponent({ stock, onUpdate, config , settings = {} }) {
   const getValue = () => stock.components?.profitMargin?.value || stock.profitMargin || '';
   const value = getValue();
 
@@ -25,6 +25,7 @@ function ProfitMarginComponent({ stock, onUpdate, config }) {
         step="0.1"
         suffix="%"
         currentPoints={score}
+        hidePointsLabel={settings.hidePointsLabel}
         scale={[
           { range: '<-10', points: -3 },
           { range: '-10-0', points: -1 },
@@ -48,3 +49,4 @@ function ProfitMarginComponent({ stock, onUpdate, config }) {
 }
 
 export default ProfitMarginComponent;
+

@@ -2,7 +2,7 @@ import React from 'react';
 import { calculateComponentScore, getComponentScoreColor } from '../ComponentRegistry';
 import CriteriaInput from '../../inputs/CriteriaInput';
 
-function MovingAverage200Component({ stock, onUpdate, config }) {
+function MovingAverage200Component({ stock, onUpdate, config , settings = {} }) {
   const getValue = () => stock.components?.movingAverage200?.value || stock.movingAverage200 || '';
   const value = getValue();
 
@@ -30,6 +30,7 @@ function MovingAverage200Component({ stock, onUpdate, config }) {
         step="0.01"
         suffix="$"
         currentPoints={score}
+        hidePointsLabel={settings.hidePointsLabel}
         scale={[
           { range: '<-15%', points: -3 },
           { range: '-15 to -10%', points: -2 },
@@ -63,3 +64,4 @@ function MovingAverage200Component({ stock, onUpdate, config }) {
 }
 
 export default MovingAverage200Component;
+

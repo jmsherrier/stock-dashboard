@@ -2,7 +2,7 @@ import React from 'react';
 import { calculateComponentScore, getComponentScoreColor } from '../ComponentRegistry';
 import CriteriaInput from '../../inputs/CriteriaInput';
 
-function RestrictedSharesComponent({ stock, onUpdate, config, onOpenScoringEditor }) {
+function RestrictedSharesComponent({ stock, onUpdate, config, onOpenScoringEditor , settings = {} }) {
   // Get value from modular or legacy format
   const getValue = () => stock.components?.restrictedShares?.value || stock.restrictedShares || '';
   const value = getValue();
@@ -30,6 +30,7 @@ function RestrictedSharesComponent({ stock, onUpdate, config, onOpenScoringEdito
         step="0.1"
         suffix="M"
         currentPoints={score}
+        hidePointsLabel={settings.hidePointsLabel}
         scale={[
           { range: '<1M', points: 3 },
           { range: '1-5M', points: 2 },

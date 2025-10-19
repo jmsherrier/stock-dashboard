@@ -2,7 +2,7 @@ import React from 'react';
 import { calculateComponentScore, getComponentScoreColor } from '../ComponentRegistry';
 import CriteriaInput from '../../inputs/CriteriaInput';
 
-function EBITDAComponent({ stock, onUpdate, config, onOpenScoringEditor }) {
+function EBITDAComponent({ stock, onUpdate, config, onOpenScoringEditor , settings = {} }) {
   const getValue = () => stock.components?.ebitda?.value || stock.ebitda || '';
   const value = getValue();
 
@@ -31,6 +31,7 @@ function EBITDAComponent({ stock, onUpdate, config, onOpenScoringEditor }) {
         step="1"
         suffix="M"
         currentPoints={score}
+        hidePointsLabel={settings.hidePointsLabel}
         scale={[
           { range: '<0', points: -3 },
           { range: '0-50M', points: -1 },
@@ -81,3 +82,4 @@ function EBITDAComponent({ stock, onUpdate, config, onOpenScoringEditor }) {
 }
 
 export default EBITDAComponent;
+

@@ -2,7 +2,7 @@ import React from 'react';
 import { calculateComponentScore, getComponentScoreColor } from '../ComponentRegistry';
 import CriteriaInput from '../../inputs/CriteriaInput';
 
-function AnalystTargetComponent({ stock, onUpdate, config }) {
+function AnalystTargetComponent({ stock, onUpdate, config , settings = {} }) {
   const getValue = () => stock.components?.analystTarget?.value || stock.analystTarget || '';
   const value = getValue();
 
@@ -30,6 +30,7 @@ function AnalystTargetComponent({ stock, onUpdate, config }) {
         step="0.01"
         suffix="$"
         currentPoints={score}
+        hidePointsLabel={settings.hidePointsLabel}
         scale={[
           { range: '<90%', points: -2 },
           { range: '90-100%', points: -1 },
@@ -62,3 +63,4 @@ function AnalystTargetComponent({ stock, onUpdate, config }) {
 }
 
 export default AnalystTargetComponent;
+

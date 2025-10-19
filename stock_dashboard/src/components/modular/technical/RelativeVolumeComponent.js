@@ -3,7 +3,7 @@ import { calculateComponentScore, getComponentScoreColor } from '../ComponentReg
 import CriteriaInput from '../../inputs/CriteriaInput';
 import ChangeIndicator from './ChangeIndicator';
 
-function RelativeVolumeComponent({ stock, onUpdate, config }) {
+function RelativeVolumeComponent({ stock, onUpdate, config , settings = {} }) {
   // Get value from modular or legacy format
   const getValue = () => stock.components?.relativeVolume?.value || stock.relativeVolume || '';
   const getPreviousValue = () => stock.components?.relativeVolume?.previousValue || '';
@@ -59,6 +59,7 @@ function RelativeVolumeComponent({ stock, onUpdate, config }) {
         step="0.1"
         suffix="x"
         currentPoints={getScorePoints(value)}
+        hidePointsLabel={settings.hidePointsLabel}
         warning={getWarning(value)}
         scale={relativeVolumeScale}
       />

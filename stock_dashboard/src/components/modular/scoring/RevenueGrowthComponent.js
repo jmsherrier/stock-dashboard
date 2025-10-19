@@ -2,7 +2,7 @@ import React from 'react';
 import { calculateComponentScore, getComponentScoreColor } from '../ComponentRegistry';
 import CriteriaInput from '../../inputs/CriteriaInput';
 
-function RevenueGrowthComponent({ stock, onUpdate, config }) {
+function RevenueGrowthComponent({ stock, onUpdate, config , settings = {} }) {
   const getValue = () => stock.components?.revenueGrowth?.value || stock.revenueGrowth || '';
   const value = getValue();
 
@@ -24,6 +24,7 @@ function RevenueGrowthComponent({ stock, onUpdate, config }) {
         step="1"
         suffix="%"
         currentPoints={score}
+        hidePointsLabel={settings.hidePointsLabel}
         scale={[
           { range: '<0', points: -2 },
           { range: '0-10', points: 0 },
@@ -46,3 +47,4 @@ function RevenueGrowthComponent({ stock, onUpdate, config }) {
 }
 
 export default RevenueGrowthComponent;
+

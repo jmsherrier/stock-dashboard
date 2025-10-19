@@ -3,7 +3,7 @@ import { calculateComponentScore, getComponentScoreColor } from '../ComponentReg
 import CriteriaInput from '../../inputs/CriteriaInput';
 import ChangeIndicator from '../technical/ChangeIndicator';
 
-function PercentRiseComponent({ stock, onUpdate, config }) {
+function PercentRiseComponent({ stock, onUpdate, config , settings = {} }) {
   // Get value from modular or legacy format
   const getValue = () => stock.components?.percentRise?.value || stock.percentRise || '';
   const getPreviousValue = () => stock.components?.percentRise?.previousValue || '';
@@ -59,6 +59,7 @@ function PercentRiseComponent({ stock, onUpdate, config }) {
         step="0.01"
         suffix="%"
         currentPoints={getScorePoints(value)}
+        hidePointsLabel={settings.hidePointsLabel}
         warning={getWarning(value)}
         scale={percentRiseScale}
       />

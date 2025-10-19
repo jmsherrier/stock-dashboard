@@ -3,7 +3,7 @@ import { calculateComponentScore, getComponentScoreColor } from '../ComponentReg
 import CriteriaInput from '../../inputs/CriteriaInput';
 import ChangeIndicator from '../technical/ChangeIndicator';
 
-function FloatComponent({ stock, onUpdate, config, onOpenScoringEditor }) {
+function FloatComponent({ stock, onUpdate, config, onOpenScoringEditor , settings = {} }) {
   // Get value from modular or legacy format, prioritize actualFloat from API
   const getValue = () => {
     // First check if actualFloat from API exists
@@ -107,6 +107,7 @@ function FloatComponent({ stock, onUpdate, config, onOpenScoringEditor }) {
         step="0.1"
         suffix="M"
         currentPoints={getScorePoints(value)}
+        hidePointsLabel={settings.hidePointsLabel}
         warning={getWarning(value)}
         scale={floatScale}
       />

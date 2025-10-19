@@ -2,7 +2,7 @@ import React from 'react';
 import { calculateComponentScore, getComponentScoreColor } from '../ComponentRegistry';
 import CriteriaInput from '../../inputs/CriteriaInput';
 
-function PriceToBookComponent({ stock, onUpdate, config, onOpenScoringEditor }) {
+function PriceToBookComponent({ stock, onUpdate, config, onOpenScoringEditor , settings = {} }) {
   const getValue = () => stock.components?.priceToBook?.value || stock.priceToBook || '';
   const value = getValue();
 
@@ -21,6 +21,7 @@ function PriceToBookComponent({ stock, onUpdate, config, onOpenScoringEditor }) 
         type="number"
         step="0.1"
         currentPoints={score}
+        hidePointsLabel={settings.hidePointsLabel}
         scale={[
           { range: '<1', points: 3 },
           { range: '1-2', points: 2 },
@@ -69,3 +70,4 @@ function PriceToBookComponent({ stock, onUpdate, config, onOpenScoringEditor }) 
 }
 
 export default PriceToBookComponent;
+

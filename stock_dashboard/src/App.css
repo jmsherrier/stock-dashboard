@@ -349,10 +349,10 @@ body {
   box-shadow: none;
 }
 
-/* Highlight border when clicked */
+/* Highlight border when clicked - brighter outline */
 .stock-wrapper.clicked .stock-paper {
-  border-color: rgba(255, 255, 255, 0.5);
-  box-shadow: none;
+  border-color: rgba(255, 255, 255, 0.7);
+  box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.3);
 }
 
 .stock-wrapper.dragging .stock-paper {
@@ -544,7 +544,7 @@ body {
 .criteria-input-wrapper input {
   flex: 1;
   background: rgba(0, 0, 0, 0.3);
-  border: 1px solid rgba(255, 255, 255, 0.2);
+  border: 2px solid rgba(255, 255, 255, 0.2);
   border-radius: 4px;
   color: rgba(255, 255, 255, 0.7);
   font-size: 0.85rem;
@@ -1182,7 +1182,7 @@ body {
 .add-news-btn {
   background: rgba(255, 255, 255, 0.1);
   color: white;
-  border: 1px solid rgba(255, 255, 255, 0.2);
+  border: 2px solid rgba(255, 255, 255, 0.2);
   padding: 4px 8px;
   border-radius: 4px;
   cursor: pointer;
