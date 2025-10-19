@@ -17,8 +17,6 @@ export class StockService {
     
     const quote = await apiClient.getStockQuote(ticker);
     
-    console.log('Quote received for', ticker, ':', quote);
-    
     // Create updated components with preserved formatting
     const updatedComponents = { ...stock.components };
     
@@ -33,7 +31,6 @@ export class StockService {
           updatedComponents.price.value
         );
       }
-      console.log('Updated price to:', updatedComponents.price.value);
     }
     
     if (quote.percentChange) {
@@ -47,7 +44,6 @@ export class StockService {
           updatedComponents.percentRise.value
         );
       }
-      console.log('Updated percentRise to:', updatedComponents.percentRise.value);
     }
     
     if (quote.relativeVolume) {
@@ -61,19 +57,15 @@ export class StockService {
           updatedComponents.relativeVolume.value
         );
       }
-      console.log('Updated relativeVolume to:', updatedComponents.relativeVolume.value);
     }
     
     // Add shares outstanding if available from API
-    console.log('Checking sharesOutstanding:', quote.sharesOutstanding, 'Type:', typeof quote.sharesOutstanding);
     if (quote.sharesOutstanding) {
-      console.log('sharesOutstanding exists, updating components...');
       if (!updatedComponents.sharesOutstanding) {
         updatedComponents.sharesOutstanding = { value: quote.sharesOutstanding.toString() };
       } else {
         updatedComponents.sharesOutstanding.value = quote.sharesOutstanding.toString();
       }
-      console.log('Updated sharesOutstanding to:', updatedComponents.sharesOutstanding.value);
       
       // Calculate float automatically if shares outstanding is available
       const sharesOutstanding = parseFloat(quote.sharesOutstanding) || 0;
@@ -86,10 +78,7 @@ export class StockService {
         } else {
           updatedComponents.float.value = calculatedFloat;
         }
-        console.log('Auto-calculated float to:', calculatedFloat, 'M shares');
       }
-    } else {
-      console.log('sharesOutstanding NOT found in quote');
     }
     
     // Add all new fields from Alpha Vantage OVERVIEW

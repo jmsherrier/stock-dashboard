@@ -294,19 +294,14 @@ function MainApp() {
   }, [setStocks, gridCanvasRef]);
 
   const updateAllStocks = useCallback(async () => {
-    console.log('updateAllStocks called, stocks:', stocks);
     if (!canMakeRequest()) {
-      console.log('Cannot make request - rate limit');
       return;
     }
     
     setIsUpdating(true);
     try {
-      console.log('Calling StockService.updateMultipleStocks...');
       const updated = await StockService.updateMultipleStocks(stocks);
-      console.log('Got updated stocks:', updated);
       setStocks(updated);
-      console.log('State updated with:', updated);
       
       // Auto-sort if enabled
       const autoSort = localStorage.getItem('auto-sort-on-update') !== 'false';
