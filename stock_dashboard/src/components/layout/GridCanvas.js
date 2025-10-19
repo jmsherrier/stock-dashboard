@@ -217,7 +217,15 @@ const GridCanvas = forwardRef(({
     getZoom: () => zoom,
     getGridOffset: () => gridOffset,
     setGridOffset: (offset) => setGridOffset(offset),
-    getCellDimensions: () => cellDimensions
+    getCellDimensions: () => cellDimensions,
+    zoomIn: () => {
+      const newZoom = Math.min(2, zoom + 0.1);
+      setZoom(newZoom);
+    },
+    zoomOut: () => {
+      const newZoom = Math.max(0.25, zoom - 0.1);
+      setZoom(newZoom);
+    }
   }));
 
   // Handle zoom with mousewheel - zoom around center of viewport
@@ -245,7 +253,7 @@ const GridCanvas = forwardRef(({
     const worldX = (zoomPointX - gridOffset.x) / zoom;
     const worldY = (zoomPointY - gridOffset.y) / zoom;
     
-    const delta = e.deltaY * -0.0003;
+    const delta = e.deltaY * -0.001; // Increased from 0.0003 to 0.001 for more sensitivity
     const newZoom = Math.min(Math.max(0.25, zoom + delta), 2);
     
     // Calculate new offset to keep zoom point at same screen position

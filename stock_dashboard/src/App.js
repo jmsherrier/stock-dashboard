@@ -884,6 +884,24 @@ function MainApp() {
             <button onClick={undo} disabled={undoStack.length === 0} className="undo-btn" title="Undo last action">
               Undo
             </button>
+            
+            {/* Zoom Controls */}
+            <div className="zoom-controls">
+              <button 
+                onClick={() => gridCanvasRef.current?.zoomOut()} 
+                className="zoom-btn zoom-out"
+                title="Zoom out"
+              >
+                −
+              </button>
+              <button 
+                onClick={() => gridCanvasRef.current?.zoomIn()} 
+                className="zoom-btn zoom-in"
+                title="Zoom in"
+              >
+                +
+              </button>
+            </div>
           </div>
         </div>
       </header>
