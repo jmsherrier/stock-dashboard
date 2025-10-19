@@ -2,7 +2,7 @@ import React from 'react';
 import CriteriaInput from '../../inputs/CriteriaInput';
 import { calculateComponentScore } from '../ComponentRegistry';
 
-function BetaComponent({ stock, onUpdate, config }) {
+function BetaComponent({ stock, onUpdate, config, settings = {} }) {
   const value = stock.components?.beta?.value || '';
   const score = calculateComponentScore('beta', value);
 
@@ -14,6 +14,7 @@ function BetaComponent({ stock, onUpdate, config }) {
       type="number"
       step="0.01"
       currentPoints={score}
+        hidePointsLabel={settings.hidePointsLabel}
       scale={[
         { range: '<0.5', points: -3 },
         { range: '0.5-1.0', points: -1 },
@@ -27,3 +28,4 @@ function BetaComponent({ stock, onUpdate, config }) {
 }
 
 export default BetaComponent;
+

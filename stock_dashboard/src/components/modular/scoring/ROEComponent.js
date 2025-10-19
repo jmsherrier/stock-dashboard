@@ -3,7 +3,7 @@ import { calculateComponentScore, getComponentScoreColor } from '../ComponentReg
 import ChangeIndicator from '../technical/ChangeIndicator';
 import CriteriaInput from '../../inputs/CriteriaInput';
 
-function ROEComponent({ stock, onUpdate, config, onOpenScoringEditor }) {
+function ROEComponent({ stock, onUpdate, config, onOpenScoringEditor , settings = {} }) {
   const getValue = () => stock.components?.roe?.value || stock.roe || '';
   const getPreviousValue = () => stock.components?.roe?.previousValue || '';
   const value = getValue();
@@ -30,6 +30,7 @@ function ROEComponent({ stock, onUpdate, config, onOpenScoringEditor }) {
         step="0.1"
         suffix="%"
         currentPoints={score}
+        hidePointsLabel={settings.hidePointsLabel}
         scale={[
           { range: '<0', points: -3 },
           { range: '0-5', points: -2 },
@@ -86,3 +87,4 @@ function ROEComponent({ stock, onUpdate, config, onOpenScoringEditor }) {
 }
 
 export default ROEComponent;
+

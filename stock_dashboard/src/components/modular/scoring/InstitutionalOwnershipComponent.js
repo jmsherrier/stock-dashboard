@@ -2,7 +2,7 @@ import React from 'react';
 import { calculateComponentScore, getComponentScoreColor } from '../ComponentRegistry';
 import CriteriaInput from '../../inputs/CriteriaInput';
 
-function InstitutionalOwnershipComponent({ stock, onUpdate, config, onOpenScoringEditor }) {
+function InstitutionalOwnershipComponent({ stock, onUpdate, config, onOpenScoringEditor , settings = {} }) {
   const getValue = () => stock.components?.institutionalOwnership?.value || stock.institutionalOwnership || '';
   const value = getValue();
 
@@ -25,6 +25,7 @@ function InstitutionalOwnershipComponent({ stock, onUpdate, config, onOpenScorin
         step="1"
         suffix="%"
         currentPoints={score}
+        hidePointsLabel={settings.hidePointsLabel}
         scale={[
           { range: '0-20', points: -1 },
           { range: '20-40', points: 0 },
@@ -79,3 +80,4 @@ function InstitutionalOwnershipComponent({ stock, onUpdate, config, onOpenScorin
 }
 
 export default InstitutionalOwnershipComponent;
+

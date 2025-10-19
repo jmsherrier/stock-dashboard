@@ -2,7 +2,7 @@ import React from 'react';
 import { calculateComponentScore, getComponentScoreColor } from '../ComponentRegistry';
 import CriteriaInput from '../../inputs/CriteriaInput';
 
-function EPSComponent({ stock, onUpdate, config, onOpenScoringEditor }) {
+function EPSComponent({ stock, onUpdate, config, onOpenScoringEditor , settings = {} }) {
   const getValue = () => stock.components?.eps?.value || stock.eps || '';
   const value = getValue();
 
@@ -23,6 +23,7 @@ function EPSComponent({ stock, onUpdate, config, onOpenScoringEditor }) {
         step="0.01"
         suffix="$"
         currentPoints={score}
+        hidePointsLabel={settings.hidePointsLabel}
         scale={[
           { range: '<-1', points: -3 },
           { range: '-1-0', points: -1 },
@@ -73,3 +74,4 @@ function EPSComponent({ stock, onUpdate, config, onOpenScoringEditor }) {
 }
 
 export default EPSComponent;
+

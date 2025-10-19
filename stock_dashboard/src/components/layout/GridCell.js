@@ -22,7 +22,8 @@ function GridCell({
   calculateScore,
   onClickStock,
   clickedStockId,
-  onHoverCell
+  onHoverCell,
+  settings
 }) {
   const { attributes, listeners, setNodeRef, isDragging: isDraggingThis } = useDraggable({
     id: stock ? stock.id : `empty-${x}-${y}`,
@@ -54,7 +55,7 @@ function GridCell({
       {...listeners}
     >
       {stock ? (
-        <div className="stock-wrapper">
+        <div className={`stock-wrapper ${clickedStockId === stock.id ? 'clicked' : ''}`}>
           <ModularStockPaper
             stock={stock}
             score={calculateScore(stock)}
@@ -67,6 +68,7 @@ function GridCell({
             dragListeners={listeners}
             onToggleLock={onToggleLock}
             onClickStock={onClickStock}
+            settings={settings}
           />
         </div>
       ) : (

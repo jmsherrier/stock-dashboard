@@ -2,7 +2,7 @@ import React from 'react';
 import { calculateComponentScore, getComponentScoreColor } from '../ComponentRegistry';
 import CriteriaInput from '../../inputs/CriteriaInput';
 
-function ForwardPEComponent({ stock, onUpdate, config, onOpenScoringEditor }) {
+function ForwardPEComponent({ stock, onUpdate, config, onOpenScoringEditor , settings = {} }) {
   const getValue = () => stock.components?.forwardPE?.value || stock.forwardPE || '';
   const value = getValue();
 
@@ -21,6 +21,7 @@ function ForwardPEComponent({ stock, onUpdate, config, onOpenScoringEditor }) {
         type="number"
         step="0.1"
         currentPoints={score}
+        hidePointsLabel={settings.hidePointsLabel}
         scale={[
           { range: '<10', points: 3 },
           { range: '10-15', points: 2 },
@@ -69,3 +70,4 @@ function ForwardPEComponent({ stock, onUpdate, config, onOpenScoringEditor }) {
 }
 
 export default ForwardPEComponent;
+

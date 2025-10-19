@@ -3,7 +3,7 @@ import { calculateComponentScore, getComponentScoreColor } from '../ComponentReg
 import ChangeIndicator from '../technical/ChangeIndicator';
 import CriteriaInput from '../../inputs/CriteriaInput';
 
-function PEGRatioComponent({ stock, onUpdate, config, onOpenScoringEditor }) {
+function PEGRatioComponent({ stock, onUpdate, config, onOpenScoringEditor , settings = {} }) {
   const getValue = () => stock.components?.pegRatio?.value || stock.pegRatio || '';
   const getPreviousValue = () => stock.components?.pegRatio?.previousValue || '';
   const value = getValue();
@@ -24,6 +24,7 @@ function PEGRatioComponent({ stock, onUpdate, config, onOpenScoringEditor }) {
         type="number"
         step="0.1"
         currentPoints={score}
+        hidePointsLabel={settings.hidePointsLabel}
         scale={[
           { range: '<1', points: 3 },
           { range: '1-1.5', points: 2 },
@@ -73,3 +74,4 @@ function PEGRatioComponent({ stock, onUpdate, config, onOpenScoringEditor }) {
 }
 
 export default PEGRatioComponent;
+

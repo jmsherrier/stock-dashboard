@@ -3,7 +3,7 @@ import CriteriaInput from '../../inputs/CriteriaInput';
 import ChangeIndicator from '../technical/ChangeIndicator';
 import { calculateComponentScore, getComponentScoreColor } from '../ComponentRegistry';
 
-const RevenuePerShareComponent = ({ stock, onUpdate, config, onOpenScoringEditor }) => {
+const RevenuePerShareComponent = ({ stock, onUpdate, config, onOpenScoringEditor, settings = {} }) => {
   const value = stock.components?.revenuePerShare?.value || '';
   const previousValue = stock.components?.revenuePerShare?.previousValue;
   
@@ -23,6 +23,7 @@ const RevenuePerShareComponent = ({ stock, onUpdate, config, onOpenScoringEditor
         step="0.01"
         suffix="$"
         currentPoints={score}
+        hidePointsLabel={settings.hidePointsLabel}
         scale={[
           { range: '<10', points: -1 },
           { range: '10-25', points: 0 },

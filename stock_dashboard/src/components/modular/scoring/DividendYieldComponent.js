@@ -2,7 +2,7 @@ import React from 'react';
 import { calculateComponentScore, getComponentScoreColor } from '../ComponentRegistry';
 import CriteriaInput from '../../inputs/CriteriaInput';
 
-function DividendYieldComponent({ stock, onUpdate, config, onOpenScoringEditor }) {
+function DividendYieldComponent({ stock, onUpdate, config, onOpenScoringEditor , settings = {} }) {
   const getValue = () => stock.components?.dividendYield?.value || stock.dividendYield || '';
   const value = getValue();
 
@@ -26,6 +26,7 @@ function DividendYieldComponent({ stock, onUpdate, config, onOpenScoringEditor }
         step="0.1"
         suffix="%"
         currentPoints={score}
+        hidePointsLabel={settings.hidePointsLabel}
         scale={[
           { range: '0-1', points: -1 },
           { range: '1-2', points: 0 },
@@ -82,3 +83,4 @@ function DividendYieldComponent({ stock, onUpdate, config, onOpenScoringEditor }
 }
 
 export default DividendYieldComponent;
+

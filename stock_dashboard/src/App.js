@@ -77,7 +77,8 @@ function MainApp() {
 
   // Grid settings from localStorage
   const [gridSettings, setGridSettings] = useState({
-    zeroAligned: localStorage.getItem('zero-aligned') === 'true'
+    zeroAligned: localStorage.getItem('zero-aligned') === 'true',
+    hidePointsLabel: localStorage.getItem('hide-points-label') === 'true'
   });
 
   // Create initial default stock if none exist

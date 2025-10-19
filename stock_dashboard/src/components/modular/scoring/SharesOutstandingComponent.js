@@ -2,7 +2,7 @@ import React from 'react';
 import { calculateComponentScore, getComponentScoreColor } from '../ComponentRegistry';
 import CriteriaInput from '../../inputs/CriteriaInput';
 
-function SharesOutstandingComponent({ stock, onUpdate, config, onOpenScoringEditor }) {
+function SharesOutstandingComponent({ stock, onUpdate, config, onOpenScoringEditor , settings = {} }) {
   // Get value from modular or legacy format
   const getValue = () => stock.components?.sharesOutstanding?.value || stock.sharesOutstanding || '';
   const value = getValue();
@@ -30,6 +30,7 @@ function SharesOutstandingComponent({ stock, onUpdate, config, onOpenScoringEdit
         step="0.1"
         suffix="M"
         currentPoints={score}
+        hidePointsLabel={settings.hidePointsLabel}
         scale={[
           { range: '<10M', points: 3 },
           { range: '10-50M', points: 2 },

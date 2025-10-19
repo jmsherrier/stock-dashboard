@@ -3,7 +3,7 @@ import { calculateComponentScore, getComponentScoreColor } from '../ComponentReg
 import CriteriaInput from '../../inputs/CriteriaInput';
 import ChangeIndicator from '../technical/ChangeIndicator';
 
-function PriceComponent({ stock, onUpdate, config }) {
+function PriceComponent({ stock, onUpdate, config , settings = {} }) {
   // Get value from modular or legacy format
   const getValue = () => stock.components?.price?.value || stock.price || '';
   const getPreviousValue = () => stock.components?.price?.previousValue || '';
@@ -60,6 +60,7 @@ function PriceComponent({ stock, onUpdate, config }) {
         step="0.01"
         suffix="$"
         currentPoints={getScorePoints(value)}
+        hidePointsLabel={settings.hidePointsLabel}
         warning={getWarning(value)}
         scale={priceScale}
       />

@@ -2,7 +2,7 @@ import React from 'react';
 import CriteriaInput from '../../inputs/CriteriaInput';
 import { calculateComponentScore } from '../ComponentRegistry';
 
-function PERatioComponent({ stock, onUpdate, config }) {
+function PERatioComponent({ stock, onUpdate, config , settings = {} }) {
   const value = stock.components?.peRatio?.value || '';
   const score = calculateComponentScore('peRatio', value);
 
@@ -14,6 +14,7 @@ function PERatioComponent({ stock, onUpdate, config }) {
       type="number"
       step="0.1"
       currentPoints={score}
+        hidePointsLabel={settings.hidePointsLabel}
       scale={[
         { range: '<0', points: 0 },
         { range: '0-15', points: 1 },
@@ -25,3 +26,4 @@ function PERatioComponent({ stock, onUpdate, config }) {
 }
 
 export default PERatioComponent;
+

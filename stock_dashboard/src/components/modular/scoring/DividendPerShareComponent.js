@@ -3,7 +3,7 @@ import CriteriaInput from '../../inputs/CriteriaInput';
 import ChangeIndicator from '../technical/ChangeIndicator';
 import { calculateComponentScore, getComponentScoreColor } from '../ComponentRegistry';
 
-const DividendPerShareComponent = ({ stock, onUpdate, config, onOpenScoringEditor }) => {
+const DividendPerShareComponent = ({ stock, onUpdate, config, onOpenScoringEditor, settings = {} }) => {
   const value = stock.components?.dividendPerShare?.value || '';
   const previousValue = stock.components?.dividendPerShare?.previousValue;
   
@@ -23,6 +23,7 @@ const DividendPerShareComponent = ({ stock, onUpdate, config, onOpenScoringEdito
         step="0.01"
         suffix="$"
         currentPoints={score}
+        hidePointsLabel={settings.hidePointsLabel}
         scale={[
           { range: '0', points: -1 },
           { range: '0.01-1.00', points: 0 },

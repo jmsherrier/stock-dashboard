@@ -3,7 +3,7 @@ import CriteriaInput from '../../inputs/CriteriaInput';
 import ChangeIndicator from '../technical/ChangeIndicator';
 import { calculateComponentScore, getComponentScoreColor } from '../ComponentRegistry';
 
-const EVToEBITDAComponent = ({ stock, onUpdate, config, onOpenScoringEditor }) => {
+const EVToEBITDAComponent = ({ stock, onUpdate, config, onOpenScoringEditor, settings = {} }) => {
   const value = stock.components?.evToEbitda?.value || '';
   const previousValue = stock.components?.evToEbitda?.previousValue;
   
@@ -22,6 +22,7 @@ const EVToEBITDAComponent = ({ stock, onUpdate, config, onOpenScoringEditor }) =
         type="number"
         step="0.01"
         currentPoints={score}
+        hidePointsLabel={settings.hidePointsLabel}
         scale={[
           { range: '<5', points: 3 },
           { range: '5-10', points: 2 },

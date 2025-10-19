@@ -13,7 +13,8 @@ function ModularStockPaper({
   canMakeRequest,
   dragListeners,
   onToggleLock,
-  onClickStock
+  onClickStock,
+  settings = {}
 }) {
   const [isEditingTicker, setIsEditingTicker] = useState(false);
   const [tickerValue, setTickerValue] = useState(stock.ticker || '');
@@ -146,7 +147,8 @@ function ModularStockPaper({
                 {React.createElement(COMPONENT_REGISTRY[componentId].component, { 
                   stock, 
                   onUpdate,
-                  config: { criteriaMode: true } // Enable criteria mode for all components
+                  config: { criteriaMode: true }, // Enable criteria mode for all components
+                  settings // Pass settings to all components
                 })}
               </React.Fragment>
             );
@@ -157,17 +159,17 @@ function ModularStockPaper({
 
       {/* News Section */}
       {stock.paperConfig?.news === true && COMPONENT_REGISTRY.news && 
-        React.createElement(COMPONENT_REGISTRY.news.component, { stock, onUpdate })
+        React.createElement(COMPONENT_REGISTRY.news.component, { stock, onUpdate, settings })
       }
 
       {/* Bonus Criteria Section */}
       {stock.paperConfig?.bonusChecks === true && COMPONENT_REGISTRY.bonusChecks && 
-        React.createElement(COMPONENT_REGISTRY.bonusChecks.component, { stock, onUpdate })
+        React.createElement(COMPONENT_REGISTRY.bonusChecks.component, { stock, onUpdate, settings })
       }
 
       {/* Notes Section */}
       {stock.paperConfig?.notes === true && COMPONENT_REGISTRY.notes && 
-        React.createElement(COMPONENT_REGISTRY.notes.component, { stock, onUpdate })
+        React.createElement(COMPONENT_REGISTRY.notes.component, { stock, onUpdate, settings })
       }
 
       {/* Lock Position Checkbox */}

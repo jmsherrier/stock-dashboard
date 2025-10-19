@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 
-function NewsComponent({ stock, onUpdate, config }) {
+function NewsComponent({ stock, onUpdate, config, settings = {} }) {
   // Get news items from modular format
   const newsItems = stock.components?.news?.items || [];
   const [showAddInterface, setShowAddInterface] = useState(false);
@@ -36,12 +36,12 @@ function NewsComponent({ stock, onUpdate, config }) {
         <div className="news-score">
           {newsItems.length === 0 ? (
             penalizeNoNews ? (
-              <span className="news-points-penalty" title={`Penalty for no news: ${penaltyPoints} pts`}>{penaltyPoints} pts</span>
+              <span className="news-points-penalty" title={`Penalty for no news: ${penaltyPoints}${settings.hidePointsLabel ? '' : ' pts'}`}>{penaltyPoints}{settings.hidePointsLabel ? '' : ' pts'}</span>
             ) : (
               <span className="hazard-symbol" title="No news items">⚠️</span>
             )
           ) : (
-            <span className="news-points-positive">+{totalPoints} pts</span>
+            <span className="news-points-positive">+{totalPoints}{settings.hidePointsLabel ? '' : ' pts'}</span>
           )}
         </div>
       </div>

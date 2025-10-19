@@ -12,6 +12,7 @@ function SettingsModal({ isOpen, onClose, user: propUser }) {
     autoUpdateOnPreset: localStorage.getItem('auto-update-on-preset') !== 'false',
     autoSortOnUpdate: localStorage.getItem('auto-sort-on-update') === 'true',
     zeroAligned: localStorage.getItem('zero-aligned') === 'true',
+    hidePointsLabel: localStorage.getItem('hide-points-label') === 'true',
     apiTimeout: parseInt(localStorage.getItem('api-timeout')) || 10000,
     refreshInterval: parseInt(localStorage.getItem('refresh-interval')) || 300000
   });
@@ -111,6 +112,7 @@ function SettingsModal({ isOpen, onClose, user: propUser }) {
         autoUpdateOnPreset: true,
         autoSortOnUpdate: false,
         zeroAligned: false,
+        hidePointsLabel: false,
         apiTimeout: 10000,
         refreshInterval: 300000
       };
@@ -222,6 +224,18 @@ function SettingsModal({ isOpen, onClose, user: propUser }) {
                   Zero-aligned grid
                 </label>
                 <small className="setting-help">When enabled, grid can only expand down and right from origin</small>
+              </div>
+              <div className="setting-item">
+                <label className="setting-label">
+                  <input 
+                    type="checkbox"
+                    checked={settings.hidePointsLabel}
+                    onChange={(e) => handleSettingChange('hidePointsLabel', e.target.checked)}
+                    className="setting-checkbox"
+                  />
+                  Hide "pts" label
+                </label>
+                <small className="setting-help">Show only numbers without "pts" suffix in point indicators</small>
               </div>
             </div>
           </div>
