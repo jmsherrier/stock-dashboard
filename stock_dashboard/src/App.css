@@ -1223,7 +1223,7 @@ body {
 .add-news-btn {
   background: rgba(255, 255, 255, 0.1);
   color: white;
-  border: 2px solid rgba(255, 255, 255, 0.2);
+  border: 3px solid rgba(255, 255, 255, 0.2);
   padding: 4px 8px;
   border-radius: 4px;
   cursor: pointer;
@@ -1435,7 +1435,7 @@ body {
   width: 100%;
   min-height: 80px;
   padding: 10px;
-  border: 1px solid rgba(255, 255, 255, 0.2);
+  border: 2px solid rgba(255, 255, 255, 0.2);
   border-radius: 4px;
   font-size: 0.85rem;
   font-family: inherit;
@@ -2235,7 +2235,7 @@ body {
 
 .add-news-btn {
   background: rgba(156, 163, 175, 0.1);
-  border: 1px solid rgba(156, 163, 175, 0.3);
+  border: 3px solid rgba(156, 163, 175, 0.3);
   border-radius: 4px;
   padding: 0.5rem;
   color: #9ca3af;
