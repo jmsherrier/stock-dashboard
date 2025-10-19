@@ -1,7 +1,91 @@
 # Volitiliraptor - Multi-Strategy Trading Analysis Platform
 
 ## Current Version
-v3.1.0 - Enhanced Grid Interaction & Keyboard Controls
+v3.4.0 - Automatic Bonus Criteria Calculation
+
+### Latest Changes (v3.4.0)
+- **Automatic Bonus Calculation**: Bonus criteria that can be calculated from stock data are now automatically checked on update
+- **Smart Auto-Detection**: System automatically detects blue sky breakouts, golden crosses, volume breakouts, dividend consistency, and more
+- **Preset-Aware Calculation**: Only auto-calculates criteria that exist in the current strategy preset
+- **User Control Preserved**: Manual checks/unchecks are preserved; auto-calculation only sets criteria to true when conditions are met
+- **Real-Time Application**: Auto-calculation runs every time stock data is updated via "Update" button
+
+#### Auto-Calculated Bonus Criteria by Preset:
+**Momentum Trading:**
+- `blueSkyBreakout` - Automatically checked when price ≥ 52-week high
+
+**Value Investing:**
+- `consistentDividends` - Automatically checked when both dividend yield > 0 and dividend per share > 0
+- `insiderBuying` - Automatically checked when insider ownership ≥ 10%
+
+**Technical Breakout:**
+- `goldenCross` - Automatically checked when 50-day MA > 200-day MA
+- `volumeBreakout` - Automatically checked when relative volume ≥ 3.0x
+- `allTimeHigh` - Automatically checked when price is at/above 52-week high (within 0.1%)
+- `consolidation` - Automatically checked when price is 95-99% of 52-week high
+
+**Manual-Only Criteria** (cannot be auto-calculated from API data):
+- Recent IPO
+- Recent reverse split
+- Low debt-to-equity ratio
+- Strong free cash flow
+
+### Previous Changes (v3.3.0)
+- **Dynamic Bonus Criteria**: Bonus checks now automatically match the selected strategy preset
+- **Preset-Specific Criteria**: Each preset displays only its relevant bonus criteria (3-4 checks per preset)
+- **Simplified Bonus Checks**: Streamlined criteria with concise descriptions focused on most relevant factors
+- **Value Investing**: 4 key checks (dividends, debt, cash flow, insider buying)
+- **Technical Breakout**: 4 key checks (golden cross, volume breakout, new highs, consolidation)
+- **Enhanced Border Visibility**: Increased border widths (4px for stock papers, 2px for components) for visibility at all zoom levels (0.25x to 2x)
+- **Flexible Header Sizing**: Ticker uses proportional flex sizing (3:1:1 ratio) instead of hardcoded widths
+- **Improved Layout**: All components properly contained within stock paper boundaries with center-aligned headers
+
+### Previous Changes (v3.2.0)
+- **Component Organization**: Refactored all components into logical folders (scoring/, info/, technical/)
+- **Enhanced Configuration Menu**: All 47+ components now properly organized in 11 categories
+- **Improved Scoring Criteria**: Updated 8+ components with more accurate trading-based scoring
+- **Smart Category Ordering**: Components within each category ordered by trading importance
+- **New Categories**: Added Valuation Ratios, Financial Metrics, Market Sentiment, and Company Info categories
+- **Better Risk Assessment**: Price and volume scoring now reflects actual trading risk profiles
+- **Enhanced Metrics**: ROE, ROA, EPS, Profit Margin, and Dividend Yield now have more granular ranges
+
+### Configuration Menu Organization
+Components are organized in **11 categories**, ordered by trading importance within each:
+
+**Price & Momentum** (2 components)
+- Price, Percent Rise
+
+**Volume & Float** (2 components)  
+- Relative Volume, Float
+
+**Technical Indicators** (6 components)
+- 52-Week High %, 50-Day MA, 200-Day MA, 52-Week Low %, Beta, Institutional Ownership
+
+**Fundamentals** (16 components)
+- Revenue Growth, Earnings Growth, EPS, Profit Margin, Operating Margin
+- ROE, ROA, EBITDA, P/E Ratio, Forward P/E, Trailing P/E
+- PEG Ratio, Price-to-Book, Price-to-Sales, Book Value, Dividend Yield
+
+**Valuation Ratios** (2 components)
+- EV/Revenue, EV/EBITDA
+
+**Financial Metrics** (2 components)
+- Dividend Per Share, Revenue Per Share
+
+**Market Sentiment** (2 components)
+- Analyst Ratings, Analyst Target
+
+**Company Size** (4 components)
+- Market Cap, Shares Outstanding, Restricted Shares, Insider Ownership
+
+**Classification** (2 components)
+- Sector, Industry
+
+**Company Info** (3 components - no editors)
+- Company Name, Asset Type, Company Description
+
+**Analysis** (1 component)
+- News & Catalysts
 
 ## Overview
 Volitiliraptor is a comprehensive trading analysis platform that transforms traditional stock screening into a flexible, multi-strategy system. Built with React and Express, it provides modular components with a dynamic 2D infinite grid layout system for organizing stocks spatially, real-time data integration, sophisticated scoring systems, and advanced keyboard-based controls.
@@ -39,8 +123,10 @@ Volitiliraptor is a comprehensive trading analysis platform that transforms trad
 ### Advanced Scoring System
 - **Color-Coded Scoring**: Green (positive), Orange (neutral), Red (negative)
 - **Custom Ranges**: Define your own scoring criteria
-- **Bonus Checks**: Additional strategy-specific criteria
-- **Real-Time Updates**: Live score recalculation
+- **Bonus Checks**: Additional strategy-specific criteria with automatic calculation
+- **Auto-Calculated Criteria**: System automatically checks bonus criteria based on real stock data
+- **Smart Detection**: Detects blue sky breakouts, golden crosses, volume breakouts, dividend consistency, and more
+- **Real-Time Updates**: Live score recalculation with automatic bonus criteria updates
 
 ### Robust Backend
 - **User Authentication**: Email and password authentication system
@@ -170,6 +256,51 @@ npm run server:prod
 5. Apply to new stocks automatically
 6. Preset selection persists across sessions
 
+#### Built-in Strategy Presets
+**Momentum Trading**
+- Focus: Low-float stocks under $5 with strong volume
+- Key Metrics: Price, Percent Rise, Relative Volume, Float
+- Bonus Criteria: Recent IPO, reverse splits, blue sky breakouts (3 criteria)
+- Auto-Calculated: Blue sky breakout (price ≥ 52-week high)
+
+**Value Investing**  
+- Focus: Undervalued companies with strong fundamentals
+- Key Metrics: P/E Ratio, Price-to-Book, Dividend Yield, ROE
+- Bonus Criteria: Consistent dividends, low debt, strong cash flow, insider buying (4 criteria)
+- Auto-Calculated: Consistent dividends (dividend yield & per share > 0), insider buying (ownership ≥ 10%)
+
+**Technical Breakout**
+- Focus: Pure technical analysis with chart patterns and moving averages
+- Key Metrics: 52-Week High, Moving Averages (50/200), Relative Volume, Beta, Institutional Ownership
+- Bonus Criteria: Golden cross, volume breakouts, all-time highs, consolidation patterns (4 criteria)
+- Auto-Calculated: Golden cross (MA50 > MA200), volume breakout (RV ≥ 3x), all-time high, consolidation
+
+### Automatic Bonus Criteria Calculation
+The system automatically calculates and checks bonus criteria that can be determined from stock data:
+
+#### How It Works
+1. **On Update**: When you click "Update" on a stock, the system fetches latest data from Alpha Vantage API
+2. **Auto-Detection**: System analyzes the data and automatically checks applicable bonus criteria
+3. **Preset-Aware**: Only auto-calculates criteria that exist in the current strategy preset
+4. **Smart Logic**: Uses specific thresholds and technical analysis to determine if criteria are met
+5. **User Control**: Manual checks are preserved; auto-calculation only sets to true, never false
+
+#### Auto-Calculated Criteria Details
+- **Blue Sky Breakout**: Price equals or exceeds 52-week high
+- **Consistent Dividends**: Both dividend yield > 0 AND dividend per share > 0
+- **Insider Buying**: Insider ownership ≥ 10%
+- **Golden Cross**: 50-day moving average > 200-day moving average (bullish signal)
+- **Volume Breakout**: Relative volume ≥ 3.0x average (significant interest)
+- **All-Time High**: Price within 0.1% of 52-week high (technical breakout)
+- **Consolidation**: Price at 95-99% of 52-week high (building energy)
+
+#### Manual-Only Criteria
+Some criteria cannot be automatically calculated from API data and require manual checking:
+- Recent IPO (requires IPO date knowledge)
+- Recent reverse split (requires corporate action history)
+- Low debt-to-equity ratio (debt data not available in current API)
+- Strong free cash flow (cash flow data not available in current API)
+
 ### Component Types
 - **Ticker**: Stock symbol input
 - **Price**: Current stock price with scoring
@@ -182,6 +313,54 @@ npm run server:prod
 - **Lock Position**: Checkbox to prevent stock movement
 
 ## Architecture
+
+### Component Organization
+The application follows a hierarchical folder structure to organize components by type:
+
+```
+src/components/
+  modular/               # Core component system
+    ComponentRegistry.js # Single source of truth for all components
+    scoring/             # Components with scoring criteria
+      PriceComponent.js
+      PERatioComponent.js
+      DividendYieldComponent.js
+      ... (30 scoring components)
+    info/                # Information-only components (no scoring)
+      TickerComponent.js
+      CompanyNameComponent.js
+      CompanyDescriptionComponent.js
+      SectorComponent.js
+      NewsComponent.js
+      ... (9 info components)
+    technical/           # Technical indicators
+      MovingAverage50Component.js
+      MovingAverage200Component.js
+      Week52HighComponent.js
+      ChangeIndicator.js
+      ... (6 technical components)
+  
+  layout/                # Grid and paper layout components
+    GridCanvas.js        # Infinite grid canvas
+    GridCell.js          # Individual grid cells
+    ModularStockPaper.js # Modern modular stock paper
+    StockPaper.js        # Legacy stock paper
+    SortableStockPaper.js # Draggable wrapper
+  
+  modal/                 # Modal dialogs and editors
+    AboutModal.js
+    SettingsModal.js
+    ScoringEditor.js
+    NewsEditor.js
+    BonusEditor.js
+    CategoricalEditor.js
+  
+  inputs/                # Input components and controls
+    CriteriaInput.js
+    ScaleBar.js
+    PresetMenu.js
+    ApiKeyPrompt.js
+```
 
 ### Database Schema
 ```sql

@@ -2,11 +2,11 @@ import React, { useEffect, useState, useCallback } from 'react';
 import './App.css';
 
 import { AuthProvider, useAuth } from './contexts/AuthContext';
-import ApiKeyPrompt from './components/ApiKeyPrompt';
-import PresetMenu from './components/PresetMenu';
-import SettingsModal from './components/SettingsModal';
-import AboutModal from './components/AboutModal';
-import GridCanvas from './components/GridCanvas';
+import ApiKeyPrompt from './components/inputs/ApiKeyPrompt';
+import PresetMenu from './components/inputs/PresetMenu';
+import SettingsModal from './components/modal/SettingsModal';
+import AboutModal from './components/modal/AboutModal';
+import GridCanvas from './components/layout/GridCanvas';
 
 import { useStocks } from './hooks/useStocks';
 import { useApiCounters } from './hooks/useApiCounters';
@@ -77,7 +77,8 @@ function MainApp() {
 
   // Grid settings from localStorage
   const [gridSettings, setGridSettings] = useState({
-    zeroAligned: localStorage.getItem('zero-aligned') === 'true'
+    zeroAligned: localStorage.getItem('zero-aligned') === 'true',
+    hidePointsLabel: localStorage.getItem('hide-points-label') === 'true'
   });
 
   // Create initial default stock if none exist
@@ -293,19 +294,14 @@ function MainApp() {
   }, [setStocks, gridCanvasRef]);
 
   const updateAllStocks = useCallback(async () => {
-    console.log('updateAllStocks called, stocks:', stocks);
     if (!canMakeRequest()) {
-      console.log('Cannot make request - rate limit');
       return;
     }
     
     setIsUpdating(true);
     try {
-      console.log('Calling StockService.updateMultipleStocks...');
       const updated = await StockService.updateMultipleStocks(stocks);
-      console.log('Got updated stocks:', updated);
       setStocks(updated);
-      console.log('State updated with:', updated);
       
       // Auto-sort if enabled
       const autoSort = localStorage.getItem('auto-sort-on-update') !== 'false';
@@ -883,6 +879,24 @@ function MainApp() {
             <button onClick={undo} disabled={undoStack.length === 0} className="undo-btn" title="Undo last action">
               Undo
             </button>
+            
+            {/* Zoom Controls */}
+            <div className="zoom-controls">
+              <button 
+                onClick={() => gridCanvasRef.current?.zoomOut()} 
+                className="zoom-btn zoom-out"
+                title="Zoom out"
+              >
+                −
+              </button>
+              <button 
+                onClick={() => gridCanvasRef.current?.zoomIn()} 
+                className="zoom-btn zoom-in"
+                title="Zoom in"
+              >
+                +
+              </button>
+            </div>
           </div>
         </div>
       </header>
@@ -916,11 +930,12 @@ function MainApp() {
           // Track current preset
           setCurrentPreset(preset.name);
           
-          // Apply paperConfig to all stocks (create completely new objects to force re-render)
+          // Apply paperConfig and bonusChecksConfig to all stocks (create completely new objects to force re-render)
           setStocks(prev => {
             const updated = prev.map(stock => ({
               ...stock,
-              paperConfig: { ...preset.paperConfig }
+              paperConfig: { ...preset.paperConfig },
+              bonusChecksConfig: preset.bonusChecks || {}
             }));
             
             // Trigger a re-render event for GridCanvas to remeasure

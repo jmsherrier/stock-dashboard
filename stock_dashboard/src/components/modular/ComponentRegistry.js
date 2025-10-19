@@ -1,40 +1,55 @@
 // Component registry for modular paper system
-import TickerComponent from './TickerComponent';
-import PriceComponent from './PriceComponent';
-import PercentRiseComponent from './PercentRiseComponent';
-import RelativeVolumeComponent from './RelativeVolumeComponent';
-import FloatComponent from './FloatComponent';
-import SharesOutstandingComponent from './SharesOutstandingComponent';
-import RestrictedSharesComponent from './RestrictedSharesComponent';
-import NewsComponent from './NewsComponent';
-import NotesComponent from './NotesComponent';
-import BonusChecksComponent from './BonusChecksComponent';
-import MarketCapComponent from './MarketCapComponent';
-import BetaComponent from './BetaComponent';
-import Week52HighComponent from './Week52HighComponent';
-import SectorComponent from './SectorComponent';
-import IndustryComponent from './IndustryComponent';
-import ProfitMarginComponent from './ProfitMarginComponent';
-import RevenueGrowthComponent from './RevenueGrowthComponent';
-import MovingAverage50Component from './MovingAverage50Component';
-import MovingAverage200Component from './MovingAverage200Component';
-import PERatioComponent from './PERatioComponent';
-import AnalystTargetComponent from './AnalystTargetComponent';
-import PEGRatioComponent from './PEGRatioComponent';
-import PriceToBookComponent from './PriceToBookComponent';
-import ROEComponent from './ROEComponent';
-import DividendYieldComponent from './DividendYieldComponent';
-import EPSComponent from './EPSComponent';
-import OperatingMarginComponent from './OperatingMarginComponent';
-import InstitutionalOwnershipComponent from './InstitutionalOwnershipComponent';
-import ForwardPEComponent from './ForwardPEComponent';
-import PriceToSalesComponent from './PriceToSalesComponent';
-import BookValueComponent from './BookValueComponent';
-import EBITDAComponent from './EBITDAComponent';
-import EarningsGrowthComponent from './EarningsGrowthComponent';
-import InsiderOwnershipComponent from './InsiderOwnershipComponent';
-import ROAComponent from './ROAComponent';
-import TrailingPEComponent from './TrailingPEComponent';
+
+// Info components
+import TickerComponent from './info/TickerComponent';
+import CompanyNameComponent from './info/CompanyNameComponent';
+import CompanyDescriptionComponent from './info/CompanyDescriptionComponent';
+import SectorComponent from './info/SectorComponent';
+import IndustryComponent from './info/IndustryComponent';
+import AssetTypeComponent from './info/AssetTypeComponent';
+import NewsComponent from './info/NewsComponent';
+import NotesComponent from './info/NotesComponent';
+import BonusChecksComponent from './info/BonusChecksComponent';
+
+// Scoring components
+import PriceComponent from './scoring/PriceComponent';
+import PercentRiseComponent from './scoring/PercentRiseComponent';
+import FloatComponent from './scoring/FloatComponent';
+import SharesOutstandingComponent from './scoring/SharesOutstandingComponent';
+import RestrictedSharesComponent from './scoring/RestrictedSharesComponent';
+import MarketCapComponent from './scoring/MarketCapComponent';
+import BetaComponent from './scoring/BetaComponent';
+import PERatioComponent from './scoring/PERatioComponent';
+import AnalystTargetComponent from './scoring/AnalystTargetComponent';
+import PEGRatioComponent from './scoring/PEGRatioComponent';
+import PriceToBookComponent from './scoring/PriceToBookComponent';
+import ROEComponent from './scoring/ROEComponent';
+import DividendYieldComponent from './scoring/DividendYieldComponent';
+import EPSComponent from './scoring/EPSComponent';
+import OperatingMarginComponent from './scoring/OperatingMarginComponent';
+import InstitutionalOwnershipComponent from './scoring/InstitutionalOwnershipComponent';
+import ForwardPEComponent from './scoring/ForwardPEComponent';
+import PriceToSalesComponent from './scoring/PriceToSalesComponent';
+import BookValueComponent from './scoring/BookValueComponent';
+import EBITDAComponent from './scoring/EBITDAComponent';
+import EarningsGrowthComponent from './scoring/EarningsGrowthComponent';
+import InsiderOwnershipComponent from './scoring/InsiderOwnershipComponent';
+import ROAComponent from './scoring/ROAComponent';
+import TrailingPEComponent from './scoring/TrailingPEComponent';
+import DividendPerShareComponent from './scoring/DividendPerShareComponent';
+import EVToRevenueComponent from './scoring/EVToRevenueComponent';
+import EVToEBITDAComponent from './scoring/EVToEBITDAComponent';
+import RevenuePerShareComponent from './scoring/RevenuePerShareComponent';
+import AnalystRatingsComponent from './scoring/AnalystRatingsComponent';
+import ProfitMarginComponent from './scoring/ProfitMarginComponent';
+import RevenueGrowthComponent from './scoring/RevenueGrowthComponent';
+
+// Technical components
+import RelativeVolumeComponent from './technical/RelativeVolumeComponent';
+import MovingAverage50Component from './technical/MovingAverage50Component';
+import MovingAverage200Component from './technical/MovingAverage200Component';
+import Week52HighComponent from './technical/Week52HighComponent';
+import Week52LowComponent from './technical/Week52LowComponent';
 
 export const COMPONENT_REGISTRY = {
   ticker: {
@@ -44,7 +59,7 @@ export const COMPONENT_REGISTRY = {
     component: TickerComponent,
     required: true,
     removable: false,
-    category: 'core',
+    category: 'Core',
     defaultSize: 'small'
   },
   price: {
@@ -53,18 +68,18 @@ export const COMPONENT_REGISTRY = {
     description: 'Current stock price',
     component: PriceComponent,
     required: false,
-    category: 'Price & Momentum',
+    category: 'Price Action',
     defaultSize: 'small',
     scoring: true,
     criteria: {
       ranges: [
-        { min: 0, max: 2, points: 3, color: 'green' },
-        { min: 2, max: 3, points: 2, color: 'green' },
-        { min: 3, max: 5, points: 1, color: 'green' },
-        { min: 5, max: 8, points: -1, color: 'orange' },
-        { min: 8, max: 10, points: -2, color: 'red' },
-        { min: 10, max: 15, points: -2, color: 'red' },
-        { min: 15, max: Infinity, points: -3, color: 'red' }
+        { min: 0, max: 1, points: -2, color: 'red' },            // Sub-dollar (high risk)
+        { min: 1, max: 2, points: 1, color: 'green' },           // Low price momentum plays
+        { min: 2, max: 5, points: 2, color: 'green' },           // Ideal momentum range
+        { min: 5, max: 10, points: 1, color: 'green' },          // Mid-range momentum
+        { min: 10, max: 20, points: 0, color: 'orange' },        // Higher capital requirement
+        { min: 20, max: 50, points: -1, color: 'orange' },       // Large position cost
+        { min: 50, max: Infinity, points: -2, color: 'red' }     // Very expensive per share
       ]
     }
   },
@@ -74,7 +89,7 @@ export const COMPONENT_REGISTRY = {
     description: 'Daily percentage change',
     component: PercentRiseComponent,
     required: false,
-    category: 'Price & Momentum',
+    category: 'Price Analysis',
     defaultSize: 'small',
     scoring: true,
     criteria: {
@@ -94,17 +109,18 @@ export const COMPONENT_REGISTRY = {
     description: 'Volume relative to average',
     component: RelativeVolumeComponent,
     required: false,
-    category: 'Volume & Float',
+    category: 'Volume & Momentum',
     defaultSize: 'small',
     scoring: true,
     criteria: {
       ranges: [
-        { min: 0, max: 2, points: -3, color: 'red' },
-        { min: 2, max: 3, points: -2, color: 'red' },
-        { min: 3, max: 5, points: -1, color: 'orange' },
-        { min: 5, max: 8, points: 1, color: 'green' },
-        { min: 8, max: 12, points: 2, color: 'green' },
-        { min: 12, max: Infinity, points: 3, color: 'green' }
+        { min: 0, max: 1, points: -3, color: 'red' },            // Very low interest
+        { min: 1, max: 2, points: -2, color: 'red' },            // Below average volume
+        { min: 2, max: 3, points: -1, color: 'orange' },         // Slightly low volume
+        { min: 3, max: 5, points: 1, color: 'green' },           // Good volume increase
+        { min: 5, max: 10, points: 2, color: 'green' },          // Strong volume
+        { min: 10, max: 20, points: 3, color: 'green' },         // Exceptional volume
+        { min: 20, max: Infinity, points: 1, color: 'orange' }   // Extreme spike (may reverse)
       ]
     }
   },
@@ -114,7 +130,7 @@ export const COMPONENT_REGISTRY = {
     description: 'Free float shares (auto-calculated from outstanding - restricted)',
     component: FloatComponent,
     required: false,
-    category: 'Volume & Float',
+    category: 'Ownership & Structure',
     defaultSize: 'small',
     scoring: true,
     criteria: {
@@ -134,7 +150,7 @@ export const COMPONENT_REGISTRY = {
     description: 'Total shares outstanding',
     component: SharesOutstandingComponent,
     required: false,
-    category: 'Company Size',
+    category: 'Ownership & Structure',
     defaultSize: 'small',
     scoring: 'range',
     criteria: {
@@ -152,7 +168,7 @@ export const COMPONENT_REGISTRY = {
     description: 'Restricted/insider shares',
     component: RestrictedSharesComponent,
     required: false,
-    category: 'Company Size',
+    category: 'Ownership & Structure',
     defaultSize: 'small',
     scoring: 'range',
     criteria: {
@@ -170,7 +186,7 @@ export const COMPONENT_REGISTRY = {
     description: 'News items and catalysts',
     component: NewsComponent,
     required: false,
-    category: 'analysis',
+    category: 'Research & Analysis',
     defaultSize: 'large',
     scoring: true
   },
@@ -180,7 +196,7 @@ export const COMPONENT_REGISTRY = {
     description: 'Personal notes and observations',
     component: NotesComponent,
     required: false,
-    category: 'analysis',
+    category: 'Research & Analysis',
     defaultSize: 'large',
     scoring: false
   },
@@ -190,7 +206,7 @@ export const COMPONENT_REGISTRY = {
     description: 'Additional scoring criteria',
     component: BonusChecksComponent,
     required: false,
-    category: 'scoring',
+    category: 'Research & Analysis',
     defaultSize: 'medium',
     scoring: true
   },
@@ -200,7 +216,7 @@ export const COMPONENT_REGISTRY = {
     description: 'Total market capitalization',
     component: MarketCapComponent,
     required: false,
-    category: 'Company Size',
+    category: 'Valuation Metrics',
     defaultSize: 'small',
     scoring: true,
     criteria: {
@@ -219,16 +235,17 @@ export const COMPONENT_REGISTRY = {
     description: 'Volatility relative to market',
     component: BetaComponent,
     required: false,
-    category: 'Technical Indicators',
+    category: 'Ownership & Structure',
     defaultSize: 'small',
     scoring: true,
     criteria: {
       ranges: [
-        { min: -Infinity, max: 0.5, points: -2, color: 'red' },   // Too stable
+        { min: -Infinity, max: 0.5, points: -3, color: 'red' },   // Too stable (no movement)
         { min: 0.5, max: 1.0, points: -1, color: 'orange' },      // Low volatility
-        { min: 1.0, max: 1.5, points: 1, color: 'green' },        // Moderate volatility
-        { min: 1.5, max: 2.5, points: 2, color: 'green' },        // Good volatility
-        { min: 2.5, max: Infinity, points: 3, color: 'green' }    // High volatility
+        { min: 1.0, max: 1.5, points: 1, color: 'green' },        // Market-like volatility
+        { min: 1.5, max: 2.5, points: 2, color: 'green' },        // Good volatility for swings
+        { min: 2.5, max: 4.0, points: 3, color: 'green' },        // High volatility (big moves)
+        { min: 4.0, max: Infinity, points: 1, color: 'orange' }   // Extreme volatility (risky)
       ]
     }
   },
@@ -238,7 +255,7 @@ export const COMPONENT_REGISTRY = {
     description: 'Current price as % of 52-week high',
     component: Week52HighComponent,
     required: false,
-    category: 'Technical Indicators',
+    category: 'Price Analysis',
     defaultSize: 'small',
     scoring: true,
     criteria: {
@@ -253,13 +270,34 @@ export const COMPONENT_REGISTRY = {
       ]
     }
   },
+  week52Low: {
+    id: 'week52Low',
+    name: '52-Week Low %',
+    description: 'Current price as % above 52-week low',
+    component: Week52LowComponent,
+    required: false,
+    category: 'Price Analysis',
+    defaultSize: 'small',
+    scoring: true,
+    criteria: {
+      ranges: [
+        { min: 0, max: 10, points: -3, color: 'red' },            // At/near low
+        { min: 10, max: 25, points: -2, color: 'red' },           // Close to low
+        { min: 25, max: 50, points: -1, color: 'orange' },        // Below midpoint
+        { min: 50, max: 100, points: 0, color: 'orange' },        // Above midpoint
+        { min: 100, max: 200, points: 1, color: 'green' },        // Well above low
+        { min: 200, max: 500, points: 2, color: 'green' },        // Far above low
+        { min: 500, max: Infinity, points: 3, color: 'green' }    // Very high above low
+      ]
+    }
+  },
   movingAverage50: {
     id: 'movingAverage50',
     name: '50-Day MA',
     description: '50-day moving average',
     component: MovingAverage50Component,
     required: false,
-    category: 'Technical Indicators',
+    category: 'Price Analysis',
     defaultSize: 'small',
     scoring: true,
     criteria: {
@@ -279,7 +317,7 @@ export const COMPONENT_REGISTRY = {
     description: '200-day moving average',
     component: MovingAverage200Component,
     required: false,
-    category: 'Technical Indicators',
+    category: 'Price Analysis',
     defaultSize: 'small',
     scoring: true,
     criteria: {
@@ -299,7 +337,7 @@ export const COMPONENT_REGISTRY = {
     description: 'Market sector',
     component: SectorComponent,
     required: false,
-    category: 'Classification',
+    category: 'Company Details',
     defaultSize: 'small',
     scoring: 'categorical',
     categories: [
@@ -325,7 +363,7 @@ export const COMPONENT_REGISTRY = {
     description: 'Industry classification',
     component: IndustryComponent,
     required: false,
-    category: 'Classification',
+    category: 'Company Details',
     defaultSize: 'small',
     scoring: 'categorical',
     categories: [
@@ -361,16 +399,18 @@ export const COMPONENT_REGISTRY = {
     description: 'Net profit margin percentage',
     component: ProfitMarginComponent,
     required: false,
-    category: 'Fundamentals',
+    category: 'Financial Health',
     defaultSize: 'small',
     scoring: true,
     criteria: {
       ranges: [
-        { min: -Infinity, max: 0, points: 0, color: 'orange' },   // Negative (acceptable for growth)
-        { min: 0, max: 5, points: 1, color: 'green' },            // Low margin
-        { min: 5, max: 15, points: 1, color: 'green' },           // Moderate margin
-        { min: 15, max: 30, points: 2, color: 'green' },          // Good margin
-        { min: 30, max: Infinity, points: 2, color: 'green' }     // Excellent margin
+        { min: -Infinity, max: -10, points: -3, color: 'red' },   // Deeply unprofitable
+        { min: -10, max: 0, points: -1, color: 'orange' },        // Unprofitable (growth stage)
+        { min: 0, max: 5, points: 0, color: 'orange' },           // Low margin
+        { min: 5, max: 10, points: 1, color: 'green' },           // Acceptable margin
+        { min: 10, max: 20, points: 2, color: 'green' },          // Good margin
+        { min: 20, max: 30, points: 3, color: 'green' },          // Strong margin
+        { min: 30, max: Infinity, points: 3, color: 'green' }     // Excellent margin
       ]
     }
   },
@@ -380,7 +420,7 @@ export const COMPONENT_REGISTRY = {
     description: 'Quarterly revenue growth YoY',
     component: RevenueGrowthComponent,
     required: false,
-    category: 'Fundamentals',
+    category: 'Growth & Performance',
     defaultSize: 'small',
     scoring: true,
     criteria: {
@@ -399,7 +439,7 @@ export const COMPONENT_REGISTRY = {
     description: 'Price-to-earnings ratio',
     component: PERatioComponent,
     required: false,
-    category: 'Fundamentals',
+    category: 'Valuation Metrics',
     defaultSize: 'small',
     scoring: true,
     criteria: {
@@ -417,7 +457,7 @@ export const COMPONENT_REGISTRY = {
     description: 'Analyst price target vs current price',
     component: AnalystTargetComponent,
     required: false,
-    category: 'Fundamentals',
+    category: 'Valuation Metrics',
     defaultSize: 'small',
     scoring: true,
     criteria: {
@@ -437,7 +477,7 @@ export const COMPONENT_REGISTRY = {
     description: 'Price/Earnings to Growth ratio',
     component: PEGRatioComponent,
     required: false,
-    category: 'Fundamentals',
+    category: 'Valuation Metrics',
     defaultSize: 'small',
     scoring: true,
     criteria: {
@@ -456,7 +496,7 @@ export const COMPONENT_REGISTRY = {
     description: 'Price to book value ratio',
     component: PriceToBookComponent,
     required: false,
-    category: 'Fundamentals',
+    category: 'Valuation Metrics',
     defaultSize: 'small',
     scoring: true,
     criteria: {
@@ -475,16 +515,18 @@ export const COMPONENT_REGISTRY = {
     description: 'Return on equity percentage',
     component: ROEComponent,
     required: false,
-    category: 'Fundamentals',
+    category: 'Financial Health',
     defaultSize: 'small',
     scoring: true,
     criteria: {
       ranges: [
-        { min: 0, max: 0.05, points: -2, color: 'red' },          // Poor (0-5%)
-        { min: 0.05, max: 0.10, points: -1, color: 'orange' },    // Below average (5-10%)
-        { min: 0.10, max: 0.15, points: 1, color: 'green' },      // Average (10-15%)
-        { min: 0.15, max: 0.20, points: 2, color: 'green' },      // Good (15-20%)
-        { min: 0.20, max: Infinity, points: 3, color: 'green' }   // Excellent (20%+)
+        { min: -Infinity, max: 0, points: -3, color: 'red' },     // Negative ROE
+        { min: 0, max: 5, points: -2, color: 'red' },             // Very poor (0-5%)
+        { min: 5, max: 10, points: -1, color: 'orange' },         // Below average (5-10%)
+        { min: 10, max: 15, points: 1, color: 'green' },          // Average (10-15%)
+        { min: 15, max: 20, points: 2, color: 'green' },          // Good (15-20%)
+        { min: 20, max: 30, points: 3, color: 'green' },          // Excellent (20-30%)
+        { min: 30, max: Infinity, points: 3, color: 'green' }     // Outstanding (30%+)
       ]
     }
   },
@@ -494,16 +536,18 @@ export const COMPONENT_REGISTRY = {
     description: 'Annual dividend yield percentage',
     component: DividendYieldComponent,
     required: false,
-    category: 'Fundamentals',
+    category: 'Growth & Performance',
     defaultSize: 'small',
     scoring: true,
     criteria: {
       ranges: [
-        { min: 0, max: 0.01, points: 0, color: 'orange' },        // No/minimal dividend (0-1%)
-        { min: 0.01, max: 0.02, points: 1, color: 'green' },      // Low yield (1-2%)
-        { min: 0.02, max: 0.04, points: 2, color: 'green' },      // Moderate yield (2-4%)
-        { min: 0.04, max: 0.06, points: 3, color: 'green' },      // Good yield (4-6%)
-        { min: 0.06, max: Infinity, points: 2, color: 'green' }   // High yield (6%+, may be risky)
+        { min: 0, max: 1, points: -1, color: 'red' },             // No dividend
+        { min: 1, max: 2, points: 0, color: 'orange' },           // Low yield (1-2%)
+        { min: 2, max: 3, points: 1, color: 'green' },            // Moderate yield (2-3%)
+        { min: 3, max: 5, points: 2, color: 'green' },            // Good yield (3-5%)
+        { min: 5, max: 7, points: 3, color: 'green' },            // Strong yield (5-7%)
+        { min: 7, max: 10, points: 2, color: 'green' },           // High yield (7-10%)
+        { min: 10, max: Infinity, points: 0, color: 'orange' }    // Very high (unsustainable risk)
       ]
     }
   },
@@ -513,16 +557,18 @@ export const COMPONENT_REGISTRY = {
     description: 'Earnings per share',
     component: EPSComponent,
     required: false,
-    category: 'Fundamentals',
+    category: 'Growth & Performance',
     defaultSize: 'small',
     scoring: true,
     criteria: {
       ranges: [
-        { min: -Infinity, max: 0, points: -2, color: 'red' },     // Negative earnings
-        { min: 0, max: 1, points: -1, color: 'orange' },          // Low earnings
-        { min: 1, max: 3, points: 1, color: 'green' },            // Moderate earnings
-        { min: 3, max: 5, points: 2, color: 'green' },            // Good earnings
-        { min: 5, max: Infinity, points: 3, color: 'green' }      // Strong earnings
+        { min: -Infinity, max: -1, points: -3, color: 'red' },    // Deeply negative earnings
+        { min: -1, max: 0, points: -1, color: 'orange' },         // Negative (growth stage OK)
+        { min: 0, max: 0.5, points: 0, color: 'orange' },         // Minimal earnings
+        { min: 0.5, max: 1.5, points: 1, color: 'green' },        // Low but positive
+        { min: 1.5, max: 3, points: 2, color: 'green' },          // Moderate earnings
+        { min: 3, max: 5, points: 3, color: 'green' },            // Strong earnings
+        { min: 5, max: Infinity, points: 3, color: 'green' }      // Excellent earnings
       ]
     }
   },
@@ -532,7 +578,7 @@ export const COMPONENT_REGISTRY = {
     description: 'Operating profit margin percentage',
     component: OperatingMarginComponent,
     required: false,
-    category: 'Fundamentals',
+    category: 'Financial Health',
     defaultSize: 'small',
     scoring: true,
     criteria: {
@@ -551,7 +597,7 @@ export const COMPONENT_REGISTRY = {
     description: 'Percentage owned by institutions',
     component: InstitutionalOwnershipComponent,
     required: false,
-    category: 'Technical Indicators',
+    category: 'Ownership & Structure',
     defaultSize: 'small',
     scoring: true,
     criteria: {
@@ -570,7 +616,7 @@ export const COMPONENT_REGISTRY = {
     description: 'Forward price-to-earnings ratio',
     component: ForwardPEComponent,
     required: false,
-    category: 'Fundamentals',
+    category: 'Valuation Metrics',
     defaultSize: 'small',
     scoring: true,
     criteria: {
@@ -589,7 +635,7 @@ export const COMPONENT_REGISTRY = {
     description: 'Trailing twelve month P/E ratio',
     component: TrailingPEComponent,
     required: false,
-    category: 'Fundamentals',
+    category: 'Valuation Metrics',
     defaultSize: 'small',
     scoring: true,
     criteria: {
@@ -602,13 +648,151 @@ export const COMPONENT_REGISTRY = {
       ]
     }
   },
+  dividendPerShare: {
+    id: 'dividendPerShare',
+    name: 'Dividend Per Share',
+    description: 'Annual dividend payment per share',
+    component: DividendPerShareComponent,
+    required: false,
+    category: 'Growth & Performance',
+    defaultSize: 'small',
+    scoring: true,
+    criteria: {
+      ranges: [
+        { min: 0, max: 0, points: -1, color: 'red' },            // No dividend
+        { min: 0.01, max: 1.00, points: 0, color: 'orange' },    // Low dividend
+        { min: 1.01, max: 2.00, points: 1, color: 'green' },     // Moderate dividend
+        { min: 2.01, max: 4.00, points: 2, color: 'green' },     // Good dividend
+        { min: 4.01, max: Infinity, points: 3, color: 'green' }  // High dividend
+      ]
+    }
+  },
+  evToRevenue: {
+    id: 'evToRevenue',
+    name: 'EV/Revenue',
+    description: 'Enterprise Value to Revenue ratio',
+    component: EVToRevenueComponent,
+    required: false,
+    category: 'Valuation Metrics',
+    defaultSize: 'small',
+    scoring: true,
+    criteria: {
+      ranges: [
+        { min: 0, max: 1, points: 3, color: 'green' },           // Very undervalued
+        { min: 1, max: 3, points: 2, color: 'green' },           // Undervalued
+        { min: 3, max: 6, points: 1, color: 'orange' },          // Fair value
+        { min: 6, max: 10, points: 0, color: 'orange' },         // Overvalued
+        { min: 10, max: Infinity, points: -2, color: 'red' }     // Very overvalued
+      ]
+    }
+  },
+  evToEbitda: {
+    id: 'evToEbitda',
+    name: 'EV/EBITDA',
+    description: 'Enterprise Value to EBITDA ratio',
+    component: EVToEBITDAComponent,
+    required: false,
+    category: 'Valuation Metrics',
+    defaultSize: 'small',
+    scoring: true,
+    criteria: {
+      ranges: [
+        { min: 0, max: 5, points: 3, color: 'green' },           // Very undervalued
+        { min: 5, max: 10, points: 2, color: 'green' },          // Undervalued
+        { min: 10, max: 15, points: 1, color: 'orange' },        // Fair value
+        { min: 15, max: 25, points: 0, color: 'orange' },        // Overvalued
+        { min: 25, max: Infinity, points: -2, color: 'red' }     // Very overvalued
+      ]
+    }
+  },
+  revenuePerShare: {
+    id: 'revenuePerShare',
+    name: 'Revenue Per Share',
+    description: 'Revenue per share TTM',
+    component: RevenuePerShareComponent,
+    required: false,
+    category: 'Financial Health',
+    defaultSize: 'small',
+    scoring: true,
+    criteria: {
+      ranges: [
+        { min: 0, max: 10, points: -1, color: 'red' },           // Low revenue/share
+        { min: 10, max: 25, points: 0, color: 'orange' },        // Below average
+        { min: 25, max: 50, points: 1, color: 'green' },         // Average
+        { min: 50, max: 100, points: 2, color: 'green' },        // Good
+        { min: 100, max: Infinity, points: 3, color: 'green' }   // Excellent
+      ]
+    }
+  },
+  analystRatings: {
+    id: 'analystRatings',
+    name: 'Analyst Ratings',
+    description: 'Analyst buy/sell recommendations',
+    component: AnalystRatingsComponent,
+    required: false,
+    category: 'Valuation Metrics',
+    defaultSize: 'large',
+    scoring: true,
+    criteria: {
+      ranges: [
+        { min: -2, max: -1.5, points: -3, color: 'red' },        // Strong sell consensus
+        { min: -1.5, max: -0.5, points: -2, color: 'red' },      // Sell consensus
+        { min: -0.5, max: 0.5, points: 0, color: 'orange' },     // Hold consensus
+        { min: 0.5, max: 1.5, points: 2, color: 'green' },       // Buy consensus
+        { min: 1.5, max: 2, points: 3, color: 'green' }          // Strong buy consensus
+      ]
+    }
+  },
+  assetType: {
+    id: 'assetType',
+    name: 'Asset Type',
+    description: 'Type of security (Common Stock, ETF, etc.)',
+    component: AssetTypeComponent,
+    required: false,
+    category: 'Company Details',
+    defaultSize: 'small',
+    scoring: 'categorical',
+    categories: [
+      'Common Stock',
+      'Preferred Stock',
+      'ETF',
+      'REIT',
+      'ADR',
+      'Mutual Fund',
+      'Index',
+      'Other'
+    ],
+    criteria: {
+      categories: {}
+    }
+  },
+  companyName: {
+    id: 'companyName',
+    name: 'Company Name',
+    description: 'Full legal company name',
+    component: CompanyNameComponent,
+    required: false,
+    category: 'Company Details',
+    defaultSize: 'medium',
+    scoring: false
+  },
+  companyDescription: {
+    id: 'companyDescription',
+    name: 'Company Description',
+    description: 'Business description and overview',
+    component: CompanyDescriptionComponent,
+    required: false,
+    category: 'Company Details',
+    defaultSize: 'large',
+    scoring: false
+  },
   priceToSales: {
     id: 'priceToSales',
     name: 'Price-to-Sales',
     description: 'Price to sales ratio',
     component: PriceToSalesComponent,
     required: false,
-    category: 'Fundamentals',
+    category: 'Valuation Metrics',
     defaultSize: 'small',
     scoring: true,
     criteria: {
@@ -627,7 +811,7 @@ export const COMPONENT_REGISTRY = {
     description: 'Book value per share',
     component: BookValueComponent,
     required: false,
-    category: 'Fundamentals',
+    category: 'Financial Health',
     defaultSize: 'small',
     scoring: true,
     criteria: {
@@ -646,7 +830,7 @@ export const COMPONENT_REGISTRY = {
     description: 'Earnings before interest, taxes, depreciation, and amortization',
     component: EBITDAComponent,
     required: false,
-    category: 'Fundamentals',
+    category: 'Financial Health',
     defaultSize: 'small',
     scoring: true,
     criteria: {
@@ -665,7 +849,7 @@ export const COMPONENT_REGISTRY = {
     description: 'Quarterly earnings growth year-over-year',
     component: EarningsGrowthComponent,
     required: false,
-    category: 'Fundamentals',
+    category: 'Growth & Performance',
     defaultSize: 'small',
     scoring: true,
     criteria: {
@@ -684,7 +868,7 @@ export const COMPONENT_REGISTRY = {
     description: 'Percentage owned by insiders',
     component: InsiderOwnershipComponent,
     required: false,
-    category: 'Company Size',
+    category: 'Ownership & Structure',
     defaultSize: 'small',
     scoring: true,
     criteria: {
@@ -703,66 +887,68 @@ export const COMPONENT_REGISTRY = {
     description: 'Return on assets percentage',
     component: ROAComponent,
     required: false,
-    category: 'Fundamentals',
+    category: 'Financial Health',
     defaultSize: 'small',
     scoring: true,
     criteria: {
       ranges: [
-        { min: 0, max: 0.02, points: -2, color: 'red' },          // Poor (0-2%)
-        { min: 0.02, max: 0.05, points: -1, color: 'orange' },    // Below average (2-5%)
-        { min: 0.05, max: 0.08, points: 1, color: 'green' },      // Average (5-8%)
-        { min: 0.08, max: 0.12, points: 2, color: 'green' },      // Good (8-12%)
-        { min: 0.12, max: Infinity, points: 3, color: 'green' }   // Excellent (>12%)
+        { min: -Infinity, max: 0, points: -3, color: 'red' },     // Negative ROA
+        { min: 0, max: 2, points: -2, color: 'red' },             // Very poor (0-2%)
+        { min: 2, max: 5, points: -1, color: 'orange' },          // Below average (2-5%)
+        { min: 5, max: 8, points: 1, color: 'green' },            // Average (5-8%)
+        { min: 8, max: 12, points: 2, color: 'green' },           // Good (8-12%)
+        { min: 12, max: 20, points: 3, color: 'green' },          // Excellent (12-20%)
+        { min: 20, max: Infinity, points: 3, color: 'green' }     // Outstanding (20%+)
       ]
     }
   }
 };
 
 export const COMPONENT_CATEGORIES = {
-  core: {
+  Core: {
     name: 'Core',
     description: 'Essential components',
     color: '#3b82f6'
   },
-  'Price & Momentum': {
-    name: 'Price & Momentum',
-    description: 'Price action and momentum indicators',
-    color: '#10b981'
+  'Company Details': {
+    name: 'Company Details',
+    description: 'Company identification and classification',
+    color: '#64748b'
   },
-  'Volume & Float': {
-    name: 'Volume & Float',
-    description: 'Volume and share availability metrics',
-    color: '#06b6d4'
-  },
-  'Company Size': {
-    name: 'Company Size',
-    description: 'Share structure and market cap',
-    color: '#8b5cf6'
-  },
-  'Technical Indicators': {
-    name: 'Technical Indicators',
-    description: 'Technical analysis metrics',
-    color: '#f59e0b'
-  },
-  'Classification': {
-    name: 'Classification',
-    description: 'Sector and industry categorization',
-    color: '#6b7280'
-  },
-  'Fundamentals': {
-    name: 'Fundamentals',
-    description: 'Financial and business fundamentals',
-    color: '#ec4899'
-  },
-  analysis: {
-    name: 'Analysis',
-    description: 'Qualitative analysis tools',
+  'Research & Analysis': {
+    name: 'Research & Analysis',
+    description: 'News, notes, and qualitative analysis',
     color: '#14b8a6'
   },
-  scoring: {
-    name: 'Scoring',
-    description: 'Scoring and evaluation',
-    color: '#a855f7'
+  'Valuation Metrics': {
+    name: 'Valuation Metrics',
+    description: 'Price, earnings, and valuation ratios',
+    color: '#ec4899'
+  },
+  'Financial Health': {
+    name: 'Financial Health',
+    description: 'Profitability and balance sheet strength',
+    color: '#f97316'
+  },
+  'Growth & Performance': {
+    name: 'Growth & Performance',
+    description: 'Growth rates and income metrics',
+    color: '#84cc16'
+  },
+  'Ownership & Structure': {
+    name: 'Ownership & Structure',
+    description: 'Share structure and ownership data',
+    color: '#8b5cf6'
+  },
+  'Price Analysis': {
+    name: 'Price Analysis',
+    description: 'Price trends and moving averages',
+    color: '#f59e0b'
+  },
+  'Volume & Momentum': {
+    name: 'Volume & Momentum',
+    description: 'Volume and momentum indicators',
+    color: '#10b981'
   }
 };
 
@@ -775,6 +961,7 @@ export const DEFAULT_COMPONENT_ORDER = [
   'marketCap',
   'beta',
   'week52High',
+  'week52Low',
   'movingAverage50',
   'movingAverage200',
   'institutionalOwnership',
@@ -787,6 +974,11 @@ export const DEFAULT_COMPONENT_ORDER = [
   'pegRatio',
   'forwardPE',
   'trailingPE',
+  'dividendPerShare',
+  'evToRevenue',
+  'evToEbitda',
+  'revenuePerShare',
+  'analystRatings',
   'priceToBook',
   'priceToSales',
   'bookValue',
@@ -796,6 +988,9 @@ export const DEFAULT_COMPONENT_ORDER = [
   'eps',
   'ebitda',
   'analystTarget',
+  'assetType',
+  'companyName',
+  'companyDescription',
   'sharesOutstanding',
   'restrictedShares',
   'news',
@@ -822,58 +1017,174 @@ export const STRATEGY_PRESETS = {
       notes: true
     },
     bonusChecks: {
-      recentIPO: { points: 1, description: 'Recent IPO (within 12 months)' },
-      recentReverseSplit: { points: 1, description: 'Recent reverse split' },
-      blueSkyBreakout: { points: 1, description: 'Breaking through resistance' }
-    }
+      recentIPO: { points: 2, description: 'Recent IPO' },
+      recentReverseSplit: { points: 2, description: 'Recent reverse split' },
+      blueSkyBreakout: { points: 3, description: 'Breaking through resistance' }
+    },
+    customCriteria: {} // Uses default scoring ranges
   },
   valueInvesting: {
     id: 'valueInvesting',
     name: 'Value Investing',
-    description: 'Classic fundamental analysis targeting undervalued companies with strong balance sheets. Emphasizes profitability, growth, and valuation metrics.',
+    description: 'Classic fundamental analysis targeting undervalued companies with strong balance sheets. Emphasizes profitability, growth, and valuation metrics for long-term wealth building.',
     paperConfig: {
       ticker: true,
-      price: true,
-      marketCap: true,
+      // Core valuation metrics (4 criteria)
       peRatio: true,
-      pegRatio: true,
       priceToBook: true,
+      dividendYield: true,
       roe: true,
-      eps: true,
-      profitMargin: true,
-      revenueGrowth: true,
-      beta: true,
-      sector: true,
-      industry: true,
+      // Analysis tools
+      news: true,
       bonusChecks: true,
       notes: true
     },
     bonusChecks: {
-      dividendYield: { points: 2, description: 'Consistent dividend payments (3+ years)' },
-      debtToEquity: { points: 2, description: 'Low debt-to-equity ratio (<0.5)' },
-      cashReserves: { points: 1, description: 'Strong cash reserves (>$100M)' }
+      consistentDividends: { points: 3, description: 'Consistent dividend growth' },
+      lowDebt: { points: 2, description: 'Low debt-to-equity ratio' },
+      strongCashFlow: { points: 3, description: 'Strong free cash flow' },
+      insiderBuying: { points: 2, description: 'Recent insider buying' }
+    },
+    customCriteria: {
+      // Value investing focuses on lower P/E ratios
+      peRatio: {
+        ranges: [
+          { min: -Infinity, max: 0, points: -2, color: 'red' },     // Negative earnings
+          { min: 0, max: 10, points: 3, color: 'green' },           // Deeply undervalued
+          { min: 10, max: 15, points: 2, color: 'green' },          // Undervalued
+          { min: 15, max: 20, points: 1, color: 'green' },          // Fair value
+          { min: 20, max: 25, points: 0, color: 'orange' },         // Neutral
+          { min: 25, max: Infinity, points: -2, color: 'red' }      // Overvalued
+        ]
+      },
+      // Dividend yield is critical for value
+      dividendYield: {
+        ranges: [
+          { min: 0, max: 1, points: -2, color: 'red' },             // No dividend (bad for value)
+          { min: 1, max: 2, points: 0, color: 'orange' },           // Low yield
+          { min: 2, max: 3, points: 1, color: 'green' },            // Moderate yield
+          { min: 3, max: 5, points: 3, color: 'green' },            // Good yield
+          { min: 5, max: 7, points: 3, color: 'green' },            // Strong yield
+          { min: 7, max: 10, points: 2, color: 'green' },           // High yield
+          { min: 10, max: Infinity, points: 0, color: 'orange' }    // Unsustainably high
+        ]
+      },
+      // ROE is key for value investing
+      roe: {
+        ranges: [
+          { min: -Infinity, max: 0, points: -3, color: 'red' },     // Negative ROE
+          { min: 0, max: 10, points: -1, color: 'orange' },         // Poor (0-10%)
+          { min: 10, max: 15, points: 1, color: 'green' },          // Average (10-15%)
+          { min: 15, max: 20, points: 2, color: 'green' },          // Good (15-20%)
+          { min: 20, max: 25, points: 3, color: 'green' },          // Excellent (20-25%)
+          { min: 25, max: Infinity, points: 3, color: 'green' }     // Outstanding (25%+)
+        ]
+      },
+      // Price-to-Book critical for value
+      priceToBook: {
+        ranges: [
+          { min: 0, max: 0.5, points: 3, color: 'green' },          // Extremely undervalued
+          { min: 0.5, max: 1, points: 3, color: 'green' },          // Deeply undervalued
+          { min: 1, max: 1.5, points: 2, color: 'green' },          // Undervalued
+          { min: 1.5, max: 2, points: 1, color: 'green' },          // Fair value
+          { min: 2, max: 3, points: 0, color: 'orange' },           // Slightly expensive
+          { min: 3, max: Infinity, points: -2, color: 'red' }       // Overvalued
+        ]
+      }
     }
   },
   growthMomentum: {
     id: 'growthMomentum',
     name: 'Technical Breakout',
-    description: 'Pure technical analysis strategy focusing on chart patterns and moving averages. Tracks stocks breaking 52-week highs with institutional backing.',
+    description: 'Pure technical analysis strategy focusing on chart patterns, moving averages, and momentum. Tracks stocks breaking 52-week highs with strong institutional support and volume confirmation.',
     paperConfig: {
       ticker: true,
-      price: true,
+      // Technical indicators (6 criteria)
       week52High: true,
       movingAverage50: true,
       movingAverage200: true,
-      beta: true,
+      relativeVolume: true,
       institutionalOwnership: true,
-      float: true,
+      beta: true,
+      // Analysis tools
+      news: true,
       bonusChecks: true,
       notes: true
     },
     bonusChecks: {
-      goldenCross: { points: 3, description: '50-day MA crossed above 200-day MA (golden cross)' },
-      volumeSpike: { points: 2, description: 'Volume 200%+ above average' },
-      consolidation: { points: 2, description: 'Consolidating near 52-week high (within 5%)' }
+      goldenCross: { points: 3, description: 'Golden cross signal' },
+      volumeBreakout: { points: 3, description: 'High volume breakout' },
+      allTimeHigh: { points: 4, description: 'New all-time high' },
+      consolidation: { points: 2, description: 'Consolidating near highs' }
+    },
+    customCriteria: {
+      // 52-week high is critical - bias toward extremes
+      week52High: {
+        ranges: [
+          { min: 0, max: 50, points: -3, color: 'red' },            // Far from high
+          { min: 50, max: 70, points: -2, color: 'red' },           // Below high
+          { min: 70, max: 85, points: -1, color: 'orange' },        // Approaching
+          { min: 85, max: 95, points: 1, color: 'green' },          // Near high
+          { min: 95, max: 99, points: 2, color: 'green' },          // Very close
+          { min: 99, max: 100, points: 3, color: 'green' },         // At high
+          { min: 100, max: Infinity, points: 3, color: 'green' }    // New high!
+        ]
+      },
+      // 50-day MA - must be above
+      movingAverage50: {
+        ranges: [
+          { min: -Infinity, max: 95, points: -3, color: 'red' },    // Below MA
+          { min: 95, max: 100, points: -1, color: 'orange' },       // At MA
+          { min: 100, max: 103, points: 1, color: 'green' },        // Slightly above
+          { min: 103, max: 107, points: 2, color: 'green' },        // Above
+          { min: 107, max: 115, points: 3, color: 'green' },        // Well above
+          { min: 115, max: Infinity, points: 2, color: 'green' }    // Extended (may pullback)
+        ]
+      },
+      // 200-day MA - trend confirmation
+      movingAverage200: {
+        ranges: [
+          { min: -Infinity, max: 95, points: -3, color: 'red' },    // Below MA (bearish)
+          { min: 95, max: 100, points: -1, color: 'orange' },       // At MA
+          { min: 100, max: 105, points: 1, color: 'green' },        // Above
+          { min: 105, max: 110, points: 2, color: 'green' },        // Well above
+          { min: 110, max: 120, points: 3, color: 'green' },        // Strong uptrend
+          { min: 120, max: Infinity, points: 2, color: 'green' }    // Very extended
+        ]
+      },
+      // High volume critical for breakouts
+      relativeVolume: {
+        ranges: [
+          { min: 0, max: 2, points: -3, color: 'red' },             // Very low (no interest)
+          { min: 2, max: 3, points: -2, color: 'red' },             // Low
+          { min: 3, max: 5, points: 0, color: 'orange' },           // Moderate
+          { min: 5, max: 10, points: 1, color: 'green' },           // Good
+          { min: 10, max: 15, points: 2, color: 'green' },          // Strong
+          { min: 15, max: 30, points: 3, color: 'green' },          // Explosive
+          { min: 30, max: Infinity, points: 2, color: 'green' }     // Extreme (monitor closely)
+        ]
+      },
+      // Prefer higher beta for momentum
+      beta: {
+        ranges: [
+          { min: -Infinity, max: 1.0, points: -2, color: 'red' },   // Too stable
+          { min: 1.0, max: 1.5, points: 0, color: 'orange' },       // Low volatility
+          { min: 1.5, max: 2.0, points: 1, color: 'green' },        // Moderate
+          { min: 2.0, max: 3.0, points: 2, color: 'green' },        // Good volatility
+          { min: 3.0, max: 4.5, points: 3, color: 'green' },        // High volatility (big moves)
+          { min: 4.5, max: Infinity, points: 1, color: 'orange' }   // Extreme (risky)
+        ]
+      },
+      // Institutional ownership confirms quality
+      institutionalOwnership: {
+        ranges: [
+          { min: 0, max: 0.30, points: -1, color: 'orange' },       // Low institutional
+          { min: 0.30, max: 0.50, points: 1, color: 'green' },      // Moderate
+          { min: 0.50, max: 0.70, points: 2, color: 'green' },      // Good
+          { min: 0.70, max: 0.85, points: 3, color: 'green' },      // Strong (smart money)
+          { min: 0.85, max: Infinity, points: 2, color: 'green' }   // Very high (less volatile)
+        ]
+      }
     }
   }
 };

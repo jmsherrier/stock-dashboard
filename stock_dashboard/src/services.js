@@ -148,9 +148,8 @@ class PersistentStorage {
     // Method 1: IndexedDB (most reliable)
     try {
       saved = await this.saveToIndexedDB(data);
-      if (saved) console.log('Data saved to IndexedDB');
     } catch (e) {
-      console.warn('IndexedDB save failed:', e);
+      // IndexedDB failed, will try localStorage
     }
 
     // Method 2: localStorage (fallback)
@@ -158,9 +157,8 @@ class PersistentStorage {
       try {
         localStorage.setItem(this.storageKey, serialized);
         saved = true;
-        console.log('Data saved to localStorage');
       } catch (e) {
-        console.warn('localStorage save failed:', e);
+        console.error('All storage methods failed');
       }
     }
 

@@ -1,3 +1,7 @@
+/* ========================================================================
+   GLOBAL STYLES & RESETS
+   ======================================================================== */
+
 * {
   box-sizing: border-box;
 }
@@ -19,6 +23,10 @@ body {
   height: 100%;
 }
 
+/* ========================================================================
+   APP CONTAINER & LAYOUT
+   ======================================================================== */
+
 .app {
   background: #1a1a1a;
   color: #e5e5e5;
@@ -28,6 +36,10 @@ body {
   flex-direction: column;
   overflow: hidden;
 }
+
+/* ========================================================================
+   HEADER SECTION
+   ======================================================================== */
 
 .app-header {
   display: flex;
@@ -181,6 +193,47 @@ body {
   border-color: #666;
 }
 
+/* Zoom controls */
+.zoom-controls {
+  display: flex;
+  align-items: center;
+  background: #333;
+  border: 1px solid #555;
+  border-radius: 6px;
+  overflow: hidden;
+  transition: all 0.2s;
+}
+
+.zoom-controls:hover {
+  background: #444;
+  border-color: #666;
+}
+
+.zoom-btn {
+  padding: 0.5rem 0.75rem;
+  background: transparent;
+  border: none;
+  color: #e5e5e5;
+  font-size: 1.1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s;
+  line-height: 1;
+  min-width: 36px;
+}
+
+.zoom-btn:hover {
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.zoom-btn:active {
+  background: rgba(255, 255, 255, 0.15);
+}
+
+.zoom-btn.zoom-out {
+  border-right: 1px solid #555;
+}
+
 .auto-update-checkbox {
   display: flex;
   align-items: center;
@@ -258,12 +311,6 @@ body {
 }
 
 /* Specific button styling */
-.add-btn {
-  background: rgba(34, 197, 94, 0.1);
-  border-color: rgba(34, 197, 94, 0.3);
-  color: #22c55e;
-  transition: all 0.2s;
-}
 
 .add-btn:hover:not(:disabled) {
   background: rgba(34, 197, 94, 0.2);
@@ -319,18 +366,28 @@ body {
   font-size: 1rem;
 }
 
-/* Stock Paper Styles */
+/* ========================================================================
+   STOCK PAPER COMPONENT STYLES
+   ======================================================================== */
+
 .stock-paper {
   background: transparent;
   border-radius: 8px;
   padding: 20px; /* Equal padding on all sides */
   margin-bottom: 0; /* No margin in grid - spacing handled by cellGap */
-  border: 2px solid rgba(255, 255, 255, 0.3);
+  border: 4px solid rgba(255, 255, 255, 0.3);
   transition: all 0.2s ease;
   color: white;
   cursor: default;
   position: relative;
   min-width: 420px;
+  max-width: 100%;
+  box-sizing: border-box;
+  overflow: hidden;
+}
+
+.stock-paper > *:last-child {
+  margin-bottom: 0 !important;
 }
 
 .stock-paper:active {
@@ -342,10 +399,10 @@ body {
   box-shadow: none;
 }
 
-/* Highlight border when clicked */
+/* Highlight border when clicked - brighter outline */
 .stock-wrapper.clicked .stock-paper {
-  border-color: rgba(255, 255, 255, 0.5);
-  box-shadow: none;
+  border-color: rgba(255, 255, 255, 0.7);
+  box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.3);
 }
 
 .stock-wrapper.dragging .stock-paper {
@@ -380,11 +437,14 @@ body {
   background: transparent;
   border-radius: 8px;
   padding: 20px;
-  margin-bottom: 16px;
-  border: 2px dashed rgba(255, 255, 255, 0.2);
+  margin-bottom: 0;
+  border: 4px dashed rgba(255, 255, 255, 0.2);
   transition: all 0.2s ease;
   cursor: pointer;
+  min-width: 420px;
   min-height: 100px;
+  max-width: 100%;
+  box-sizing: border-box;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -434,12 +494,15 @@ body {
 .stock-header {
   display: flex;
   align-items: center;
-  justify-content: stretch;
+  justify-content: center;
   padding: 8px 0;
   margin-bottom: 4px;
   gap: 12px;
   position: relative;
   width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
+  overflow: hidden;
 }
 
 .stock-header:focus,
@@ -450,7 +513,7 @@ body {
 .header-box {
   background: rgba(255, 255, 255, 0.05);
   color: white;
-  border: 1px solid rgba(255, 255, 255, 0.3);
+  border: 2px solid rgba(255, 255, 255, 0.3);
   padding: 12px 16px;
   border-radius: 6px;
   font-size: 0.85rem;
@@ -462,7 +525,7 @@ body {
   justify-content: center;
   height: auto;
   min-height: 44px;
-  flex: 1;
+  flex: 1 1 auto;
   position: relative;
 }
 
@@ -495,17 +558,28 @@ body {
   grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
   gap: 12px;
   margin-bottom: 12px;
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
 }
+
+/* ========================================================================
+   INPUT COMPONENTS & FORMS
+   ======================================================================== */
 
 .criteria-input {
   background: rgba(255, 255, 255, 0.05);
-  border: 1px solid rgba(255, 255, 255, 0.3);
+  border: 2px solid rgba(255, 255, 255, 0.3);
   border-radius: 6px;
   padding: 12px;
   display: flex;
   flex-direction: column;
   gap: 8px;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
+  overflow: hidden;
 }
 
 .criteria-label {
@@ -524,7 +598,7 @@ body {
 .criteria-input-wrapper input {
   flex: 1;
   background: rgba(0, 0, 0, 0.3);
-  border: 1px solid rgba(255, 255, 255, 0.2);
+  border: 2px solid rgba(255, 255, 255, 0.2);
   border-radius: 4px;
   color: rgba(255, 255, 255, 0.7);
   font-size: 0.85rem;
@@ -542,11 +616,6 @@ body {
   overflow: visible;
 }
 
-.input-wrapper {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
 
 .input-wrapper input {
   width: 80px;
@@ -581,6 +650,14 @@ body {
   align-items: center;
 }
 
+.criteria-header label {
+  min-height: 2.4em; /* Ensure space for 2 lines of text */
+  line-height: 1.2;
+  display: flex;
+  align-items: flex-start; /* Align text to top */
+  flex: 1;
+}
+
 .manual-only-indicator {
   font-size: 0.75rem;
   color: #888;
@@ -613,6 +690,64 @@ body {
   color: #495057;
 }
 
+/* Categorical criteria (sector, industry, assetType) */
+.categorical-criteria .component-value {
+  background: rgba(0, 0, 0, 0.3);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 4px;
+  padding: 6px 10px;
+  color: rgba(255, 255, 255, 0.9);
+  font-size: 0.9rem;
+  font-weight: 500;
+  text-align: left;
+}
+
+.categorical-criteria .component-points {
+  font-size: 0.85rem;
+  font-weight: bold;
+  margin-left: 8px;
+}
+
+.categorical-criteria .component-points.positive {
+  color: #22c55e;
+}
+
+.categorical-criteria .component-points.negative {
+  color: #ef4444;
+}
+
+/* Info criteria (companyName, companyDescription) */
+.info-criteria {
+  grid-column: span 2; /* Take up more space for longer text */
+}
+
+.info-criteria .info-text {
+  background: rgba(0, 0, 0, 0.2);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: 4px;
+  padding: 8px 12px;
+  color: rgba(255, 255, 255, 0.85);
+  font-size: 0.85rem;
+  line-height: 1.4;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', sans-serif;
+}
+
+.info-criteria.description-criteria {
+  grid-column: span 4; /* Description takes full width */
+}
+
+.info-criteria .description-text {
+  font-size: 0.82rem;
+  line-height: 1.5;
+  max-height: 120px;
+  overflow-y: auto;
+}
+
+.info-criteria .company-name-text {
+  font-weight: 500;
+  font-size: 0.9rem;
+}
+
 .warning {
   color: #dc3545;
   font-size: 0.85rem;
@@ -635,28 +770,30 @@ body {
 /* News Section Styles */
 .news-section {
   background: rgba(255, 255, 255, 0.05);
-  border: 1px solid rgba(255, 255, 255, 0.3);
+  border: 2px solid rgba(255, 255, 255, 0.3);
   border-radius: 6px;
   padding: 12px;
   margin-bottom: 12px;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
+  overflow: hidden;
 }
 
 .news-criteria {
   background: rgba(255, 255, 255, 0.05);
-  border: 1px solid rgba(255, 255, 255, 0.3);
+  border: 2px solid rgba(255, 255, 255, 0.3);
   border-radius: 6px;
   padding: 12px;
   margin-bottom: 12px;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
+  overflow: hidden;
 }
 
-.news-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 16px;
-}
 
 .news-criteria h4 {
   margin: 0;
@@ -665,11 +802,6 @@ body {
   font-weight: 500;
 }
 
-.news-score {
-  font-size: 0.85rem;
-  font-weight: bold;
-  color: white;
-}
 
 .news-points-positive {
   color: #22c55e;
@@ -778,17 +910,6 @@ body {
   cursor: not-allowed;
 }
 
-.news-item {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 8px 12px;
-  background: rgba(128, 128, 128, 0.1);
-  border: 1px solid rgba(128, 128, 128, 0.2);
-  border-radius: 4px;
-  font-size: 0.85rem;
-  margin-bottom: 4px;
-}
 
 .news-text {
   color: #ccc;
@@ -796,11 +917,6 @@ body {
   margin-right: 8px;
 }
 
-.news-points {
-  color: #22c55e;
-  font-weight: bold;
-  margin-right: 6px;
-}
 
 .remove-news-btn {
   background: none;
@@ -879,12 +995,6 @@ body {
   justify-content: center;
 }
 
-.news-item {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  margin-bottom: 8px;
-}
 
 .news-content {
   display: flex;
@@ -1085,24 +1195,6 @@ body {
   max-width: 100%;
 }
 
-.add-news-btn {
-  background: rgba(255, 255, 255, 0.1);
-  color: white;
-  border: 1px solid rgba(255, 255, 255, 0.2);
-  padding: 4px 8px;
-  border-radius: 4px;
-  cursor: pointer;
-  font-size: 0.75rem;
-  margin-top: 4px;
-  margin-bottom: 6px;
-  transition: background-color 0.2s, border-color 0.2s;
-}
-
-.add-news-btn:hover {
-  background: rgba(255, 255, 255, 0.15);
-  border-color: rgba(255, 255, 255, 0.3);
-}
-
 .news-item .remove-news {
   background: none !important;
   border: none;
@@ -1153,13 +1245,6 @@ body {
   resize: vertical;
 }
 
-.points-input {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  font-size: 0.8rem;
-  color: white;
-}
 
 .points-input select {
   width: auto;
@@ -1198,11 +1283,15 @@ body {
 /* Bonus Criteria Styles */
 .bonus-criteria {
   background: rgba(255, 255, 255, 0.05);
-  border: 1px solid rgba(255, 255, 255, 0.3);
+  border: 2px solid rgba(255, 255, 255, 0.3);
   border-radius: 6px;
   padding: 12px;
   margin-bottom: 12px;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
+  overflow: hidden;
 }
 
 .bonus-header {
@@ -1210,6 +1299,9 @@ body {
   justify-content: space-between;
   align-items: center;
   margin-bottom: 16px;
+  width: 100%;
+  max-width: 100%;
+  overflow: hidden;
 }
 
 .bonus-criteria h4 {
@@ -1243,6 +1335,9 @@ body {
   display: flex;
   flex-wrap: wrap;
   gap: 16px;
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
 }
 
 .bonus-criteria label {
@@ -1255,6 +1350,9 @@ body {
   cursor: pointer;
   flex: 1 1 calc(50% - 8px);
   min-width: 0;
+  max-width: 100%;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
 }
 
 .bonus-criteria input[type="checkbox"] {
@@ -1265,11 +1363,15 @@ body {
 /* Notes Section Styles */
 .notes-section {
   background: rgba(255, 255, 255, 0.05);
-  border: 1px solid rgba(255, 255, 255, 0.3);
+  border: 2px solid rgba(255, 255, 255, 0.3);
   border-radius: 6px;
   padding: 12px;
   margin-bottom: 12px;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
+  overflow: hidden;
 }
 
 .notes-section h4 {
@@ -1283,7 +1385,7 @@ body {
   width: 100%;
   min-height: 80px;
   padding: 10px;
-  border: 1px solid rgba(255, 255, 255, 0.2);
+  border: 2px solid rgba(255, 255, 255, 0.2);
   border-radius: 4px;
   font-size: 0.85rem;
   font-family: inherit;
@@ -1301,10 +1403,8 @@ body {
 /* Ticker Styles */
 /* Ticker Box Styles */
 .ticker-box {
-  width: 200px;
-  min-width: 200px;
-  max-width: 200px;
-  flex: 0 0 200px;
+  flex: 3 1 0;
+  min-width: 120px;
 }
 
 .ticker-display {
@@ -1313,8 +1413,8 @@ body {
   color: inherit;
   font-size: inherit;
   font-weight: inherit;
-  width: 170px;
-  max-width: 170px;
+  width: 100%;
+  max-width: 100%;
   text-align: center;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -1335,7 +1435,10 @@ body {
   box-sizing: border-box;
 }
 
-/* Modal Improvements */
+/* ========================================================================
+   MODAL COMPONENTS
+   ======================================================================== */
+
 .modal-overlay {
   position: fixed;
   top: 0;
@@ -1359,13 +1462,6 @@ body {
   margin: 20px;
 }
 
-.modal-header {
-  padding: 20px 24px 16px;
-  border-bottom: 1px solid #e9ecef;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-}
 
 .modal-header h3 {
   margin: 0;
@@ -1374,21 +1470,6 @@ body {
   font-weight: 600;
 }
 
-.close-btn {
-  background: none;
-  border: none;
-  font-size: 1.1rem;
-  color: #222;
-  cursor: pointer;
-  padding: 0;
-  width: 22px;
-  height: 22px;
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transition: background-color 0.2s;
-}
 
 .close-btn:hover {
   background-color: #f8f9fa;
@@ -1430,16 +1511,6 @@ body {
   justify-content: flex-end;
 }
 
-.cancel-btn {
-  background: #f8f9fa;
-  color: #6c757d;
-  border: 1px solid #dee2e6;
-  padding: 10px 20px;
-  border-radius: 6px;
-  cursor: pointer;
-  font-size: 0.85rem;
-  transition: all 0.2s;
-}
 
 .cancel-btn:hover {
   background: #e9ecef;
@@ -1496,7 +1567,8 @@ body {
 }
 
 .update-btn {
-  min-width: 90px;
+  flex: 1 1 0;
+  min-width: 80px;
 }
 
 .update-btn:has(.update-btn-inner:disabled) {
@@ -1505,7 +1577,7 @@ body {
   border-color: rgba(255, 255, 255, 0.1);
   cursor: not-allowed;
   box-shadow: none;
-  min-width: 90px;
+  min-width: 80px;
 }
 
 .remove-btn {
@@ -1552,12 +1624,14 @@ body {
 
 /* Lock position checkbox at bottom */
 .lock-position-control {
-  margin-top: 0; /* No extra margin - spacing handled by sections above */
-  padding: 0;
+  margin-top: 12px; /* Add spacing from content above */
+  margin-bottom: 0;
+  padding-bottom: 0; /* Removed extra padding, relying on parent padding */
   background: transparent;
   display: flex;
   align-items: center;
   gap: 0.5rem;
+  min-height: 20px; /* Ensure minimum height for lock control */
 }
 
 .lock-checkbox {
@@ -1741,7 +1815,7 @@ body {
 .form-group {
   display: flex;
   flex-direction: column;
-  gap: 0.5rem;
+  gap: .5rem;
   margin-bottom: 1rem;
 }
 
@@ -1955,6 +2029,10 @@ body {
   font-size: 0.8rem;
   font-weight: 500;
   color: #e5e5e5;
+  min-height: 2.4em; /* Ensure space for 2 lines of text (1.2em line-height × 2) */
+  line-height: 1.2;
+  display: flex;
+  align-items: flex-start; /* Align text to top */
 }
 
 .component-score {
@@ -2078,7 +2156,7 @@ body {
 
 .add-news-btn {
   background: rgba(156, 163, 175, 0.1);
-  border: 1px solid rgba(156, 163, 175, 0.3);
+  border: 3px solid rgba(156, 163, 175, 0.3);
   border-radius: 4px;
   padding: 0.5rem;
   color: #9ca3af;
@@ -2416,11 +2494,6 @@ input:disabled + .toggle-slider {
   border-color: rgba(255, 255, 255, 0.4);
 }
 
-.save-btn {
-  background: #3b82f6;
-  color: white;
-  border-color: #3b82f6;
-}
 
 .save-btn:hover {
   background: #2563eb;
@@ -2677,35 +2750,11 @@ input:disabled + .toggle-slider {
   font-weight: 500;
 }
 
-.remove-check-btn {
-  background: transparent;
-  border: none;
-  color: #ef4444;
-  cursor: pointer;
-  font-size: 1.1rem;
-  padding: 0.25rem;
-  border-radius: 4px;
-  width: 24px;
-  height: 24px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
 
 .remove-check-btn:hover {
   background: rgba(239, 68, 68, 0.1);
 }
 
-.add-bonus-check-btn {
-  background: rgba(156, 163, 175, 0.1);
-  border: 1px solid rgba(156, 163, 175, 0.3);
-  border-radius: 4px;
-  padding: 0.5rem 0.75rem;
-  color: #9ca3af;
-  cursor: pointer;
-  font-size: 0.85rem;
-  transition: all 0.2s;
-}
 
 .add-bonus-check-btn:hover {
   background: rgba(156, 163, 175, 0.2);

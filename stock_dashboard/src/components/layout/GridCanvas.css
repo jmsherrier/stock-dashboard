@@ -1,0 +1,134 @@
+.grid-canvas-container {
+  position: relative;
+  width: 100%;
+  height: calc(100vh - 80px);
+  overflow: hidden;
+  cursor: default;
+  user-select: none;
+  background: transparent;
+}
+
+.grid-canvas-container.dragging {
+  cursor: grabbing;
+}
+
+.grid-canvas {
+  position: relative;
+  width: max-content;
+  height: max-content;
+  min-width: 100%;
+  min-height: 100%;
+  background: transparent;
+}
+
+.grid-cell {
+  position: absolute;
+  transition: opacity 0.2s;
+}
+
+/* Cell outline for empty cells */
+.empty-cell-outline {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  pointer-events: none;
+  box-sizing: border-box;
+}
+
+/* Border that exactly matches stock paper border */
+.empty-cell-border {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  border: 4px dashed rgba(255, 255, 255, 0.2);
+  border-radius: 8px;
+  background: transparent;
+  transition: all 0.15s ease-out;
+  box-sizing: border-box;
+}
+
+/* Plus sign centered in the empty cell */
+.empty-cell-plus {
+  position: relative;
+  font-size: 3rem;
+  color: rgba(255, 255, 255, 0.2);
+  font-weight: 300;
+  line-height: 1;
+  transition: all 0.15s ease-out;
+  pointer-events: none;
+  z-index: 1;
+}
+
+/* Hover state - green outline when mouse hovers (not dragging) */
+.grid-cell.empty.hovered .empty-cell-border {
+  border-color: rgba(76, 175, 80, 0.6);
+  border-style: dashed;
+  background: rgba(76, 175, 80, 0.08);
+}
+
+.grid-cell.empty.hovered .empty-cell-plus {
+  color: rgba(76, 175, 80, 0.7);
+  transform: scale(1.15);
+}
+
+/* Drag-over state - solid outline when dragging a stock over */
+.grid-cell.empty.drag-over .empty-cell-border {
+  border-color: rgba(255, 255, 255, 0.5);
+  border-style: solid;
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.grid-cell.empty.drag-over .empty-cell-plus {
+  opacity: 0;
+  transform: scale(0.8);
+}
+
+/* Stock wrapper in grid - fills the cell exactly */
+.grid-cell .stock-wrapper {
+  width: 100%;
+  height: 100%;
+  cursor: default;
+  box-sizing: border-box;
+}
+
+/* Stock paper inside grid cell must fill the wrapper */
+.grid-cell .stock-wrapper .stock-paper {
+  width: 100%;
+  height: 100%;
+}
+
+/* Drag overlay styling */
+.stock-drag-overlay {
+  cursor: grabbing;
+  opacity: 0.9;
+}
+
+.stock-drag-overlay .stock-paper {
+  border-color: rgba(255, 255, 255, 0.6);
+}
+
+/* Empty state for grid */
+.empty-state-grid {
+  display: none;
+}
+
+/* Cursor styles for different modes */
+.grid-cell.empty {
+  pointer-events: auto;
+  z-index: 1;
+}
+
+/* Make sure stock papers don't interfere with grid dragging */
+.grid-cell.occupied {
+  pointer-events: auto;
+  z-index: 2;
+}
+
+.grid-cell.occupied .stock-paper {
+  pointer-events: auto;
+}
