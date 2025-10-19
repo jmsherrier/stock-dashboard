@@ -33,7 +33,11 @@ const GridCanvas = forwardRef(({
   console.log('mouseDownOnEmpty state:', mouseDownOnEmpty); // Used to prevent eslint warning
   const [hoveredCell, setHoveredCell] = useState(null);
   const [activeId, setActiveId] = useState(null);
-  const [cellDimensions, setCellDimensions] = useState(null);
+  const [cellDimensions, setCellDimensions] = useState(() => {
+    // Set a reasonable default based on typical stock paper size
+    // This will be updated once the dummy is measured
+    return { width: 460, height: 600 };
+  });
   const [mousePosition, setMousePosition] = useState(null);
   const [zoom, setZoom] = useState(() => {
     const savedZoom = localStorage.getItem('grid-zoom');
@@ -60,30 +64,41 @@ const GridCanvas = forwardRef(({
 
   // Calculate cell dimensions based on dummy stock (unconstrained measurement)
   useEffect(() => {
+    let attempts = 0;
+    const maxAttempts = 20; // Try for up to 1 second
+    
     const measureStock = () => {
       // Always measure from the hidden dummy stock (it's not constrained by grid cells)
       const dummyContainer = document.querySelector('.dimension-measurement-container .stock-paper');
       if (dummyContainer) {
         const rect = dummyContainer.getBoundingClientRect();
-        const newDimensions = {
-          width: rect.width,
-          height: rect.height
-        };
-        console.log('Measured stock dimensions from dummy:', newDimensions);
-        setCellDimensions(newDimensions);
-      } else {
-        console.log('No dummy stock element found to measure, retrying...');
+        // Only update if we got valid dimensions (greater than 0)
+        if (rect.width > 0 && rect.height > 0) {
+          const newDimensions = {
+            width: rect.width,
+            height: rect.height
+          };
+          console.log('Measured stock dimensions from dummy:', newDimensions);
+          setCellDimensions(newDimensions);
+        } else if (attempts < maxAttempts) {
+          attempts++;
+          console.log(`Dummy found but has zero size, retrying... (attempt ${attempts})`);
+          setTimeout(measureStock, 50);
+        }
+      } else if (attempts < maxAttempts) {
+        attempts++;
+        console.log(`No dummy stock element found, retrying... (attempt ${attempts})`);
         setTimeout(measureStock, 50);
       }
     };
 
-    // Initial measurement
-    const timeoutId = setTimeout(measureStock, 100);
+    // Measure immediately on mount, then retry if needed
+    measureStock();
 
     return () => {
-      clearTimeout(timeoutId);
+      // Cleanup if needed
     };
-  }, [stocks.length]); // Remeasure when stock count changes
+  }, []); // Only run on mount
 
   // Remeasure when configuration changes
   useEffect(() => {
@@ -103,7 +118,10 @@ const GridCanvas = forwardRef(({
 
     // Remeasure when preset changes
     const handlePresetChange = () => {
-      setTimeout(remeasure, 200);
+      // Use requestAnimationFrame to ensure DOM has updated after re-render
+      requestAnimationFrame(() => {
+        setTimeout(remeasure, 50); // Small delay to ensure dummy has re-rendered
+      });
     };
     
     window.addEventListener('preset-changed', handlePresetChange);
@@ -115,19 +133,22 @@ const GridCanvas = forwardRef(({
 
   // Remeasure when stocks change (paperConfig might have changed)
   useEffect(() => {
-    setTimeout(() => {
-      // Always measure from dummy (unconstrained)
-      const dummyContainer = document.querySelector('.dimension-measurement-container .stock-paper');
-      if (dummyContainer) {
-        const rect = dummyContainer.getBoundingClientRect();
-        const newDimensions = {
-          width: rect.width,
-          height: rect.height
-        };
-        console.log('Remeasured dimensions after stock change:', newDimensions);
-        setCellDimensions(newDimensions);
-      }
-    }, 150);
+    // Use requestAnimationFrame to wait for DOM update, then measure
+    requestAnimationFrame(() => {
+      setTimeout(() => {
+        // Always measure from dummy (unconstrained)
+        const dummyContainer = document.querySelector('.dimension-measurement-container .stock-paper');
+        if (dummyContainer) {
+          const rect = dummyContainer.getBoundingClientRect();
+          const newDimensions = {
+            width: rect.width,
+            height: rect.height
+          };
+          console.log('Remeasured dimensions after stock change:', newDimensions);
+          setCellDimensions(newDimensions);
+        }
+      }, 50);
+    });
   }, [stocks]);
 
   // Get paperConfig for template or from first stock
@@ -576,6 +597,7 @@ const GridCanvas = forwardRef(({
           }}
         >
           <ModularStockPaper
+            key={`dummy-${currentPreset || 'default'}-${stocks.length > 0 ? JSON.stringify(stocks[0].paperConfig) : 'default'}`}
             stock={{
               id: 'dimension-dummy',
               ticker: 'SMPL',
