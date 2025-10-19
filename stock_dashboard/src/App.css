@@ -1654,12 +1654,14 @@ body {
 
 /* Lock position checkbox at bottom */
 .lock-position-control {
-  margin-top: 0; /* No extra margin - spacing handled by sections above */
-  padding: 0;
+  margin-top: 12px; /* Add spacing from content above */
+  margin-bottom: 0;
+  padding-bottom: 0; /* Removed extra padding, relying on parent padding */
   background: transparent;
   display: flex;
   align-items: center;
   gap: 0.5rem;
+  min-height: 20px; /* Ensure minimum height for lock control */
 }
 
 .lock-checkbox {

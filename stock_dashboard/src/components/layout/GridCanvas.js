@@ -578,7 +578,18 @@ const GridCanvas = forwardRef(({
           <ModularStockPaper
             stock={{
               id: 'dimension-dummy',
-              components: {},
+              ticker: 'SMPL',
+              components: {
+                ticker: { value: 'SMPL' },
+                price: { value: 100 },
+                percentRise: { value: 5 },
+                relativeVolume: { value: 2 },
+                float: { value: 50 },
+                marketCap: { value: 1000 },
+                volume: { value: 1000000 },
+                news: { items: [{ text: 'Sample news', points: 1 }] },
+                notes: { value: 'Sample note' }
+              },
               paperConfig: getTemplatePaperConfig()
             }}
             score={0}
