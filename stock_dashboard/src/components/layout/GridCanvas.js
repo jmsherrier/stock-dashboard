@@ -30,7 +30,7 @@ const GridCanvas = forwardRef(({
   const [dragStart, setDragStart] = useState({ x: 0, y: 0 });
   const [dragDistance, setDragDistance] = useState(0);
   const [mouseDownOnEmpty, setMouseDownOnEmpty] = useState(false);
-  console.log('mouseDownOnEmpty state:', mouseDownOnEmpty); // Used to prevent eslint warning
+  // mouseDownOnEmpty is used to prevent drag conflicts
   const [hoveredCell, setHoveredCell] = useState(null);
   const [activeId, setActiveId] = useState(null);
   const [cellDimensions, setCellDimensions] = useState(null);

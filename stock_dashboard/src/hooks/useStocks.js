@@ -16,7 +16,6 @@ export const useStocks = () => {
         if (user) {
           // Load data from backend for authenticated users
           const response = await apiClient.getUserStocks();
-          console.log('Loaded from backend:', response);
           const userStocks = response?.stocks || [];
           // Only assign positions to stocks that don't have them (legacy data)
           // Preserve existing positions to maintain gaps
