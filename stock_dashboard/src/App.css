@@ -181,6 +181,47 @@ body {
   border-color: #666;
 }
 
+/* Zoom controls */
+.zoom-controls {
+  display: flex;
+  align-items: center;
+  background: #333;
+  border: 1px solid #555;
+  border-radius: 6px;
+  overflow: hidden;
+  transition: all 0.2s;
+}
+
+.zoom-controls:hover {
+  background: #444;
+  border-color: #666;
+}
+
+.zoom-btn {
+  padding: 0.5rem 0.75rem;
+  background: transparent;
+  border: none;
+  color: #e5e5e5;
+  font-size: 1.1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s;
+  line-height: 1;
+  min-width: 36px;
+}
+
+.zoom-btn:hover {
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.zoom-btn:active {
+  background: rgba(255, 255, 255, 0.15);
+}
+
+.zoom-btn.zoom-out {
+  border-right: 1px solid #555;
+}
+
 .auto-update-checkbox {
   display: flex;
   align-items: center;
