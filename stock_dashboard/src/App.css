@@ -601,6 +601,14 @@ body {
   align-items: center;
 }
 
+.criteria-header label {
+  min-height: 2.4em; /* Ensure space for 2 lines of text */
+  line-height: 1.2;
+  display: flex;
+  align-items: flex-start; /* Align text to top */
+  flex: 1;
+}
+
 .manual-only-indicator {
   font-size: 0.75rem;
   color: #888;
@@ -2059,6 +2067,10 @@ body {
   font-size: 0.8rem;
   font-weight: 500;
   color: #e5e5e5;
+  min-height: 2.4em; /* Ensure space for 2 lines of text (1.2em line-height × 2) */
+  line-height: 1.2;
+  display: flex;
+  align-items: flex-start; /* Align text to top */
 }
 
 .component-score {
