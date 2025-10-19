@@ -58,10 +58,10 @@ const GridCanvas = forwardRef(({
     })
   );
 
-  // Calculate cell dimensions based on dummy stock
+  // Calculate cell dimensions based on dummy stock (unconstrained measurement)
   useEffect(() => {
     const measureStock = () => {
-      // Always measure from the hidden dummy stock
+      // Always measure from the hidden dummy stock (it's not constrained by grid cells)
       const dummyContainer = document.querySelector('.dimension-measurement-container .stock-paper');
       if (dummyContainer) {
         const rect = dummyContainer.getBoundingClientRect();
@@ -69,11 +69,10 @@ const GridCanvas = forwardRef(({
           width: rect.width,
           height: rect.height
         };
-        console.log('Measured dummy stock dimensions:', newDimensions);
+        console.log('Measured stock dimensions from dummy:', newDimensions);
         setCellDimensions(newDimensions);
       } else {
         console.log('No dummy stock element found to measure, retrying...');
-        // Retry after a short delay if dummy not found yet
         setTimeout(measureStock, 50);
       }
     };
@@ -84,11 +83,12 @@ const GridCanvas = forwardRef(({
     return () => {
       clearTimeout(timeoutId);
     };
-  }, []); // Only run on mount
+  }, [stocks.length]); // Remeasure when stock count changes
 
   // Remeasure when configuration changes
   useEffect(() => {
     const remeasure = () => {
+      // Always measure from dummy (unconstrained)
       const dummyContainer = document.querySelector('.dimension-measurement-container .stock-paper');
       if (dummyContainer) {
         const rect = dummyContainer.getBoundingClientRect();
@@ -115,21 +115,20 @@ const GridCanvas = forwardRef(({
 
   // Remeasure when stocks change (paperConfig might have changed)
   useEffect(() => {
-    if (stocks.length > 0) {
-      setTimeout(() => {
-        const dummyContainer = document.querySelector('.dimension-measurement-container .stock-paper');
-        if (dummyContainer) {
-          const rect = dummyContainer.getBoundingClientRect();
-          const newDimensions = {
-            width: rect.width,
-            height: rect.height
-          };
-          console.log('Remeasured dimensions after stock change:', newDimensions);
-          setCellDimensions(newDimensions);
-        }
-      }, 150);
-    }
-  }, [stocks.length, stocks]);
+    setTimeout(() => {
+      // Always measure from dummy (unconstrained)
+      const dummyContainer = document.querySelector('.dimension-measurement-container .stock-paper');
+      if (dummyContainer) {
+        const rect = dummyContainer.getBoundingClientRect();
+        const newDimensions = {
+          width: rect.width,
+          height: rect.height
+        };
+        console.log('Remeasured dimensions after stock change:', newDimensions);
+        setCellDimensions(newDimensions);
+      }
+    }, 150);
+  }, [stocks]);
 
   // Get paperConfig for template or from first stock
   const getTemplatePaperConfig = () => {
@@ -173,44 +172,44 @@ const GridCanvas = forwardRef(({
   const getCellFromMouse = useCallback((clientX, clientY) => {
     if (!containerRef.current || !cellDimensions) return null;
     
-    // Get the grid-canvas element (child with transform applied)
-    const gridCanvas = containerRef.current.querySelector('.grid-canvas');
-    if (!gridCanvas) return null;
+    // Get the container bounding rect
+    const containerRect = containerRef.current.getBoundingClientRect();
     
-    const rect = gridCanvas.getBoundingClientRect();
+    // Step 1: Get mouse position relative to container viewport
+    const viewportX = clientX - containerRect.left;
+    const viewportY = clientY - containerRect.top;
     
-    // Mouse position relative to the transformed grid canvas
-    // The transform has already been applied to rect, so we just need position relative to it
-    const relX = clientX - rect.left;
-    const relY = clientY - rect.top;
+    // Step 2: Reverse the transform to get to grid space
+    // The grid-canvas has: transform: translate(gridOffset.x, gridOffset.y) scale(zoom)
+    // To reverse: subtract translation, then divide by scale
+    const gridSpaceX = (viewportX - gridOffset.x) / zoom;
+    const gridSpaceY = (viewportY - gridOffset.y) / zoom;
     
-    // Subtract padding (which is part of the grid-canvas element)
-    const contentX = relX - gridPadding * zoom;
-    const contentY = relY - gridPadding * zoom;
+    // Step 3: Account for grid padding (in unscaled grid space)
+    const contentX = gridSpaceX - gridPadding;
+    const contentY = gridSpaceY - gridPadding;
     
-    // Divide by zoom to get into unscaled cell coordinate space
-    const unscaledX = contentX / zoom;
-    const unscaledY = contentY / zoom;
-    
-    // Calculate cell position
-    // Cells are positioned at: x * (width + gap), y * (height + gap)
+    // Step 4: Calculate which cell we're in
+    // Each cell occupies (cellDimensions.width + cellGap) x (cellDimensions.height + cellGap)
     const cellWidth = cellDimensions.width + cellGap;
     const cellHeight = cellDimensions.height + cellGap;
     
-    const x = Math.floor(unscaledX / cellWidth);
-    const y = Math.floor(unscaledY / cellHeight);
+    const cellX = Math.floor(contentX / cellWidth);
+    const cellY = Math.floor(contentY / cellHeight);
     
-    // Check if we're in the actual cell or in the gap
-    const localX = unscaledX - (x * cellWidth);
-    const localY = unscaledY - (y * cellHeight);
+    // Step 5: Check if we're within the actual cell bounds (not in the gap)
+    const localX = contentX - (cellX * cellWidth);
+    const localY = contentY - (cellY * cellHeight);
     
-    // Return null if in gap (beyond cell dimensions) or negative position
-    if (localX < 0 || localY < 0 || localX >= cellDimensions.width || localY >= cellDimensions.height) {
+    // If we're outside the cell dimensions (in the gap), return null
+    if (localX < 0 || localY < 0 || 
+        localX >= cellDimensions.width || 
+        localY >= cellDimensions.height) {
       return null;
     }
     
-    return { x, y };
-  }, [cellDimensions, zoom, cellGap, gridPadding]);
+    return { x: cellX, y: cellY };
+  }, [containerRef, cellDimensions, gridOffset, zoom, gridPadding, cellGap]);
 
   // Expose getCellFromMouse to parent via ref
   useImperativeHandle(ref, () => ({
@@ -303,35 +302,33 @@ const GridCanvas = forwardRef(({
 
   // Update hovered cell based on mouse position
   useEffect(() => {
+    // Don't show hover during drag operations or when a stock is clicked
     if (!mousePosition || !cellDimensions || activeId || clickedStockId) {
       setHoveredCell(null);
       return;
     }
 
     const cell = getCellFromMouse(mousePosition.x, mousePosition.y);
-    if (cell) {
-      // Check if this cell is occupied
-      const isOccupied = stocks.some(s => {
-        const pos = s.gridPosition || { x: 0, y: 0 };
-        return pos.x === cell.x && pos.y === cell.y;
-      });
-      
-      if (!isOccupied) {
-        setHoveredCell(cell);
-      } else {
-        setHoveredCell(null);
-      }
+    
+    // Only show hover if we detected a valid cell
+    if (!cell) {
+      setHoveredCell(null);
+      return;
+    }
+    
+    // Check if this cell position is already occupied by a stock
+    const isOccupied = stocks.some(s => {
+      const pos = s.gridPosition || { x: 0, y: 0 };
+      return pos.x === cell.x && pos.y === cell.y;
+    });
+    
+    // Only set hovered cell if it's empty
+    if (!isOccupied) {
+      setHoveredCell(cell);
     } else {
       setHoveredCell(null);
     }
   }, [mousePosition, cellDimensions, stocks, activeId, clickedStockId, getCellFromMouse]);
-
-  // Handle cell hover - cells will call this directly
-  const handleCellHover = (cell) => {
-    if (!activeId) {
-      setHoveredCell(cell);
-    }
-  };
 
   const handleCanvasMouseUp = () => {
     setIsDraggingCanvas(false);
@@ -501,7 +498,6 @@ const GridCanvas = forwardRef(({
             calculateScore={calculateScore}
             onClickStock={onClickStock}
             clickedStockId={clickedStockId}
-            onHoverCell={handleCellHover}
           />
         );
       }
@@ -539,7 +535,6 @@ const GridCanvas = forwardRef(({
             calculateScore={calculateScore}
             onClickStock={onClickStock}
             clickedStockId={clickedStockId}
-            onHoverCell={handleCellHover}
           />
         );
       }

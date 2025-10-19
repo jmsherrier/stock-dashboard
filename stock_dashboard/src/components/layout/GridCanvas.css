@@ -27,72 +27,79 @@
 }
 
 /* Cell outline for empty cells */
-.cell-outline {
+.empty-cell-outline {
+  position: relative;
   width: 100%;
   height: 100%;
-  position: relative;
   display: flex;
   align-items: center;
   justify-content: center;
-  opacity: 1;
-  transition: all 0.08s ease-out;
   pointer-events: none;
+  box-sizing: border-box;
 }
 
-.outline-border {
+/* Border that exactly matches stock paper border */
+.empty-cell-border {
   position: absolute;
-  inset: 0;
-  border: 2px dashed rgba(255, 255, 255, 0.15);
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  border: 4px dashed rgba(255, 255, 255, 0.2);
   border-radius: 8px;
   background: transparent;
-  transition: all 0.08s ease-out;
+  transition: all 0.15s ease-out;
+  box-sizing: border-box;
 }
 
-/* Green outline when hovering with mouse (not dragging) */
-.grid-cell.hovered .outline-border {
-  border-color: rgba(76, 175, 80, 0.5);
-  background: rgba(76, 175, 80, 0.05);
-}
-
-/* Grey outline when dragging stock over empty cell */
-.grid-cell.drag-over .outline-border {
-  border-color: rgba(255, 255, 255, 0.4);
-  border-style: solid;
-  background: rgba(255, 255, 255, 0.05);
-}
-
-/* Plus sign in the center of outlines */
-.cell-outline::after {
-  content: '+';
+/* Plus sign centered in the empty cell */
+.empty-cell-plus {
+  position: relative;
   font-size: 3rem;
   color: rgba(255, 255, 255, 0.2);
   font-weight: 300;
-  z-index: 1;
-  transition: all 0.08s ease-out;
+  line-height: 1;
+  transition: all 0.15s ease-out;
   pointer-events: none;
+  z-index: 1;
 }
 
-/* Show green plus on hover (not dragging) */
-.grid-cell.hovered .cell-outline::after {
-  color: rgba(76, 175, 80, 0.6);
-  transform: scale(1.1);
+/* Hover state - green outline when mouse hovers (not dragging) */
+.grid-cell.empty.hovered .empty-cell-border {
+  border-color: rgba(76, 175, 80, 0.6);
+  border-style: dashed;
+  background: rgba(76, 175, 80, 0.08);
 }
 
-/* Hide plus on drag-over */
-.grid-cell.drag-over .cell-outline::after {
-  content: '';
+.grid-cell.empty.hovered .empty-cell-plus {
+  color: rgba(76, 175, 80, 0.7);
+  transform: scale(1.15);
 }
 
-/* Stock wrapper in grid */
+/* Drag-over state - solid outline when dragging a stock over */
+.grid-cell.empty.drag-over .empty-cell-border {
+  border-color: rgba(255, 255, 255, 0.5);
+  border-style: solid;
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.grid-cell.empty.drag-over .empty-cell-plus {
+  opacity: 0;
+  transform: scale(0.8);
+}
+
+/* Stock wrapper in grid - fills the cell exactly */
 .grid-cell .stock-wrapper {
   width: 100%;
   height: 100%;
   cursor: default;
+  box-sizing: border-box;
 }
 
-.grid-cell .stock-wrapper.selected .stock-paper {
-  border-color: rgba(255, 255, 255, 0.6);
-  box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.2);
+/* Stock paper inside grid cell must fill the wrapper */
+.grid-cell .stock-wrapper .stock-paper {
+  width: 100%;
+  height: 100%;
 }
 
 /* Drag overlay styling */
