@@ -29,6 +29,8 @@ function GridCell({
     disabled: !stock || stock.locked
   });
 
+  // Position cell in the grid using absolute positioning
+  // Each cell is offset by (width + gap) * position
   const cellStyle = {
     position: 'absolute',
     left: `${x * (cellDimensions.width + cellGap)}px`,
@@ -48,15 +50,11 @@ function GridCell({
       ref={setNodeRef}
       className={`grid-cell ${stock ? 'occupied' : 'empty'} ${isMouseHover ? 'hovered' : ''} ${isDragOver ? 'drag-over' : ''}`}
       style={cellStyle}
-      onMouseEnter={() => !stock && onHoverCell && onHoverCell({ x, y })}
-      onMouseLeave={() => !stock && onHoverCell && onHoverCell(null)}
       {...attributes}
       {...listeners}
     >
       {stock ? (
-        <div
-          className={`stock-wrapper ${selectedStock === stock.id ? 'selected' : ''} ${clickedStockId === stock.id ? 'clicked' : ''}`}
-        >
+        <div className="stock-wrapper">
           <ModularStockPaper
             stock={stock}
             score={calculateScore(stock)}
@@ -72,8 +70,9 @@ function GridCell({
           />
         </div>
       ) : (
-        <div className="cell-outline">
-          <div className="outline-border" />
+        <div className="empty-cell-outline">
+          <div className="empty-cell-border" />
+          <div className="empty-cell-plus">+</div>
         </div>
       )}
     </div>
