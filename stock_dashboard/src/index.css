@@ -1,23 +1,80 @@
-body {
+/* ===== Modern reset + base ===== */
+*, *::before, *::after {
+  box-sizing: border-box;
+}
+
+html, body, #root {
+  height: 100%;
   margin: 0;
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
-    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
-    sans-serif;
+  padding: 0;
+}
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Inter',
+    Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  background: var(--bg-app);
+  color: var(--text-primary);
+  overflow: hidden;
 }
 
-#root {
-  width: 100%;
-  min-height: 100vh;
+/* ===== Design tokens ===== */
+:root {
+  /* Surfaces — deep, slightly cool navy/slate */
+  --bg-app: #0b1020;
+  --bg-surface: #141a2e;
+  --bg-surface-hover: #1a2238;
+  --bg-elevated: #1f2740;
+  --bg-input: #0f1425;
+
+  /* Borders */
+  --border-subtle: rgba(255, 255, 255, 0.06);
+  --border-default: rgba(255, 255, 255, 0.1);
+  --border-strong: rgba(255, 255, 255, 0.18);
+
+  /* Text */
+  --text-primary: #e6e9f2;
+  --text-secondary: #a3acc4;
+  --text-muted: #6b7591;
+
+  /* Accents */
+  --accent: #6c8cff;
+  --accent-hover: #8aa3ff;
+  --accent-dim: rgba(108, 140, 255, 0.15);
+
+  /* Semantic */
+  --positive: #34d399;
+  --negative: #f87171;
+  --warning: #fbbf24;
+
+  /* Shadows */
+  --shadow-card: 0 1px 2px rgba(0,0,0,0.3), 0 4px 12px rgba(0,0,0,0.25);
+  --shadow-elevated: 0 4px 24px rgba(0,0,0,0.4);
+
+  /* Radii */
+  --radius-sm: 6px;
+  --radius-md: 10px;
+  --radius-lg: 14px;
+
+  /* Motion */
+  --ease: cubic-bezier(0.2, 0.8, 0.2, 1);
 }
 
-code {
-  font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
-    monospace;
+/* Scrollbar */
+::-webkit-scrollbar { width: 10px; height: 10px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb {
+  background: var(--border-strong);
+  border-radius: 6px;
+}
+::-webkit-scrollbar-thumb:hover { background: var(--text-muted); }
+
+button {
+  font-family: inherit;
+  cursor: pointer;
 }
 
-/* Prevent @dnd-kit from rotating dragged items */
-[data-dnd-kit-drag-overlay] {
-  transform-origin: 0 0;
+input, select, textarea {
+  font-family: inherit;
 }
