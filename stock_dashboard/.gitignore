@@ -20,9 +20,15 @@
 
 # Environment files (keep .env.example)
 .env
+server/.env
+server/.env.local
 
 # Database files
 server/data/*.db
+server/data/
+
+# Server node_modules
+server/node_modules/
 
 # Logs
 npm-debug.log*

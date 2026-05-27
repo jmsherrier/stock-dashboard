@@ -10,10 +10,10 @@ async function seedUser() {
   try {
     await db.init();
     
-    // User details
+    // User details — configure via env vars or edit before running
     const email = process.env.SEED_EMAIL || 'admin@example.com';
     const password = process.env.SEED_PASSWORD || 'changeme123';
-    const apiKey = 'your_alpha_vantage_api_key_here';
+    const apiKey = uuidv4();
     
     // Check if user already exists
     const existingUser = await db.get('SELECT * FROM users WHERE email = ?', [email]);

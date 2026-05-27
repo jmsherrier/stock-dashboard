@@ -1,4 +1,10 @@
-# Volitiliraptor - Multi-Strategy Trading Analysis Platform
+# Volitiliraptor
+
+A multi-strategy trading analysis platform built with React 19 and Express.js. Organize stocks on an infinite 2D grid canvas, score them across 47+ configurable metrics, and pull live data via the Alpha Vantage API.
+
+![React](https://img.shields.io/badge/React-19.1-blue) ![Express](https://img.shields.io/badge/Express-4.18-green) ![SQLite](https://img.shields.io/badge/SQLite-3-lightgrey) ![License](https://img.shields.io/badge/license-MIT-blue)
+
+---
 
 ## Current Version
 v3.4.0 - Automatic Bonus Criteria Calculation
@@ -158,7 +164,7 @@ Volitiliraptor is a comprehensive trading analysis platform that transforms trad
 
 ### Prerequisites
 - Node.js 16+ and npm
-- Alpha Vantage API key (free tier available)
+- [Alpha Vantage API key](https://www.alphavantage.co/support/#api-key) (free tier available — 500 requests/day, 5/min)
 
 ### Installation
 ```bash
@@ -166,40 +172,36 @@ Volitiliraptor is a comprehensive trading analysis platform that transforms trad
 git clone <repository-url>
 cd stock_dashboard
 
-# Install dependencies
-npm install
-npm run install:server
+# Install all dependencies (frontend + backend)
+npm run install:all
 
-# Set up environment variables
+# Configure environment variables
 cp .env.example .env
 cp server/.env.example server/.env
+# Edit server/.env and set your ALPHA_VANTAGE_KEY
 
-# Configure your Alpha Vantage API key in server/.env
-echo "ALPHA_VANTAGE_API_KEY=your_key_here" >> server/.env
-
-# Run database migrations and seed initial user
-cd server
-npm run migrate
-npm run seed
-cd ..
+# Initialize the database
+cd server && npm run migrate && cd ..
 ```
 
-### Development
+### Running locally
 ```bash
-# Start the backend server (Terminal 1)
+# Start both frontend and backend with one command
+npm run dev
+```
+Or separately:
+```bash
+# Terminal 1 — backend (port 3001)
 npm run server
 
-# Start the React development server (Terminal 2)  
+# Terminal 2 — frontend (port 3000)
 npm start
 ```
 
-### Production
+### Production build
 ```bash
-# Build the frontend
-npm run build
-
-# Start production server
-npm run server:prod
+npm run build:full
+npm run server
 ```
 
 ## Usage Guide
@@ -461,5 +463,8 @@ npm run analyze
 4. Check database file exists and is writable
 5. Verify environment variables are set correctly
 
-## Support
-For issues, feature requests, or contributions, please use the GitHub issue tracker.
+## License
+MIT
+
+## Contributing
+Pull requests are welcome. For major changes, open an issue first to discuss the approach.
