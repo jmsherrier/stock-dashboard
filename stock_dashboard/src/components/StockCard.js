@@ -1,5 +1,6 @@
 import React from 'react';
 import { CRITERIA_BY_KEY } from '../data/criteria';
+import { scoreBand } from '../data/scoring';
 
 function formatTime(ts) {
   if (!ts) return 'Not yet updated';
@@ -17,11 +18,21 @@ export default function StockCard({
   stock,
   visibleCriteria,
   loading,
+  showScores,
   onRefresh,
   onRemove,
 }) {
   const { ticker, data = {} } = stock;
   const companyName = data.companyName;
+
+  // Per-criterion qualitative level (good/neutral/bad) from the score breakdown.
+  const score = stock._score;
+  const levelByKey = {};
+  if (score) {
+    for (const b of score.breakdown) levelByKey[b.key] = b.level;
+  }
+  const showBadge = showScores && score && score.scoredCount > 0;
+  const band = showBadge ? scoreBand(score.ratio) : null;
 
   const priceRaw = data.price;
   const changeRaw = data.percentChange;
@@ -42,14 +53,24 @@ export default function StockCard({
     .map((c) => {
       const raw = data[c.key];
       const value = raw != null && raw !== '' ? c.format(raw) : null;
-      return { key: c.key, label: c.label, value };
+      return { key: c.key, label: c.label, value, level: levelByKey[c.key] };
     });
 
   return (
     <div className={`card ${loading ? 'card--loading' : ''}`}>
       <div className="card__header">
         <div className="card__ticker-wrap">
-          <div className="card__ticker">{ticker}</div>
+          <div className="card__ticker-line">
+            <span className="card__ticker">{ticker}</span>
+            {showBadge && (
+              <span
+                className={`score-badge score-badge--${band}`}
+                title={`Score ${score.total >= 0 ? '+' : ''}${score.total} across ${score.scoredCount} scored ${score.scoredCount === 1 ? 'metric' : 'metrics'}`}
+              >
+                {score.total >= 0 ? '+' : ''}{score.total}
+              </span>
+            )}
+          </div>
           {companyName && <div className="card__name" title={companyName}>{companyName}</div>}
         </div>
         <div className="card__actions">
@@ -92,7 +113,9 @@ export default function StockCard({
             <div className="criterion" key={r.key}>
               <span className="criterion__label">{r.label}</span>
               <span
-                className={`criterion__value ${r.value == null ? 'criterion__value--muted' : ''}`}
+                className={`criterion__value ${r.value == null ? 'criterion__value--muted' : ''} ${
+                  showScores && r.level ? `criterion__value--${r.level}` : ''
+                }`}
                 title={r.value || 'No data'}
               >
                 {r.value || '—'}

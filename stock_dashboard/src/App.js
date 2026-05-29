@@ -2,6 +2,8 @@ import React from 'react';
 import './App.css';
 import './styles/main.css';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
+import { SettingsProvider } from './contexts/SettingsContext';
+import { ToastProvider } from './contexts/ToastContext';
 import Login from './components/Login';
 import Dashboard from './components/Dashboard';
 
@@ -21,8 +23,12 @@ function AppContent() {
 
 export default function App() {
   return (
-    <AuthProvider>
-      <AppContent />
-    </AuthProvider>
+    <SettingsProvider>
+      <ToastProvider>
+        <AuthProvider>
+          <AppContent />
+        </AuthProvider>
+      </ToastProvider>
+    </SettingsProvider>
   );
 }

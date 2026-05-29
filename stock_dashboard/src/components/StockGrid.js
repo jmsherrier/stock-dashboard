@@ -16,6 +16,7 @@ export default function StockGrid({
   stocks,
   visibleCriteria,
   loadingIds,
+  showScores,
   onRefresh,
   onRemove,
 }) {
@@ -47,6 +48,7 @@ export default function StockGrid({
           stock={stock}
           visibleCriteria={visibleCriteria}
           loading={loadingIds.has(stock.id)}
+          showScores={showScores}
           onRefresh={() => onRefresh(stock.id)}
           onRemove={() => onRemove(stock.id)}
         />

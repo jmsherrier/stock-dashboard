@@ -5,6 +5,7 @@ export default function Header({
   onAddStock,
   onRefreshAll,
   onToggleCriteria,
+  onOpenSettings,
   criteriaCount,
   bulkLoading,
   stockCount,
@@ -53,6 +54,15 @@ export default function Header({
 
       <button className="btn" onClick={onToggleCriteria}>
         Criteria <span style={{ color: 'var(--text-muted)' }}>({criteriaCount})</span>
+      </button>
+
+      <button
+        className="btn btn--icon"
+        onClick={onOpenSettings}
+        title="Settings"
+        aria-label="Settings"
+      >
+        ⚙
       </button>
 
       {user && (

@@ -38,10 +38,11 @@ body {
   --text-secondary: #a3acc4;
   --text-muted: #6b7591;
 
-  /* Accents */
+  /* Accents — hover/dim derive from --accent so theme switching propagates.
+     --accent itself is overridden at runtime by SettingsContext. */
   --accent: #6c8cff;
-  --accent-hover: #8aa3ff;
-  --accent-dim: rgba(108, 140, 255, 0.15);
+  --accent-hover: color-mix(in srgb, var(--accent) 78%, white);
+  --accent-dim: color-mix(in srgb, var(--accent) 15%, transparent);
 
   /* Semantic */
   --positive: #34d399;
