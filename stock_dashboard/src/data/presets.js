@@ -102,13 +102,25 @@ export function saveCustomPresets(presets) {
   }
 }
 
-export function upsertCustomPreset({ name, criteria, sort }) {
+// Create a new custom preset from the given view. Named "Untitled" by default;
+// the caller can rename it afterward. IDs are unique and name-independent so
+// multiple "Untitled" presets can coexist until renamed.
+export function addCustomPreset({ name = 'Untitled', criteria, sort }) {
   const presets = loadCustomPresets();
-  const id = `custom:${name.trim().toLowerCase().replace(/\s+/g, '-')}`;
-  const next = presets.filter((p) => p.id !== id);
-  next.push({ id, name: name.trim(), custom: true, criteria, sort });
+  const id = `custom:${Date.now().toString(36)}_${Math.random()
+    .toString(36)
+    .slice(2, 6)}`;
+  const preset = { id, name, custom: true, criteria, sort };
+  presets.push(preset);
+  saveCustomPresets(presets);
+  return preset;
+}
+
+export function renameCustomPreset(id, name) {
+  const next = loadCustomPresets().map((p) =>
+    p.id === id ? { ...p, name: name.trim() || 'Untitled' } : p
+  );
   saveCustomPresets(next);
-  return id;
 }
 
 export function deleteCustomPreset(id) {

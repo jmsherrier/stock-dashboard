@@ -169,12 +169,18 @@
 .dashboard-body {
   display: flex;
   flex: 1;
+  /* min-height:0 lets this flex child shrink below the card grid's intrinsic
+     height. Without it, a tall grid inflates the column past 100vh and the
+     body (overflow:hidden but still programmatically scrollable) gets shoved
+     up when an input autofocuses — pushing the header/toolbar off-screen. */
+  min-height: 0;
   overflow: hidden;
   position: relative;
 }
 
 .dashboard-main {
   flex: 1;
+  min-width: 0;
   overflow-y: auto;
   overflow-x: hidden;
 }
@@ -729,19 +735,27 @@
   color: #fff;
 }
 
+.chip__edit,
 .chip__delete {
-  padding: 0 8px 0 2px;
+  padding: 0 4px;
   background: transparent;
   border: none;
   color: inherit;
-  font-size: 15px;
-  opacity: 0.6;
+  font-size: 13px;
+  opacity: 0.55;
 }
 
+.chip__delete {
+  padding-right: 8px;
+  font-size: 15px;
+}
+
+.chip__edit:hover,
 .chip__delete:hover {
   opacity: 1;
 }
 
+.chip--active .chip__edit,
 .chip--active .chip__delete {
   color: #fff;
 }
@@ -759,20 +773,19 @@
   border-color: var(--accent);
 }
 
-.chip-save {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
+.chip--editing {
+  border-color: var(--accent);
 }
 
-.chip-save__input {
-  padding: 6px 10px;
+.chip__rename {
+  padding: 6px 12px;
   background: var(--bg-input);
-  border: 1px solid var(--accent);
+  border: none;
   border-radius: 999px;
   color: var(--text-primary);
   font-size: 13px;
-  width: 130px;
+  font-weight: 500;
+  width: 120px;
   outline: none;
 }
 

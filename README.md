@@ -6,12 +6,31 @@ A focused stock-screening dashboard built with **React 19** and **Express**. Tra
 
 ---
 
+## Screenshots
+
+### Dashboard
+The watchlist as a responsive card grid, with strategy presets, live scoring, and the searchable Criteria panel open on the right.
+
+![Dashboard](previews/dashboard_preview.png)
+
+### Settings
+Accent color, comfortable/compact density, score-badge toggle, and optional auto-refresh — all persisted locally.
+
+![Settings](previews/settings_preview.png)
+
+### Sign in
+Email/password auth backed by bcrypt and SQLite.
+
+![Sign in](previews/signup_preview.png)
+
+---
+
 ## What it does
 
 - **Watchlist as a card grid.** Add tickers and each becomes a "stock paper" in a CSS Grid. Cards are evenly spaced with consistent margins and reflow responsively to any viewport width.
 - **Cards grow with information.** The more criteria you choose to display, the wider the cards become — the minimum column width scales with the criteria count, so the grid stays balanced whether you show 3 metrics or 12.
 - **Pick what you see.** A searchable Criteria panel exposes ~38 metrics (valuation, margins, growth, technicals, ownership, analyst targets) grouped by category. Your selection is the single thing that drives both the card layout and the score.
-- **Strategy presets.** One click swaps in a curated set of criteria plus a default sort — Momentum, Value, Growth, Dividend, or Overview. Save your own current view as a custom preset.
+- **Strategy presets.** One click swaps in a curated set of criteria plus a default sort — Momentum, Value, Growth, Dividend, or Overview. Click the active preset again to deselect it and clear the view. Save your own current view as a custom preset and rename it inline.
 - **Transparent scoring.** Each scorable metric maps its raw value to points (good / neutral / bad). A card's score is simply the sum of points across the criteria *currently visible* — so the score always means "how well does this stock fit the view I'm looking at." Switch to the Value preset and the score expresses value quality; switch to Momentum and it expresses momentum.
 - **Sort & summarize.** Sort by score, ticker, price, % change, market cap, or recency. A toolbar shows at-a-glance counts of gainers/losers and the average score.
 - **Settings.** Accent color, comfortable/compact density, score-badge visibility, and optional auto-refresh (1/5/15 min) — all persisted locally.
@@ -73,10 +92,10 @@ npm run server
 
 1. **Sign in** (or register). With the dev seed configured you can log in with `SEED_EMAIL` / `SEED_PASSWORD`.
 2. **Add a ticker** in the header. The card appears immediately and fills in once the quote returns.
-3. **Choose a strategy** from the toolbar chips, or open **Criteria** to hand-pick exactly which metrics show on every card.
+3. **Choose a strategy** from the toolbar chips, or open **Criteria** to hand-pick exactly which metrics show on every card. Click the highlighted chip again to deselect it and clear the view.
 4. **Read the score.** The badge on each card sums the visible criteria; per-row coloring shows which metrics helped (green) or hurt (red).
 5. **Sort** with the toolbar's sort control; missing data always sinks to the bottom.
-6. **Save a view.** Tweak your criteria + sort, then "Save view" to store it as a custom preset.
+6. **Save a view.** Tweak your criteria + sort, then "Save view" to store it as a custom preset. It's created as "Untitled" and drops straight into an inline rename — type a name and press Enter. Rename (✎) or delete (×) it anytime.
 7. **Tune the experience** in Settings (gear icon): accent color, density, score badges, auto-refresh.
 
 ## Architecture

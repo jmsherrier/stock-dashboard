@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { SORT_OPTIONS } from '../data/sorting';
 
 // The strategy + sort + at-a-glance stats bar that sits under the header.
@@ -6,22 +6,60 @@ export default function Toolbar({
   presets,
   activePresetId,
   onSelectPreset,
+  onDeselectPreset,
   onDeletePreset,
+  onRenamePreset,
   sort,
   onSortChange,
   summary,
   onSavePreset,
 }) {
-  const [saving, setSaving] = useState(false);
-  const [name, setName] = useState('');
+  // The id of the custom preset currently being renamed inline (or null).
+  const [editingId, setEditingId] = useState(null);
+  const [draft, setDraft] = useState('');
+  const inputRef = useRef(null);
 
-  const submitSave = (e) => {
-    e.preventDefault();
-    const trimmed = name.trim();
-    if (!trimmed) return;
-    onSavePreset(trimmed);
-    setName('');
-    setSaving(false);
+  useEffect(() => {
+    if (editingId && inputRef.current) {
+      inputRef.current.focus();
+      inputRef.current.select();
+    }
+  }, [editingId]);
+
+  const beginEdit = (preset) => {
+    setEditingId(preset.id);
+    setDraft(preset.name);
+  };
+
+  const commitEdit = () => {
+    if (editingId) onRenamePreset(editingId, draft);
+    setEditingId(null);
+    setDraft('');
+  };
+
+  const cancelEdit = () => {
+    setEditingId(null);
+    setDraft('');
+  };
+
+  const handleEditKey = (e) => {
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      commitEdit();
+    } else if (e.key === 'Escape') {
+      e.preventDefault();
+      cancelEdit();
+    }
+  };
+
+  // Save the current view as a new "Untitled" preset, then drop straight into
+  // inline-rename mode on the freshly created chip.
+  const handleSave = () => {
+    const newId = onSavePreset();
+    if (newId) {
+      setEditingId(newId);
+      setDraft('Untitled');
+    }
   };
 
   const toggleDir = () =>
@@ -32,55 +70,64 @@ export default function Toolbar({
       <div className="toolbar__presets" role="tablist" aria-label="Strategy presets">
         {presets.map((p) => {
           const active = p.id === activePresetId;
+          if (p.custom && p.id === editingId) {
+            return (
+              <div key={p.id} className="chip chip--editing">
+                <input
+                  ref={inputRef}
+                  className="chip__rename"
+                  value={draft}
+                  onChange={(e) => setDraft(e.target.value)}
+                  onKeyDown={handleEditKey}
+                  onBlur={commitEdit}
+                  maxLength={24}
+                  aria-label="Preset name"
+                />
+              </div>
+            );
+          }
           return (
             <div key={p.id} className={`chip ${active ? 'chip--active' : ''}`}>
               <button
                 className="chip__main"
-                onClick={() => onSelectPreset(p)}
-                title={p.description || p.name}
+                onClick={() => (active ? onDeselectPreset() : onSelectPreset(p))}
+                title={active ? 'Deselect — clears all criteria' : p.description || p.name}
                 role="tab"
                 aria-selected={active}
               >
                 {p.name}
               </button>
               {p.custom && (
-                <button
-                  className="chip__delete"
-                  onClick={() => onDeletePreset(p.id)}
-                  title="Delete preset"
-                  aria-label={`Delete ${p.name} preset`}
-                >
-                  ×
-                </button>
+                <>
+                  <button
+                    className="chip__edit"
+                    onClick={() => beginEdit(p)}
+                    title="Rename preset"
+                    aria-label={`Rename ${p.name} preset`}
+                  >
+                    ✎
+                  </button>
+                  <button
+                    className="chip__delete"
+                    onClick={() => onDeletePreset(p.id)}
+                    title="Delete preset"
+                    aria-label={`Delete ${p.name} preset`}
+                  >
+                    ×
+                  </button>
+                </>
               )}
             </div>
           );
         })}
 
-        {saving ? (
-          <form className="chip-save" onSubmit={submitSave}>
-            <input
-              autoFocus
-              className="chip-save__input"
-              placeholder="Preset name…"
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-              onBlur={() => !name.trim() && setSaving(false)}
-              maxLength={24}
-            />
-            <button type="submit" className="btn btn--primary btn--small" disabled={!name.trim()}>
-              Save
-            </button>
-          </form>
-        ) : (
-          <button
-            className="chip chip--add"
-            onClick={() => setSaving(true)}
-            title="Save current criteria + sort as a preset"
-          >
-            + Save view
-          </button>
-        )}
+        <button
+          className="chip chip--add"
+          onClick={handleSave}
+          title="Save current criteria + sort as a preset"
+        >
+          + Save view
+        </button>
       </div>
 
       <div className="toolbar__spacer" />

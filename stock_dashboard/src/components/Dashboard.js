@@ -9,7 +9,8 @@ import { sortStocks } from '../data/sorting';
 import {
   BUILTIN_PRESETS,
   loadCustomPresets,
-  upsertCustomPreset,
+  addCustomPreset,
+  renameCustomPreset,
   deleteCustomPreset,
 } from '../data/presets';
 import Header from './Header';
@@ -147,14 +148,24 @@ export default function Dashboard() {
     if (preset.sort) setSort(preset.sort);
   }, []);
 
-  const handleSavePreset = useCallback(
-    (name) => {
-      upsertCustomPreset({ name, criteria: visibleCriteria, sort });
-      setCustomPresets(loadCustomPresets());
-      toast.success(`Saved "${name}" preset`);
-    },
-    [visibleCriteria, sort, toast]
-  );
+  // Deselecting the active preset clears the view entirely.
+  const deselectPreset = useCallback(() => {
+    setVisibleCriteria([]);
+  }, []);
+
+  // Save the current view as a new "Untitled" custom preset. Returns the new
+  // id so the toolbar can drop straight into inline-rename mode.
+  const handleSavePreset = useCallback(() => {
+    const preset = addCustomPreset({ criteria: visibleCriteria, sort });
+    setCustomPresets(loadCustomPresets());
+    toast.success('View saved — rename it anytime');
+    return preset.id;
+  }, [visibleCriteria, sort, toast]);
+
+  const handleRenamePreset = useCallback((id, name) => {
+    renameCustomPreset(id, name);
+    setCustomPresets(loadCustomPresets());
+  }, []);
 
   const handleDeletePreset = useCallback(
     (id) => {
@@ -209,7 +220,9 @@ export default function Dashboard() {
         presets={presets}
         activePresetId={activePresetId}
         onSelectPreset={selectPreset}
+        onDeselectPreset={deselectPreset}
         onDeletePreset={handleDeletePreset}
+        onRenamePreset={handleRenamePreset}
         sort={sort}
         onSortChange={setSort}
         summary={summary}
